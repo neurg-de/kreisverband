@@ -1,4 +1,4 @@
-.PHONY: up down restart logs shell db-shell wp-install wp-activate seed setup zip clean css css-watch test phpcs
+.PHONY: up down restart logs shell db-shell wp-install wp-activate seed setup zip release clean css css-watch test phpcs
 
 # ── Development Environment ──────────────────────────────────────────────────
 
@@ -88,6 +88,10 @@ VERSION := $(shell grep 'Version:' theme/style.css | head -1 | sed 's/.*Version:
 
 zip:
 	@bin/build-zip.sh
+
+release:
+	@test -n "$(V)" || (echo "Usage: make release V=patch  (or minor, major, 1.2.3)" && exit 1)
+	@bin/release.sh $(V)
 
 # ── Cleanup ──────────────────────────────────────────────────────────────────
 

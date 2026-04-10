@@ -19,6 +19,26 @@ jobs:
         with:
           node-version: 20
 
+      - name: Validate tag matches theme version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          STYLE_VERSION=$(sed -n 's/^Version: *//p' theme/style.css | tr -d '[:space:]')
+          FUNC_VERSION=$(sed -n "s/.*GK_VERSION', *'\([^']*\)'.*/\1/p" theme/functions.php)
+          PKG_VERSION=$(grep '"version"' package.json | sed 's/.*": *"//;s/".*//')
+          echo "Tag: $TAG_VERSION | style.css: $STYLE_VERSION | functions.php: $FUNC_VERSION | package.json: $PKG_VERSION"
+          if [[ "$TAG_VERSION" != "$STYLE_VERSION" ]]; then
+            echo "::error::Tag $TAG_VERSION does not match style.css version $STYLE_VERSION. Use bin/release.sh to create releases."
+            exit 1
+          fi
+          if [[ "$TAG_VERSION" != "$FUNC_VERSION" ]]; then
+            echo "::error::Tag $TAG_VERSION does not match functions.php version $FUNC_VERSION. Use bin/release.sh to create releases."
+            exit 1
+          fi
+          if [[ "$TAG_VERSION" != "$PKG_VERSION" ]]; then
+            echo "::error::Tag $TAG_VERSION does not match package.json version $PKG_VERSION. Use bin/release.sh to create releases."
+            exit 1
+          fi
+
       - name: Install dependencies
         run: npm install
 
