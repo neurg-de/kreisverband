@@ -5,44 +5,57 @@
 // Mark-highlight custom properties (yellow skewed background on hover)
 :root {
     --mark-color:   var(--sonne-600);
-    --mark-height:  0.8em;
+    --mark-height:  0.35em;
     --mark-skew:    calc(var(--mark-height) / 100 * 22.6);
-    --mark-overlap: 0.3em;
 }
 
+// ---------------------------------------------------------------------------
+// Mark-highlight mixin
+//
+// Three-part skewed gradient at 0 height, grows on hover.
+// Applied only to content-area links — not globally.
+// ---------------------------------------------------------------------------
+@mixin mark-highlight {
+    background-color: transparent;
+    background-image:
+        linear-gradient(to bottom right, transparent 0 50%, var(--mark-color) 50% 100%),
+        linear-gradient(var(--mark-color), var(--mark-color)),
+        linear-gradient(to top left, transparent 50%, var(--mark-color) 50%);
+    background-size:
+        var(--mark-skew) 0,
+        calc(100% - var(--mark-skew) * 2 + 0.5px) 0,
+        var(--mark-skew) 0;
+    background-position: 0 100%, center bottom, 100% 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.2s ease-out;
+
+    &:hover,
+    &:active {
+        color: var(--color-text);
+        text-decoration-line: none;
+        background-size:
+            var(--mark-skew) var(--mark-height),
+            calc(100% - var(--mark-skew) * 2 + 0.5px) var(--mark-height),
+            var(--mark-skew) var(--mark-height);
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 1. Global link base — minimal, no mark-highlight
+// ---------------------------------------------------------------------------
 a {
     color: var(--color-link);
     text-decoration-line: underline;
     text-decoration-style: solid;
     text-underline-offset: 4px;
     font-weight: 500;
-    transition: all 0.15s ease-in-out;
 
     &:visited {
         color: var(--color-link);
         text-decoration-line: underline;
         text-underline-offset: 4px;
-    }
-
-    &:hover:not([class*="gk-btn"]):not(.morebutton):not(.more-link):not(.wp-block-button__link),
-    &:active:not([class*="gk-btn"]):not(.morebutton):not(.more-link):not(.wp-block-button__link) {
-        color: var(--color-text);
-        text-decoration-line: none;
-        margin-inline: calc(var(--mark-overlap) * -1);
-        padding-inline: var(--mark-overlap);
-        background-color: transparent;
-        background-image:
-            linear-gradient(to bottom right, transparent 0 50%, var(--mark-color) 50% 100%),
-            linear-gradient(var(--mark-color), var(--mark-color)),
-            linear-gradient(to top left, transparent 50%, var(--mark-color) 50%);
-        background-size:
-            var(--mark-skew) var(--mark-height),
-            calc(100% - var(--mark-skew) * 2 + 0.5px) var(--mark-height),
-            var(--mark-skew) var(--mark-height);
-        background-position: 0 100%, center bottom, 100% 100%;
-        background-repeat: no-repeat;
-        box-decoration-break: clone;
-        -webkit-box-decoration-break: clone;
     }
 
     &:focus-visible {
@@ -52,43 +65,19 @@ a {
     }
 }
 
-// Navigation & UI links: no underline / highlight by default
-nav a,
-.nav a,
-.wp-block-navigation a {
-    text-decoration: none;
-    font-weight: 700;
-    background-image: none;
-    margin-inline: 0;
-    padding-inline: 0;
-
-    &:visited {
-        color: inherit;
-    }
-
-    &:hover {
-        background-image: none;
-    }
+// ---------------------------------------------------------------------------
+// 2. Content links — mark-highlight on hover
+//
+// Scoped to .entry-content (post/page body).
+// Only WordPress block-editor buttons need exclusion (stable core classes).
+// ---------------------------------------------------------------------------
+.entry-content a:not(.wp-block-button__link):not(.wp-block-file__button):not([class*="gk-btn"]) {
+    @include mark-highlight;
 }
 
-.gk-btn,
-.gk-btn--primary,
-.gk-btn--filter,
-.morebutton,
-.more-link {
-    text-decoration: none;
-    background-image: none;
-    margin-inline: 0;
-}
-
-nav a:hover,
-.nav a:hover,
-.wp-block-navigation a:hover {
-    color: var(--color-link-hover);
-    background-image: none;
-}
-
-// Dark-mode link adjustments
+// ---------------------------------------------------------------------------
+// 3. Dark-mode mark color
+// ---------------------------------------------------------------------------
 @media (prefers-color-scheme: dark) {
     :root {
         --mark-color: var(--klee-600);

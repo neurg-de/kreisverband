@@ -31,14 +31,12 @@
         color: var(--social-bar-link-color, var(--sand-200));
         font-size: 0.85rem;
         text-decoration: none;
-        background-image: none;
         transition: background-color 0.2s, color 0.2s, transform 0.2s;
 
         &:hover {
             background: var(--color-cta);
             color: var(--color-text);
             transform: scale(1.1);
-            background-image: none;
         }
     }
 }
@@ -91,7 +89,6 @@
     color: var(--color-text-inverse);
     font-size: 1.125rem;
     text-decoration: none;
-    background-image: none;
     box-shadow: var(--shadow-md);
     transition: background-color 0.2s, transform 0.2s;
     z-index: 90;
@@ -100,7 +97,6 @@
         background-color: var(--color-cta);
         color: var(--color-text);
         transform: translateY(-3px);
-        background-image: none;
     }
 
     &.visible { display: flex; }

@@ -280,7 +280,8 @@ body:has(.gk-hero:not(.gk-hero--minimal)) {
                 }
             }
 
-            nav.nav-main > ul > li > a {
+            nav.nav-main > ul > li > a,
+            nav.nav-main > .nav-fallback > ul > li > a {
                 color: #fff;
 
                 &:hover {
@@ -290,15 +291,22 @@ body:has(.gk-hero:not(.gk-hero--minimal)) {
             }
 
             nav.nav-main > ul > li.current-menu-item > a,
-            nav.nav-main > ul > li.current-menu-ancestor > a {
+            nav.nav-main > ul > li.current-menu-ancestor > a,
+            nav.nav-main > .nav-fallback > ul > li.current-menu-item > a,
+            nav.nav-main > .nav-fallback > ul > li.current-menu-ancestor > a {
                 color: var(--color-cta);
                 border-bottom-color: var(--color-cta);
             }
 
-            nav.nav-main > ul > li.suche > a {
+            nav.nav-main > ul > li.suche > a,
+            nav.nav-main > .nav-fallback > ul > li.suche > a {
                 color: rgba(255, 255, 255, 0.8);
 
                 &:hover { color: #fff; }
+            }
+
+            .gk-nav-more button {
+                color: #fff;
             }
         }
     }

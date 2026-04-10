@@ -30,7 +30,7 @@ $donate_url     = gk_get_donate_page_url( $donation );
 $donate_cta     = $donation['cta_text'] ?? 'Jetzt spenden';
 
 $kv_info = get_option( 'gk_kv_info', array() );
-$kv_name = $kv_info['full_name'] ?? 'Kreisverband';
+$kv_name = $kv_info['name'] ?? 'Kreisverband';
 
 while ( have_posts() ) : the_post();
     if ( ! $hero_title )    $hero_title    = get_the_title();
@@ -203,10 +203,11 @@ case 'fundraising':
 
 // ── MINIMAL ─────────────────────────────────────────────────────────────────
 case 'minimal':
+    $minimal_title = gk_homepage_option( 'minimal_title', '' );
 ?>
 <section class="gk-hero gk-hero--minimal">
     <div class="gk-hero__content inner">
-        <h1 class="gk-hero__title"><?php echo esc_html( $kv_name ); ?></h1>
+        <h1 class="gk-hero__title"><?php echo esc_html( $minimal_title ?: $kv_name ); ?></h1>
         <div class="gk-hero__actions">
             <a href="#ovs" class="gk-btn gk-btn--primary">Ortsverband finden &darr;</a>
         </div>

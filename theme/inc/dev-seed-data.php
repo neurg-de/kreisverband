@@ -37,6 +37,7 @@ function gk_seed_all() {
     $result['menus']      = gk_seed_menus();
     $result['social']     = gk_seed_social_data();
     $result['options']    = gk_seed_options();
+    $result['ov_pages']   = gk_seed_ov_pages();
 
     flush_rewrite_rules();
 
@@ -67,10 +68,50 @@ function gk_seed_taxonomies() {
     }
 
     // Zuordnungen (KV is created automatically, add OVs)
+    // One OV per landing mode so each variant can be previewed.
     $ovs = array(
-        'ov-musterstadt'  => array( 'name' => 'OV Musterstadt',  'header' => 'Musterstadt' ),
-        'ov-neuburg'      => array( 'name' => 'OV Neuburg',      'header' => 'Neuburg' ),
-        'ov-schrobenhausen' => array( 'name' => 'OV Schrobenhausen', 'header' => 'Schrobenhausen' ),
+        'ov-musterstadt' => array(
+            'name'   => 'OV Musterstadt',
+            'header' => 'Musterstadt',
+            'type'   => 'ov',
+            'landing_mode' => 'standard',
+        ),
+        'ov-neuburg' => array(
+            'name'   => 'OV Neuburg',
+            'header' => 'Neuburg',
+            'type'   => 'ov',
+            'landing_mode' => 'election',
+        ),
+        'ov-schrobenhausen' => array(
+            'name'   => 'OV Schrobenhausen',
+            'header' => 'Schrobenhausen',
+            'type'   => 'ov',
+            'landing_mode' => 'candidate',
+        ),
+        'ov-weilheim' => array(
+            'name'   => 'OV Weilheim',
+            'header' => 'Weilheim',
+            'type'   => 'ov',
+            'landing_mode' => 'news',
+        ),
+        'ov-landsberg' => array(
+            'name'   => 'OV Landsberg',
+            'header' => 'Landsberg',
+            'type'   => 'ov',
+            'landing_mode' => 'fundraising',
+        ),
+        'ov-pfaffenhofen' => array(
+            'name'   => 'OV Pfaffenhofen',
+            'header' => 'Pfaffenhofen',
+            'type'   => 'ov',
+            'landing_mode' => 'minimal',
+        ),
+        'gruene-in-dachau' => array(
+            'name'   => 'Grüne in Dachau',
+            'header' => 'Dachau',
+            'type'   => 'werbung',
+            'landing_mode' => 'standard',
+        ),
     );
 
     foreach ( $ovs as $slug => $data ) {
@@ -80,7 +121,7 @@ function gk_seed_taxonomies() {
                 'description' => 'Ortsverband ' . $data['header'],
             ) );
             if ( ! is_wp_error( $result ) ) {
-                update_term_meta( $result['term_id'], '_gk_ov_type', 'ov' );
+                update_term_meta( $result['term_id'], '_gk_ov_type', $data['type'] );
                 update_term_meta( $result['term_id'], '_gk_ov_header', $data['header'] );
                 $seeded[] = 'Zuordnung: ' . $data['name'];
             }
@@ -765,18 +806,46 @@ function gk_seed_social_data() {
     }
 
     // ── OV social data ──────────────────────────────────────────────────────
-    $ov_term = get_term_by( 'slug', 'ov-musterstadt', 'gk_zuordnung' );
-    if ( $ov_term ) {
-        $ov_social = array(
+    $ov_contacts = array(
+        'ov-musterstadt' => array(
             '_gk_contact_facebook' => 'GrueneMusterstadt',
             '_gk_contact_insta'    => 'gruene.musterstadt',
             '_gk_contact_www'      => 'https://gruene-musterstadt.de',
             '_gk_contact_email'    => 'info@gruene-musterstadt.de',
-        );
-        foreach ( $ov_social as $key => $value ) {
-            update_term_meta( $ov_term->term_id, $key, $value );
+        ),
+        'ov-neuburg' => array(
+            '_gk_contact_insta'  => 'gruene.neuburg',
+            '_gk_contact_email'  => 'info@gruene-neuburg.de',
+        ),
+        'ov-schrobenhausen' => array(
+            '_gk_contact_email'  => 'info@gruene-schrobenhausen.de',
+            '_gk_contact_www'    => 'https://gruene-schrobenhausen.de',
+        ),
+        'ov-weilheim' => array(
+            '_gk_contact_email'    => 'info@gruene-weilheim.de',
+            '_gk_contact_facebook' => 'GrueneWeilheim',
+            '_gk_contact_insta'    => 'gruene.weilheim',
+        ),
+        'ov-landsberg' => array(
+            '_gk_contact_email' => 'info@gruene-landsberg.de',
+            '_gk_contact_insta' => 'gruene.landsberg',
+        ),
+        'ov-pfaffenhofen' => array(
+            '_gk_contact_email' => 'info@gruene-pfaffenhofen.de',
+        ),
+        'gruene-in-dachau' => array(
+            '_gk_contact_email' => 'mitmachen@gruene-dachau.de',
+        ),
+    );
+
+    foreach ( $ov_contacts as $slug => $meta ) {
+        $ov_term = get_term_by( 'slug', $slug, 'gk_zuordnung' );
+        if ( $ov_term ) {
+            foreach ( $meta as $key => $value ) {
+                update_term_meta( $ov_term->term_id, $key, $value );
+            }
+            $seeded[] = $ov_term->name;
         }
-        $seeded[] = 'OV Musterstadt';
     }
 
     return array( 'seeded' => $seeded );
@@ -800,6 +869,199 @@ function gk_seed_options() {
     // Permalink structure
     update_option( 'permalink_structure', '/%postname%/' );
     $seeded[] = 'Site options';
+
+    return $seeded;
+}
+
+
+// ── OV Pages & Landing Modes ──────────────────────────────────────────────
+
+/**
+ * Import an SVG from the theme's seed images into the media library.
+ *
+ * @param string $filename File name inside lib/images/seed/.
+ * @param string $title    Attachment title.
+ * @return int Attachment ID, or 0 on failure.
+ */
+function gk_seed_import_image( $filename, $title ) {
+    // Check if already imported.
+    $existing = get_posts( array(
+        'post_type'  => 'attachment',
+        'title'      => $title,
+        'numberposts' => 1,
+        'fields'     => 'ids',
+    ) );
+    if ( ! empty( $existing ) ) {
+        return $existing[0];
+    }
+
+    $source = get_template_directory() . '/lib/images/seed/' . $filename;
+    if ( ! file_exists( $source ) ) {
+        return 0;
+    }
+
+    $upload_dir = wp_upload_dir();
+    $dest       = $upload_dir['path'] . '/' . $filename;
+
+    if ( ! file_exists( $dest ) ) {
+        copy( $source, $dest );
+    }
+
+    $mime = 'image/svg+xml';
+    $attachment_id = wp_insert_attachment( array(
+        'post_title'     => $title,
+        'post_mime_type' => $mime,
+        'post_status'    => 'inherit',
+    ), $dest );
+
+    if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+        $meta = wp_generate_attachment_metadata( $attachment_id, $dest );
+        wp_update_attachment_metadata( $attachment_id, $meta );
+    }
+
+    return $attachment_id ?: 0;
+}
+
+/**
+ * Seed OV homepage pages with landing mode settings and hero images.
+ *
+ * Creates one page per OV (template: page-OV.php), assigns it to
+ * the OV taxonomy term, and configures the landing mode with
+ * appropriate placeholder content.
+ */
+function gk_seed_ov_pages() {
+    $seeded = array();
+
+    // Import seed images.
+    $img_bright    = gk_seed_import_image( 'hero-bright.svg', 'Seed: Hero Bright' );
+    $img_dark      = gk_seed_import_image( 'hero-dark.svg', 'Seed: Hero Dark' );
+    $img_candidate = gk_seed_import_image( 'candidate.svg', 'Seed: Kandidat:in' );
+
+    // OV landing configurations.
+    $ov_configs = array(
+        'ov-musterstadt' => array(
+            'page_title' => 'OV Musterstadt',
+            'page_slug'  => 'ov-musterstadt',
+            'settings'   => array(
+                'landing_mode'  => 'standard',
+                'hero_title'    => 'Willkommen in Musterstadt',
+                'hero_subtitle' => 'Gemeinsam für ein lebenswertes Musterstadt — ökologisch, sozial, demokratisch.',
+                'hero_image'    => $img_bright,
+                'cta_label'     => 'Mitmachen',
+                'cta_url'       => '/kontakt/',
+            ),
+        ),
+        'ov-neuburg' => array(
+            'page_title' => 'OV Neuburg',
+            'page_slug'  => 'ov-neuburg',
+            'settings'   => array(
+                'landing_mode'    => 'election',
+                'hero_title'      => 'Grüne Zukunft für Neuburg',
+                'hero_image'      => $img_dark,
+                'election_name'   => 'Kommunalwahl 2026',
+                'election_date'   => gmdate( 'Y-m-d', strtotime( '+60 days' ) ),
+                'election_slogan' => 'Neuburg braucht frischen Wind',
+                'cta_label'       => 'Wahlprogramm lesen',
+                'cta_url'         => '/ueber-uns/',
+            ),
+        ),
+        'ov-schrobenhausen' => array(
+            'page_title' => 'OV Schrobenhausen',
+            'page_slug'  => 'ov-schrobenhausen',
+            'settings'   => array(
+                'landing_mode'       => 'candidate',
+                'hero_title'         => 'Schrobenhausen',
+                'hero_image'         => $img_bright,
+                'candidate_name'     => 'Claudia Sonnenschein',
+                'candidate_role'     => 'Unsere Bürgermeisterkandidatin',
+                'candidate_image'    => $img_candidate,
+                'candidate_quote'    => 'Klimaschutz beginnt vor unserer Haustür — in Schrobenhausen.',
+                'candidate_cta_label' => 'Mehr erfahren',
+                'candidate_cta_url'  => '/ueber-uns/',
+            ),
+        ),
+        'ov-weilheim' => array(
+            'page_title' => 'OV Weilheim',
+            'page_slug'  => 'ov-weilheim',
+            'settings'   => array(
+                'landing_mode'  => 'news',
+                'hero_title'    => 'Weilheim aktuell',
+                'hero_image'    => $img_dark,
+            ),
+        ),
+        'ov-landsberg' => array(
+            'page_title' => 'OV Landsberg',
+            'page_slug'  => 'ov-landsberg',
+            'settings'   => array(
+                'landing_mode'       => 'fundraising',
+                'hero_title'         => 'Unterstütze grüne Politik in Landsberg',
+                'hero_subtitle'      => 'Mit deiner Spende machen wir Landsberg klimafit.',
+                'hero_image'         => $img_bright,
+                'fundraising_goal'   => '5000',
+                'fundraising_current' => '2350',
+            ),
+        ),
+        'ov-pfaffenhofen' => array(
+            'page_title' => 'OV Pfaffenhofen',
+            'page_slug'  => 'ov-pfaffenhofen',
+            'settings'   => array(
+                'landing_mode' => 'minimal',
+                'cta_label'    => 'Kontakt aufnehmen',
+                'cta_url'      => '/kontakt/',
+            ),
+        ),
+        'gruene-in-dachau' => array(
+            'page_title' => 'Grüne in Dachau',
+            'page_slug'  => 'gruene-in-dachau',
+            'settings'   => array(
+                'landing_mode'  => 'standard',
+                'hero_title'    => 'Grüne in Dachau',
+                'hero_subtitle' => 'Du willst dich engagieren? Wir freuen uns auf dich!',
+                'hero_image'    => $img_dark,
+            ),
+        ),
+    );
+
+    foreach ( $ov_configs as $ov_slug => $config ) {
+        $ov_term = get_term_by( 'slug', $ov_slug, 'gk_zuordnung' );
+        if ( ! $ov_term ) {
+            continue;
+        }
+
+        // Create OV homepage if it doesn't exist.
+        $page = get_page_by_path( $config['page_slug'] );
+        if ( ! $page ) {
+            $page_id = wp_insert_post( array(
+                'post_type'    => 'page',
+                'post_title'   => $config['page_title'],
+                'post_name'    => $config['page_slug'],
+                'post_content' => '',
+                'post_status'  => 'publish',
+            ) );
+
+            if ( $page_id && ! is_wp_error( $page_id ) ) {
+                // Use werbung template for werbung type, else OV template.
+                $template = ( get_term_meta( $ov_term->term_id, '_gk_ov_type', true ) === 'werbung' )
+                    ? 'page-OV.php'
+                    : 'page-OV.php';
+                update_post_meta( $page_id, '_wp_page_template', $template );
+                wp_set_object_terms( $page_id, $ov_term->term_id, 'gk_zuordnung' );
+                $seeded[] = $config['page_title'];
+            }
+        } else {
+            $page_id = $page->ID;
+        }
+
+        // Save homepage settings on the OV term.
+        $existing = get_term_meta( $ov_term->term_id, '_gk_ov_homepage', true );
+        if ( empty( $existing ) || ! is_array( $existing ) ) {
+            update_term_meta( $ov_term->term_id, '_gk_ov_homepage', $config['settings'] );
+        }
+
+        // Link the page to the OV term.
+        update_term_meta( $ov_term->term_id, '_gk_homepage_id', $page_id );
+    }
 
     return $seeded;
 }

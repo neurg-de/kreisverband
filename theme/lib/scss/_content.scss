@@ -40,6 +40,59 @@ article ol {
 
 // .nav-sozial styles are in _social-bar.scss
 
+// Fullpage template (page-fullpage.php)
+.content-area.fullpage {
+    background: var(--color-surface);
+    padding-bottom: var(--space-12);
+
+    .titelbild {
+        width: 100%;
+        max-height: 400px;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+    }
+
+    .entry-header {
+        background: var(--color-primary);
+        color: var(--color-text-inverse);
+        padding: var(--space-16) var(--space-4);
+        text-align: center;
+    }
+
+    .entry-title {
+        font-family: var(--font-heading);
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 700;
+        color: var(--color-text-inverse);
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .entry-content {
+        padding-top: var(--space-8);
+        padding-bottom: var(--space-8);
+        font-size: 1.1rem;
+        line-height: 1.7;
+    }
+}
+
+@media (min-width: 768px) {
+    .content-area.fullpage .entry-header {
+        padding: var(--space-20) var(--space-8);
+    }
+
+    .content-area.fullpage .titelbild {
+        max-height: 500px;
+    }
+}
+
 .sidebar a,
 .sidebar a:visited {
     color: var(--color-link);

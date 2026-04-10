@@ -42,12 +42,10 @@
         color: var(--cookie-text-bright, var(--sand-100));
         text-decoration: underline;
         text-underline-offset: 3px;
-        background-image: none;
         font-weight: 600;
 
         &:hover {
             color: var(--color-cta);
-            background-image: none;
         }
     }
 }

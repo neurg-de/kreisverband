@@ -400,3 +400,43 @@ body.design-grundlagen2024.dark-mode {
     .gk-social-bar ul { background: var(--tanne-900); }
     .gk-social-bar a { background: var(--tanne-600); color: var(--sand-100); }
 }
+
+// ----------------------------------------------------------------
+// Light-mode class overrides — reset nav when toggling to light
+// on an OS-level dark-mode system
+// ----------------------------------------------------------------
+
+body.design-grundlagen2024.light-mode {
+    .logolink h2,
+    .logo-desktop h2 {
+        color: var(--color-text) !important;
+    }
+
+    #nav-desktop {
+        background: var(--color-surface);
+        border-bottom-color: var(--color-primary);
+    }
+
+    #nav-desktop .nav-main a {
+        color: var(--color-text);
+    }
+
+    #nav-flyin {
+        background: var(--color-surface);
+        border-bottom-color: var(--color-primary);
+    }
+
+    .header-mobile {
+        background: var(--color-surface);
+    }
+
+    nav.nav-main > ul > li > ul {
+        background: var(--color-surface);
+        border-top-color: var(--color-primary);
+    }
+
+    nav.nav-main li ul li a {
+        color: var(--color-text);
+        border-bottom-color: var(--color-border);
+    }
+}

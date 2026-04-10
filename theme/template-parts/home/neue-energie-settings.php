@@ -350,9 +350,21 @@ function gk_home_neue_energie_render( $s ) {
         </table>
     </div>
 
-    <!-- ── Minimal mode: no extra settings ────────────────────────── -->
+    <!-- ── Minimal mode settings ─────────────────────────────────── -->
     <div class="gk-mode-settings" data-mode="minimal" <?php if ( $active !== 'minimal' ) echo 'style="display:none"'; ?>>
-        <p class="description" style="padding:1rem 0;">Minimaler Modus: Zeigt nur den Namen des Kreisverbands und einen Pfeil zur Kreiskarte. Keine weiteren Einstellungen nötig.</p>
+        <p class="description" style="padding:1rem 0;">Minimaler Modus: Zeigt einen Titel und einen Pfeil zur Kreiskarte.</p>
+        <table class="form-table">
+            <tr>
+                <th><label>Titel</label></th>
+                <td>
+                    <input type="text" name="<?php echo $prefix; ?>[minimal_title]"
+                           value="<?php echo esc_attr( $s['minimal_title'] ?? '' ); ?>"
+                           class="regular-text"
+                           placeholder="<?php echo esc_attr( gk_get_kv_info( 'name' ) ?: 'Kreisverband' ); ?>" />
+                    <p class="description">Leer lassen, um den Namen aus der Ersteinrichtung zu verwenden.</p>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <h3>Sektionen</h3>

@@ -101,13 +101,19 @@
 
                 // Measure available width
                 var navWidth = nav.getBoundingClientRect().width;
-                // Account for logo or other non-ul siblings
-                var logo = nav.querySelector(':scope > .logolink, :scope > .kv-back');
+                // Sum widths of all sibling elements (logo, kv-back, OV nav, etc.)
+                // that are NOT the main menu <ul> / .nav-fallback
                 var usedByOthers = 0;
-                if (logo) usedByOthers += logo.getBoundingClientRect().width;
-                // Account for OV nav if present
-                var ovNav = nav.querySelector(':scope > ul.nav-ov');
-                if (ovNav) usedByOthers += ovNav.getBoundingClientRect().width;
+                var ulContainer = ul.parentElement.classList.contains('nav-fallback') ? ul.parentElement : ul;
+                var siblings = nav.children;
+                for (var j = 0; j < siblings.length; j++) {
+                    var sib = siblings[j];
+                    if (sib === ulContainer) continue; // skip the main menu list
+                    if (sib.offsetWidth === 0) continue; // skip hidden elements (e.g. screen-reader headings)
+                    var style = window.getComputedStyle(sib);
+                    usedByOthers += sib.getBoundingClientRect().width
+                        + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+                }
 
                 var available = navWidth - usedByOthers;
                 var moreWidth = 90; // reserve space for "Mehr" button

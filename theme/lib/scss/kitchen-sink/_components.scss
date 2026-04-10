@@ -30,8 +30,6 @@
     &--active a {
         color: var(--color-text);
         text-decoration-line: none;
-        margin-inline: calc(var(--mark-overlap) * -1);
-        padding-inline: var(--mark-overlap);
         background-color: transparent;
         background-image:
             linear-gradient(to bottom right, transparent 0 50%, var(--mark-color) 50% 100%),
