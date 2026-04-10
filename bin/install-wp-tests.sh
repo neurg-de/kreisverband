@@ -71,12 +71,22 @@ install_test_suite() {
 
     if [ ! -d "$WP_TESTS_DIR" ]; then
         mkdir -p "$WP_TESTS_DIR"
-        svn co --quiet "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/" "$WP_TESTS_DIR/includes"
-        svn co --quiet "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/" "$WP_TESTS_DIR/data"
+        if [ "$(which svn)" ]; then
+            svn co --quiet "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/" "$WP_TESTS_DIR/includes"
+            svn co --quiet "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/" "$WP_TESTS_DIR/data"
+        else
+            # Fallback: download via GitHub mirror when svn is not available
+            local GH_TAG="$WP_VERSION"
+            download "https://github.com/WordPress/wordpress-develop/archive/refs/tags/${GH_TAG}.zip" /tmp/wp-develop.zip
+            unzip -q /tmp/wp-develop.zip -d /tmp/wp-develop-extract
+            mv "/tmp/wp-develop-extract/wordpress-develop-${GH_TAG}/tests/phpunit/includes" "$WP_TESTS_DIR/includes"
+            mv "/tmp/wp-develop-extract/wordpress-develop-${GH_TAG}/tests/phpunit/data" "$WP_TESTS_DIR/data"
+            rm -rf /tmp/wp-develop.zip /tmp/wp-develop-extract
+        fi
     fi
 
     if [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
-        download "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/wp-tests-config-sample.php" "$WP_TESTS_DIR/wp-tests-config.php"
+        download "https://raw.githubusercontent.com/WordPress/wordpress-develop/${WP_VERSION}/wp-tests-config-sample.php" "$WP_TESTS_DIR/wp-tests-config.php"
         sed $ioption "s:dirname( __FILE__ ) . '/src/':'$WP_CORE_DIR/':" "$WP_TESTS_DIR/wp-tests-config.php"
         sed $ioption "s/youremptytestdbnamehere/$DB_NAME/" "$WP_TESTS_DIR/wp-tests-config.php"
         sed $ioption "s/yourusernamehere/$DB_USER/" "$WP_TESTS_DIR/wp-tests-config.php"
