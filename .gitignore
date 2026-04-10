@@ -35,3 +35,6 @@ wp-cli.phar
 
 # Build artifacts
 neurg-kreisverband-*.zip
+
+# Screenshots (root only, not theme/)
+/*.png
