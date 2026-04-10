@@ -1,0 +1,58 @@
+// ==========================================================================
+// Search Desktop
+// ==========================================================================
+
+.search-desktop {
+    display: none;
+    background: var(--color-bg-light);
+    padding: var(--space-4) 0;
+    position: relative;
+    z-index: 199;
+
+    .searchform {
+        display: flex;
+        gap: var(--space-2);
+        max-width: 500px;
+    }
+
+    .seachphrase {
+        flex: 1;
+        padding: var(--space-2) var(--space-3);
+        border: 2px solid var(--color-primary);
+        border-radius: var(--radius-sm);
+        font-size: 1rem;
+    }
+
+    .button-submit {
+        background: var(--color-primary);
+        color: var(--color-text-inverse);
+        border: none;
+        padding: var(--space-2) var(--space-4);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: background 0.2s;
+
+        &:hover {
+            background: var(--color-primary-hover);
+        }
+    }
+}
+
+// On homepage the nav is absolute
+.home .search-desktop {
+    position: absolute;
+    top: 75px;
+    left: 0;
+    right: 0;
+    z-index: 199;
+}
+
+.admin-bar.home .search-desktop {
+    top: calc(75px + 46px);
+}
+
+@media (min-width: 783px) {
+    .admin-bar.home .search-desktop {
+        top: calc(75px + 32px);
+    }
+}

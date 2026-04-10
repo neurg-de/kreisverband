@@ -1,0 +1,39 @@
+// ==========================================================================
+// Utility Classes
+// ==========================================================================
+
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.unsichtbar {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.hidden,
+.screen-reader-text {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+}
+
+.whitetext {
+    color: var(--color-text-inverse);
+}
+
+// Design system utility override for .inner
+.inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+}

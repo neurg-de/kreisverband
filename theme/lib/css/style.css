@@ -1,0 +1,260 @@
+/* ==========================================================================
+   Neurg Kreisverband – Base Layout
+   ========================================================================== */
+
+/* ── Reset & Box Model ─────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+}
+
+body {
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+a {
+    text-decoration: none;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.25;
+    font-weight: 400;
+}
+
+
+/* ── Utility Classes ───────────────────────────────────────────────────────── */
+
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.unsichtbar {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.hidden,
+.screen-reader-text {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+}
+
+.whitetext {
+    color: #fff;
+}
+
+
+/* ── Container & Grid ──────────────────────────────────────────────────────── */
+
+.inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+}
+
+.wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+/* 9-column main content, 3-column sidebar (12-column grid) */
+.ninecol {
+    width: 100%;
+}
+
+.threecol {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .wrap {
+        flex-wrap: nowrap;
+    }
+
+    .ninecol {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .threecol {
+        flex: 0 0 280px;
+        width: 280px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .inner {
+        padding: 0 2rem;
+    }
+
+    .threecol {
+        flex: 0 0 300px;
+        width: 300px;
+    }
+}
+
+
+/* ── Typography Base ───────────────────────────────────────────────────────── */
+
+body {
+    font-family: 'PT Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 1rem;
+    color: var(--gk-text);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.3rem; }
+h4 { font-size: 1.1rem; }
+
+p { margin-bottom: 1em; }
+
+a {
+    color: var(--gk-green);
+    transition: color 0.2s ease;
+}
+
+a:hover,
+a:focus {
+    color: var(--gk-text);
+}
+
+
+/* ── Entry Content (WordPress content area) ────────────────────────────────── */
+
+.entry-content ul {
+    list-style: disc;
+    margin: 0 0 1.5em 1.5em;
+}
+
+.entry-content ol {
+    list-style: decimal;
+    margin: 0 0 1.5em 1.5em;
+}
+
+.entry-content li {
+    margin-bottom: 0.35em;
+}
+
+.entry-content blockquote {
+    border-left: 4px solid var(--gk-green);
+    margin: 1.5em 0;
+    padding: 1em 1.5em;
+    color: var(--gk-green);
+    font-style: italic;
+    background: var(--gk-sand-light);
+}
+
+.entry-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+}
+
+.entry-content th {
+    background: var(--gk-green);
+    color: #fff;
+    padding: 0.75em 1em;
+    text-align: left;
+    font-weight: 700;
+}
+
+.entry-content td {
+    padding: 0.75em 1em;
+    border-bottom: 1px solid var(--gk-sand);
+}
+
+.entry-content tr:nth-child(even) td {
+    background: var(--gk-sand-light);
+}
+
+.entry-content pre,
+.entry-content code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.9em;
+    background: var(--gk-sand);
+    border-radius: 4px;
+}
+
+.entry-content pre {
+    padding: 1em 1.5em;
+    margin: 1.5em 0;
+    overflow-x: auto;
+}
+
+.entry-content code {
+    padding: 0.15em 0.4em;
+}
+
+.entry-content pre code {
+    padding: 0;
+    background: none;
+}
+
+.entry-content img {
+    border-radius: 4px;
+}
+
+
+/* ── WordPress Alignment Classes ───────────────────────────────────────────── */
+
+.alignleft {
+    float: left;
+    margin: 0 1.5em 1em 0;
+}
+
+.alignright {
+    float: right;
+    margin: 0 0 1em 1.5em;
+}
+
+.aligncenter {
+    display: block;
+    margin: 1em auto;
+}
+
+.wp-caption {
+    max-width: 100%;
+    margin-bottom: 1em;
+}
+
+.wp-caption-text {
+    font-size: 0.85rem;
+    color: var(--gk-text-light);
+    padding-top: 0.5em;
+}

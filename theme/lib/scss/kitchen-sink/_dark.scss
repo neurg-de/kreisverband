@@ -1,0 +1,402 @@
+// ==========================================================================
+// Kitchen Sink — Dark mode overrides
+// ==========================================================================
+
+// @media rules for OS-level dark mode (kitchen-sink-specific only;
+// component rules for buttons/forms/nav live in their own files)
+@media (prefers-color-scheme: dark) {
+    // Simulated button hover states — text must be dark on yellow CTA bg
+    .ks-btn-state--hover .gk-btn--primary,
+    .ks-btn-state--hover .gk-btn--icon-only,
+    .ks-btn-state--hover .gk-btn--filter,
+    .ks-btn-state--active .gk-btn--filter {
+        color: var(--tanne-900);
+        fill: var(--tanne-900);
+    }
+
+    // Button disabled states
+    .gk-btn[aria-disabled="true"],
+    .gk-btn--primary[aria-disabled="true"] {
+        background-color: var(--tanne-700);
+        color: var(--tanne-400);
+        fill: var(--tanne-400);
+    }
+
+    .gk-btn--icon-only[aria-disabled="true"] {
+        background-color: var(--tanne-700);
+        color: var(--tanne-400);
+        fill: var(--tanne-400);
+        outline-color: transparent;
+    }
+
+    .gk-btn--filter[aria-disabled="true"] {
+        color: var(--tanne-500);
+        outline-color: var(--tanne-500);
+        background-color: transparent;
+    }
+
+    // Select dropdown
+    .ks-select-opt--hover {
+        color: var(--tanne-900);
+
+        svg { fill: var(--tanne-900); }
+    }
+
+    .ks-select-opt--selected { color: var(--color-text-inverse); }
+
+    .ks-select-item-standalone { border-color: var(--color-border); }
+
+    // Kitchen sink switch track (different class from global .switch__track)
+    .ks-switch__track {
+        background: var(--tanne-600);
+        border-color: var(--tanne-400);
+
+        &::after { background: var(--sand-200); }
+    }
+
+    input[type="checkbox"]:checked + .ks-switch__track {
+        background: var(--sonne-600);
+        border-color: var(--sonne-700);
+
+        &::after { background: var(--tanne-900); }
+    }
+
+    input[type="checkbox"]:disabled + .ks-switch__track {
+        opacity: 0.4;
+    }
+
+    .ks-switch--focus .ks-switch__track {
+        box-shadow: 0 0 0 2px var(--color-info);
+    }
+
+    // Shadow/radius cards — border for visibility on dark bg
+    .ks-card {
+        border: 1px solid var(--color-border);
+    }
+
+    // On-dark panel — distinguish from dark page bg
+    .ks-dark-panel {
+        background: var(--tanne-800);
+        border: 1px solid var(--color-border);
+    }
+}
+
+// --- On-dark link panel (always dark, regardless of mode) ---
+
+.ks-dark-panel {
+    background: var(--tanne-900);
+    color: var(--sand-200);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+
+    // Override semantic tokens inside panel
+    --color-link: var(--sand-200);
+    --color-link-hover: var(--sand-100);
+    --color-text: var(--sand-200);
+    --color-text-muted: var(--tanne-300);
+    --color-primary: var(--klee-400);
+    --mark-color: var(--klee-600);
+
+    .ks-link-state__label,
+    .ks-link-size__label {
+        color: var(--tanne-300);
+    }
+
+    a {
+        color: var(--sand-200);
+
+        &:visited {
+            color: var(--sand-200);
+        }
+    }
+
+    .ks-link-state--hover a,
+    .ks-link-state--active a {
+        color: var(--sand-200);
+    }
+
+    .ks-link-state--visited a {
+        color: var(--sand-200);
+    }
+
+    .ks-link-bullets li::before {
+        color: var(--klee-400);
+    }
+}
+
+// --- Dark-mode class overrides for components ---
+// These mirror the @media(prefers-color-scheme:dark) rules
+// so the kitchen-sink toggle works independently of OS preference.
+
+body.design-grundlagen2024.dark-mode {
+    // Mark color — klee-600 for visible highlight with good text contrast
+    --mark-color: var(--klee-600);
+
+    // ----------------------------------------------------------------
+    // Buttons
+    // ----------------------------------------------------------------
+
+    .gk-btn,
+    .gk-btn--primary,
+    .morebutton,
+    .more-link {
+        background-color: var(--color-accent);
+        color: var(--color-text-inverse);
+
+        &:hover {
+            background-color: var(--color-cta);
+            color: var(--tanne-900);
+        }
+    }
+
+    .gk-btn--icon-only {
+        background-color: var(--color-accent);
+        color: var(--color-text-inverse);
+        fill: var(--color-text-inverse);
+        outline-color: transparent;
+
+        &:hover {
+            background-color: var(--color-cta);
+            color: var(--tanne-900);
+            fill: var(--tanne-900);
+        }
+    }
+
+    .gk-btn--filter {
+        color: var(--color-accent);
+        outline-color: var(--color-accent);
+
+        &:hover,
+        &.is-active {
+            background-color: var(--color-cta);
+            color: var(--tanne-900);
+            fill: var(--tanne-900);
+            outline-color: transparent;
+        }
+    }
+
+    // Button disabled states — muted for dark background
+    .gk-btn[aria-disabled="true"],
+    .gk-btn--primary[aria-disabled="true"],
+    .morebutton[aria-disabled="true"],
+    .more-link[aria-disabled="true"] {
+        background-color: var(--tanne-700);
+        color: var(--tanne-400);
+        fill: var(--tanne-400);
+    }
+
+    .gk-btn--icon-only[aria-disabled="true"] {
+        background-color: var(--tanne-700);
+        color: var(--tanne-400);
+        fill: var(--tanne-400);
+        outline-color: transparent;
+    }
+
+    .gk-btn--filter[aria-disabled="true"] {
+        color: var(--tanne-500);
+        fill: var(--tanne-500);
+        outline-color: var(--tanne-500);
+        background-color: transparent;
+    }
+
+    // Simulated hover states — dark text on yellow CTA background
+    .ks-btn-state--hover .gk-btn--primary,
+    .ks-btn-state--hover .gk-btn--icon-only,
+    .ks-btn-state--hover .gk-btn--filter,
+    .ks-btn-state--active .gk-btn--filter {
+        color: var(--tanne-900);
+        fill: var(--tanne-900);
+    }
+
+    // ----------------------------------------------------------------
+    // Form controls
+    // ----------------------------------------------------------------
+
+    input[type="text"],
+    input[type="email"],
+    input[type="url"],
+    input[type="search"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="password"],
+    input[type="date"],
+    textarea,
+    select {
+        background: var(--tanne-800);
+        border-color: var(--tanne-400);
+        color: var(--sand-200);
+
+        &:hover { border-color: var(--tanne-300); }
+        &:focus {
+            border-color: var(--tanne-200);
+            box-shadow: 0 0 0 3px rgba(60, 180, 228, 0.35);
+        }
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: var(--tanne-400);
+    }
+
+    input:disabled,
+    textarea:disabled,
+    select:disabled {
+        background: var(--tanne-900);
+        border-color: var(--tanne-700);
+    }
+
+    // Select dropdown arrow — light color for dark bg
+    select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23A6CCBF' d='M1.41 0L6 4.58 10.59 0 12 1.41l-6 6-6-6z'/%3E%3C/svg%3E");
+    }
+
+    // Checkbox dark
+    input[type="checkbox"] {
+        background: var(--tanne-800);
+        border-color: var(--tanne-400);
+
+        &:checked {
+            background: var(--sonne-600);
+            border-color: var(--sonne-700);
+        }
+
+        &:disabled {
+            background: var(--tanne-900);
+            border-color: var(--tanne-700);
+
+            &:checked {
+                background: var(--tanne-700);
+                border-color: var(--tanne-600);
+            }
+        }
+    }
+
+    // Radio dark
+    input[type="radio"] {
+        background: var(--tanne-800);
+        border-color: var(--tanne-400);
+
+        &:checked {
+            background: var(--sonne-600);
+            border-color: var(--sonne-700);
+        }
+
+        &:disabled {
+            background: var(--tanne-900);
+            border-color: var(--tanne-700);
+
+            &:checked {
+                background: var(--tanne-700);
+                border-color: var(--tanne-600);
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // Switch / Toggle
+    // ----------------------------------------------------------------
+
+    .switch__track,
+    .toggle__track {
+        background: var(--tanne-600);
+        border-color: var(--tanne-400);
+
+        &::after { background: var(--sand-200); }
+    }
+
+    .switch input[type="checkbox"]:checked + .switch__track,
+    .toggle input[type="checkbox"]:checked + .toggle__track {
+        background: var(--sonne-600);
+        border-color: var(--sonne-700);
+
+        &::after { background: var(--tanne-900); }
+    }
+
+    // Kitchen-sink switch (.ks-switch__track)
+    .ks-switch__track {
+        background: var(--tanne-600);
+        border-color: var(--tanne-400);
+
+        &::after { background: var(--sand-200); }
+    }
+
+    input[type="checkbox"]:checked + .ks-switch__track {
+        background: var(--sonne-600);
+        border-color: var(--sonne-700);
+
+        &::after { background: var(--tanne-900); }
+    }
+
+    input[type="checkbox"]:disabled + .ks-switch__track {
+        opacity: 0.4;
+    }
+
+    .ks-switch--focus .ks-switch__track {
+        box-shadow: 0 0 0 2px var(--color-info);
+    }
+
+    // ----------------------------------------------------------------
+    // Kitchen-sink showcase elements
+    // ----------------------------------------------------------------
+
+    .ks-select-opt--hover {
+        color: var(--tanne-900);
+
+        svg { fill: var(--tanne-900); }
+    }
+
+    .ks-select-opt--selected { color: var(--color-text-inverse); }
+
+    .ks-select-item-standalone { border-color: var(--color-border); }
+
+    .ks-card {
+        border: 1px solid var(--color-border);
+    }
+
+    .ks-dark-panel {
+        background: var(--tanne-800);
+        border: 1px solid var(--color-border);
+    }
+
+    // ----------------------------------------------------------------
+    // Navigation
+    // ----------------------------------------------------------------
+
+    .logolink h2,
+    .logo-desktop h2 {
+        color: var(--sand-200) !important;
+    }
+
+    #nav-desktop {
+        background: var(--tanne-800);
+        border-bottom-color: var(--klee-400);
+    }
+
+    #nav-desktop .nav-main a {
+        color: var(--sand-200);
+    }
+
+    #nav-flyin {
+        background: var(--tanne-800);
+        border-bottom-color: var(--klee-400);
+    }
+
+    .header-mobile {
+        background: var(--tanne-800);
+    }
+
+    nav.nav-main > ul > li > ul {
+        background: var(--tanne-800);
+        border-top-color: var(--klee-400);
+    }
+
+    nav.nav-main li ul li a {
+        color: var(--sand-200);
+        border-bottom-color: var(--tanne-700);
+    }
+
+    // Social bar
+    .gk-social-bar ul { background: var(--tanne-900); }
+    .gk-social-bar a { background: var(--tanne-600); color: var(--sand-100); }
+}

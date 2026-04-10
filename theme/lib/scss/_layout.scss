@@ -1,0 +1,74 @@
+// ==========================================================================
+// Container & Grid
+// ==========================================================================
+
+.inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+}
+
+.wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+}
+
+// Modern CSS Grid layout (replaces .ninecol / .threecol)
+.gk-layout {
+    display: grid;
+    gap: var(--space-8);
+    grid-template-columns: 1fr;
+
+    @media (min-width: 768px) {
+        grid-template-columns: 1fr 280px;
+    }
+
+    @media (min-width: 960px) {
+        grid-template-columns: 1fr 300px;
+    }
+}
+
+.gk-layout__main {
+    min-width: 0;
+}
+
+.gk-layout__sidebar {
+    // sidebar styles
+}
+
+// Legacy grid classes (kept for backward compatibility)
+.ninecol {
+    width: 100%;
+}
+
+.threecol {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .wrap {
+        flex-wrap: nowrap;
+    }
+
+    .ninecol {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .threecol {
+        flex: 0 0 280px;
+        width: 280px;
+    }
+}
+
+@media (min-width: 960px) {
+    .inner {
+        padding: 0 var(--space-8);
+    }
+
+    .threecol {
+        flex: 0 0 300px;
+        width: 300px;
+    }
+}

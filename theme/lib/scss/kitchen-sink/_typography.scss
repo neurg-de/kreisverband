@@ -1,0 +1,65 @@
+// ==========================================================================
+// Kitchen Sink — Typography specimens
+// ==========================================================================
+
+.ks-font-specimens {
+    border-top: 1px solid var(--color-border);
+}
+
+.ks-font-specimen {
+    display: flex;
+    gap: var(--space-6);
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+    }
+}
+
+.ks-font-details {
+    flex: 0 0 40%;
+    min-width: 0;
+}
+
+.ks-font-name {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: var(--space-2);
+    line-height: 1.5;
+}
+
+.ks-font-props {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+}
+
+.ks-font-prop {
+    font-size: 0.75rem;
+    white-space: nowrap;
+
+    &--family {
+        flex-basis: 100%;
+    }
+}
+
+.ks-font-prop-label {
+    color: var(--color-text-muted);
+    margin-right: var(--space-1);
+}
+
+.ks-font-prop-alt {
+    color: var(--color-text-muted);
+    margin-left: var(--space-1);
+}
+
+.ks-font-preview {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--font-heading);
+    color: var(--color-text);
+    padding-top: var(--space-1);
+    overflow: hidden;
+}

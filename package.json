@@ -1,0 +1,11 @@
+{
+  "name": "gruene-kreisverband-theme",
+  "private": true,
+  "scripts": {
+    "build": "sass theme/lib/scss:theme/lib/css --style=compressed --no-source-map",
+    "dev": "sass --watch theme/lib/scss:theme/lib/css --style=expanded"
+  },
+  "devDependencies": {
+    "sass": "^1.77.0"
+  }
+}

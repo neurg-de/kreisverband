@@ -1,0 +1,532 @@
+// ==========================================================================
+// Navigation — Unified
+//
+// Sections:
+//   1. Shared (logo, nav items, CTA, search, submenus)
+//   2. Desktop bar (#nav-desktop)
+//   3. Fly-in / sticky bar (#nav-flyin)
+//   4. Mobile drawer (#nav-mobile)
+//   5. OV context (kv-back, nav-ov, hiding rules)
+//   6. Responsive breakpoints
+//   7. Search panel
+// ==========================================================================
+
+
+// ── 1. Shared ───────────────────────────────────────────────────────────────
+
+// Logo link (used in desktop, flyin, and mobile header)
+.logolink,
+.logo-desktop a {
+    z-index: 10000;
+    cursor: pointer;
+    float: left;
+    padding: var(--nav-bar-padding-y) var(--nav-bar-padding-x) var(--nav-bar-padding-y) 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    text-decoration: none;
+}
+
+.logolink h2,
+.logo-desktop h2 {
+    display: inline-block;
+    color: var(--color-primary) !important;
+    font-size: var(--nav-bar-logo-font);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    vertical-align: middle;
+    padding: 0;
+    margin: 0;
+}
+
+.logo-desktop h2 {
+    text-wrap: nowrap;
+}
+
+.logo-desktop img,
+.logolink img {
+    height: var(--nav-bar-logo-height);
+    width: var(--nav-bar-logo-height);
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: var(--space-2);
+    background-color: var(--color-primary);
+    padding: var(--nav-bar-padding-y);
+    margin-top: calc(-1 * var(--nav-bar-padding-y));
+    margin-bottom: calc(-1 * var(--nav-bar-padding-y));
+    box-sizing: content-box;
+
+    @media (prefers-color-scheme: dark) {
+        background-color: transparent;
+        padding: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+}
+
+body.design-grundlagen2024.dark-mode .logo-desktop img,
+body.design-grundlagen2024.dark-mode .logolink img {
+    background-color: transparent;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+// Nav items (shared by #nav-desktop and #nav-flyin)
+nav.nav-main {
+    > ul {
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        margin: 0;
+        margin-left: auto;
+        padding: 0;
+        align-items: center;
+
+        > li {
+            position: relative;
+
+            > a {
+                display: block;
+                padding: var(--space-3) var(--space-4);
+                color: var(--color-text);
+                font-family: var(--font-body);
+                font-weight: 700;
+                font-size: 1rem;
+                text-decoration: none;
+                transition: background 0.2s, color 0.2s;
+
+                &:hover {
+                    color: var(--color-primary);
+                    background: var(--color-bg-light);
+                }
+            }
+
+            &.current-menu-item > a,
+            &.current-menu-ancestor > a {
+                color: var(--color-primary);
+                border-bottom: 3px solid var(--color-primary);
+            }
+
+            // Submenu (dropdown)
+            > ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background: var(--color-surface);
+                min-width: 220px;
+                box-shadow: var(--shadow-lg);
+                z-index: 200;
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                border-top: 3px solid var(--color-primary);
+
+                > li > ul { display: none; }
+            }
+
+            &:hover > ul { display: block; }
+
+            // CTA "Mitmachen" — matches .gk-btn--primary
+            &.cta {
+                > a {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: var(--space-2);
+                    font-family: var(--font-body);
+                    font-weight: 700;
+                    font-size: 1rem;
+                    line-height: 1.5rem;
+                    padding: 0.75rem 1.5rem;
+                    text-decoration: none;
+                    border: none;
+                    border-radius: var(--radius-full);
+                    background-color: var(--color-primary);
+                    color: var(--color-text-inverse);
+                    fill: var(--color-text-inverse);
+                    transition-property: color, background-color, border-color, outline-color, fill, stroke;
+                    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                    transition-duration: 0.3s;
+                    box-sizing: border-box;
+                    cursor: pointer;
+                    margin-left: var(--space-2);
+                    border-bottom: none !important;
+                }
+
+                > a:hover,
+                &.current-menu-item > a {
+                    background-color: var(--color-cta);
+                    color: var(--color-text);
+                    fill: var(--color-text);
+                }
+
+                li a {
+                    color: var(--color-text);
+                    background: var(--color-surface);
+
+                    &:hover {
+                        background: var(--color-bg-light);
+                    }
+                }
+            }
+
+            // Search item — icon only
+            &.suche > a {
+                color: var(--color-text-muted);
+                font-size: 0;
+                position: relative;
+                padding: var(--space-3) var(--space-2);
+
+                &::before {
+                    content: '';
+                    display: inline-block;
+                    width: 20px;
+                    height: 20px;
+                    background: currentColor;
+                    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+                    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+                    -webkit-mask-size: contain;
+                    mask-size: contain;
+                    -webkit-mask-repeat: no-repeat;
+                    mask-repeat: no-repeat;
+                    vertical-align: middle;
+                    font-size: 1rem;
+                }
+
+                &:hover { color: var(--color-primary); }
+            }
+        }
+    }
+
+    // Submenu link styles
+    li ul li a {
+        display: block;
+        padding: var(--space-2) var(--space-4);
+        font-size: 0.9375rem;
+        color: var(--color-text);
+        text-decoration: none;
+        border-bottom: 1px solid var(--color-border);
+
+        &:hover {
+            background: var(--color-bg-light);
+            color: var(--color-primary);
+        }
+    }
+
+    li ul li.current-menu-item > a {
+        background: var(--color-bg-light);
+        color: var(--color-primary);
+        font-weight: 700;
+    }
+}
+
+
+// ── 2. Shared desktop bar ───────────────────────────────────────────────────
+// Both #nav-desktop and #nav-flyin share these via .nav-wrap
+
+.nav-wrap {
+    display: none;
+    background: var(--nav-bar-bg);
+    border-bottom: var(--nav-bar-border);
+
+    .nav-main {
+        display: flex;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 var(--nav-bar-padding-x);
+    }
+}
+
+// Desktop — static bar
+#nav-desktop {
+    padding: 0;
+    max-width: none;
+    margin: 0;
+}
+
+// Fly-in — same bar, but sticky + compact
+#nav-flyin {
+    --nav-bar-logo-height: 36px;
+    --nav-bar-padding-y:   var(--space-2);
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    box-shadow: var(--shadow-md);
+
+    // In flyin, .inner wraps logo + nav (different HTML than desktop)
+    .inner {
+        display: flex;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 var(--nav-bar-padding-x);
+    }
+
+    .nav-main {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+.nav-wrap .logo-desktop {
+    display: inline-block !important;
+}
+
+.admin-bar #nav-flyin { top: 46px; }
+
+@media (min-width: 783px) {
+    .admin-bar #nav-flyin { top: 32px; }
+}
+
+
+// ── 4. Mobile drawer ────────────────────────────────────────────────────────
+
+#nav-mobile {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 85%;
+    max-width: 360px;
+    height: 100vh;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    overflow: hidden;
+
+    &.is-open { left: 0; }
+}
+
+.nav-mobile-view {
+    background: var(--color-primary);
+    height: 100%;
+    overflow-y: auto;
+    padding: var(--space-4);
+
+    .switch-menu {
+        display: block;
+        text-align: right;
+        margin-bottom: var(--space-4);
+        font-size: 1rem;
+        color: var(--color-text-inverse);
+    }
+
+    .logo {
+        text-align: center;
+        margin-bottom: var(--space-6);
+
+        img {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto var(--space-2);
+        }
+
+        h2 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            color: var(--color-text-inverse);
+            font-size: 1.125rem;
+        }
+    }
+
+    nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+            a {
+                display: block;
+                color: var(--color-text-inverse);
+                padding: var(--space-2) 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+                font-family: var(--font-body);
+                font-weight: 700;
+                font-size: 1.125rem;
+                text-decoration: none;
+
+                &:hover { color: var(--color-cta); }
+            }
+
+            &.current-menu-item > a { color: var(--color-cta); }
+
+            // Submenu
+            ul {
+                padding-left: var(--space-4);
+
+                li a {
+                    font-size: 1rem;
+                    font-weight: 400;
+                    border-bottom-color: rgba(255, 255, 255, 0.1);
+                }
+            }
+        }
+    }
+
+    // Search
+    .searchform {
+        display: flex;
+        gap: var(--space-1);
+        margin-bottom: var(--space-4);
+    }
+
+    .seachphrase {
+        flex: 1;
+        padding: var(--space-2) var(--space-3);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--color-text-inverse);
+        border-radius: var(--radius-sm);
+        font-size: 0.9375rem;
+
+        &::placeholder { color: rgba(255, 255, 255, 0.5); }
+    }
+
+    .button-submit {
+        background: var(--color-text-inverse);
+        color: var(--color-primary);
+        border: none;
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-weight: 700;
+
+        &:hover {
+            background: var(--color-cta);
+            color: var(--color-text);
+        }
+    }
+}
+
+.mobile-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 34, 22, 0.6);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+
+    #nav-mobile.is-open & {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+
+// ── 5. OV context ───────────────────────────────────────────────────────────
+
+// Hide KV menu items, keep only search + CTA (Mitmachen)
+body.gk-ov-context nav.nav-main > ul:not(.nav-ov) > li:not(.suche):not(.cta) {
+    display: none;
+}
+
+// KV back link
+.kv-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 5px;
+    color: var(--color-text-inverse);
+    font-family: var(--font-body);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: opacity 0.15s;
+
+    &::before {
+        content: '';
+        display: inline-block;
+        width: 1.1em;
+        height: 1.1em;
+        background: currentColor;
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3.5' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cline x1='19' y1='12' x2='5' y2='12'/%3E%3Cpolyline points='12 19 5 12 12 5'/%3E%3C/svg%3E");
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3.5' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cline x1='19' y1='12' x2='5' y2='12'/%3E%3Cpolyline points='12 19 5 12 12 5'/%3E%3C/svg%3E");
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        flex-shrink: 0;
+    }
+
+    &:hover {
+        color: var(--color-text-inverse);
+        opacity: 0.7;
+    }
+}
+
+#nav-desktop .kv-back,
+#nav-flyin .kv-back {
+    color: var(--color-primary);
+    margin-right: var(--space-4);
+    align-self: center;
+}
+
+.header-mobile .kv-back {
+    margin-right: var(--space-3);
+    color: var(--color-primary);
+
+    &:hover {
+        color: var(--color-primary);
+        opacity: 0.7;
+    }
+}
+
+.home .header-mobile .kv-back,
+.page-template-page-OV-php .header-mobile .kv-back {
+    color: var(--color-primary);
+}
+
+#nav-mobile .logo .kv-back {
+    margin-right: var(--space-3);
+    vertical-align: middle;
+}
+
+// OV menu in header
+nav.nav-main ul.nav-ov {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    margin-left: auto;
+    padding: 0;
+
+    > li > a {
+        display: block;
+        padding: var(--space-3) var(--space-2);
+        text-decoration: none;
+    }
+}
+
+body.gk-ov-context nav.nav-main > ul:not(.nav-ov) {
+    margin-left: 0;
+}
+
+body.gk-ov-context #nav-mobile nav.kv {
+    display: none;
+}
+
+
+// ── 6. Responsive breakpoints ───────────────────────────────────────────────
+
+@media (min-width: 768px) {
+    .header-mobile { display: none; }
+    #nav-desktop   { display: block; }
+    #nav-mobile    { display: none !important; }
+
+    #nav-flyin.is-visible { display: block; }
+}
+
+
+// ── 7. Search panel ─────────────────────────────────────────────────────────
+
+.search-desktop.is-open {
+    display: block;
+}

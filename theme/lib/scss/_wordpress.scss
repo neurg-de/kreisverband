@@ -1,0 +1,106 @@
+// ==========================================================================
+// WordPress: Entry Content, Alignment, Captions
+// ==========================================================================
+
+.entry-content {
+    ul {
+        list-style: disc;
+        margin: 0 0 1.5em 1.5em;
+    }
+
+    ol {
+        list-style: decimal;
+        margin: 0 0 1.5em 1.5em;
+    }
+
+    li {
+        margin-bottom: 0.35em;
+    }
+
+    blockquote {
+        border-left: 4px solid var(--color-primary);
+        margin: 1.5em 0;
+        padding: 1em 1.5em;
+        color: var(--color-primary);
+        font-style: italic;
+        background: var(--color-bg-light);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5em 0;
+    }
+
+    th {
+        background: var(--color-primary);
+        color: var(--color-text-inverse);
+        padding: 0.75em 1em;
+        text-align: left;
+        font-weight: 700;
+    }
+
+    td {
+        padding: 0.75em 1em;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    tr:nth-child(even) td {
+        background: var(--color-bg-light);
+    }
+
+    pre,
+    code {
+        font-family: var(--font-mono);
+        font-size: 0.9em;
+        background: var(--color-bg);
+        border-radius: var(--radius-sm);
+    }
+
+    pre {
+        padding: 1em 1.5em;
+        margin: 1.5em 0;
+        overflow-x: auto;
+    }
+
+    code {
+        padding: 0.15em 0.4em;
+    }
+
+    pre code {
+        padding: 0;
+        background: none;
+    }
+
+    img {
+        border-radius: var(--radius-sm);
+    }
+}
+
+
+// WordPress Alignment Classes
+.alignleft {
+    float: left;
+    margin: 0 1.5em 1em 0;
+}
+
+.alignright {
+    float: right;
+    margin: 0 0 1em 1.5em;
+}
+
+.aligncenter {
+    display: block;
+    margin: 1em auto;
+}
+
+.wp-caption {
+    max-width: 100%;
+    margin-bottom: 1em;
+}
+
+.wp-caption-text {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    padding-top: 0.5em;
+}

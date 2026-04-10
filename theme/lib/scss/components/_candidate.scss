@@ -1,0 +1,66 @@
+// ==========================================================================
+// Component: Candidate (hero variant content)
+// ==========================================================================
+
+.gk-candidate {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    text-align: left;
+    max-width: 900px;
+
+    &__photo {
+        flex: 0 0 auto;
+        width: 220px;
+        height: 280px;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+    }
+
+    &__img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &__info {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    &__role {
+        font-size: 1.1rem;
+        color: var(--hero-text-dim);
+        margin: 0 0 var(--space-5);
+        font-weight: 600;
+    }
+
+    &__quote {
+        font-size: clamp(1.05rem, 2.5vw, 1.3rem);
+        color: var(--hero-text);
+        font-style: italic;
+        line-height: 1.5;
+        margin: 0 0 var(--space-6);
+        padding: 0;
+        border: none;
+    }
+}
+
+// --- Responsive ---
+@media (max-width: 639px) {
+    .gk-candidate {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-6);
+
+        &__photo {
+            width: 160px;
+            height: 200px;
+        }
+    }
+
+    .gk-hero--candidate .gk-hero__actions {
+        justify-content: center;
+    }
+}

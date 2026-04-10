@@ -1,0 +1,338 @@
+/**
+ * Neurg Kreisverband – Main Scripts
+ */
+(function($) {
+    'use strict';
+
+    // ── Mobile Navigation Toggle ────────────────────────────────────────────
+
+    var $mobileNav = $('#nav-mobile');
+    var $body = $('body');
+
+    $('.switch-menu').on('click', function(e) {
+        e.preventDefault();
+        $mobileNav.toggleClass('is-open');
+        $body.toggleClass('nav-open');
+    });
+
+    $('.mobile-overlay').on('click', function() {
+        $mobileNav.removeClass('is-open');
+        $body.removeClass('nav-open');
+    });
+
+
+    // ── Sticky Fly-in Navigation ────────────────────────────────────────────
+
+    var $flyinNav = $('#nav-flyin');
+    var flyinOffset = 300;
+
+    $(window).on('scroll', function() {
+        var scrollTop = $(this).scrollTop();
+
+        // Show/hide fly-in nav
+        if (scrollTop > flyinOffset) {
+            $flyinNav.addClass('is-visible');
+        } else {
+            $flyinNav.removeClass('is-visible');
+        }
+
+        // Show/hide back-to-top
+        if (scrollTop > 600) {
+            $('.back-to-top').addClass('visible');
+        } else {
+            $('.back-to-top').removeClass('visible');
+        }
+    });
+
+
+    // ── Back to Top ─────────────────────────────────────────────────────────
+
+    $('.back-to-top').on('click', function(e) {
+        e.preventDefault();
+        $('html, body').animate({ scrollTop: 0 }, 400);
+    });
+
+
+    // ── Smooth scroll for anchor links ──────────────────────────────────────
+
+    $('a[href^="#"]').not('.gk-lightbox-close, .suche a').on('click', function(e) {
+        var target = $(this.getAttribute('href'));
+        if (target.length) {
+            e.preventDefault();
+            $('html, body').animate({
+                scrollTop: target.offset().top - 60
+            }, 400);
+        }
+    });
+
+
+    // ── Desktop Search Toggle ──────────────────────────────────────────────
+
+    var $searchPanel = $('.search-desktop');
+    $('li.suche > a, #nav-flyin li.suche > a').on('click', function(e) {
+        e.preventDefault();
+        $searchPanel.toggleClass('is-open');
+        if ($searchPanel.hasClass('is-open')) {
+            $searchPanel.find('.seachphrase').focus();
+        }
+    });
+
+    // Close search when the X link inside is clicked
+    $searchPanel.find('a[href="#header"]').on('click', function(e) {
+        e.preventDefault();
+        $searchPanel.removeClass('is-open');
+    });
+
+
+    // ── OnePageNav for Story pages ──────────────────────────────────────────
+
+    var $inhaltvz = $('.inhaltvz a');
+    if ($inhaltvz.length) {
+        $inhaltvz.on('click', function(e) {
+            var href = $(this).attr('href');
+            if (href && href.charAt(0) === '#') {
+                var $target = $(href);
+                if ($target.length) {
+                    e.preventDefault();
+                    $('html, body').animate({ scrollTop: $target.offset().top - 80 }, 600);
+                }
+            }
+        });
+    }
+
+
+    // ── Lightbox for images ─────────────────────────────────────────────────
+
+    // Auto-detect linked images in content and add lightbox behavior
+    var $lightboxLinks = $('.entry-content a[href$=".jpg"], .entry-content a[href$=".jpeg"], .entry-content a[href$=".png"], .entry-content a[href$=".gif"], .entry-content a[href$=".webp"]');
+
+    if ($lightboxLinks.length) {
+        // Create lightbox overlay
+        var $overlay = $('<div class="gk-lightbox-overlay" style="display:none">' +
+            '<button class="gk-lightbox-close" aria-label="Schliessen">&times;</button>' +
+            '<img class="gk-lightbox-img" src="" alt="" />' +
+            '<p class="gk-lightbox-caption"></p>' +
+            '</div>').appendTo('body');
+
+        var $lbImg = $overlay.find('.gk-lightbox-img');
+        var $lbCaption = $overlay.find('.gk-lightbox-caption');
+
+        $lightboxLinks.on('click', function(e) {
+            e.preventDefault();
+            var href = $(this).attr('href');
+            var title = $(this).find('img').attr('alt') || $(this).attr('title') || '';
+            $lbImg.attr('src', href);
+            $lbCaption.text(title);
+            $overlay.fadeIn(200);
+            $body.css('overflow', 'hidden');
+        });
+
+        $overlay.on('click', function(e) {
+            if (e.target === this || $(e.target).hasClass('gk-lightbox-close')) {
+                $overlay.fadeOut(200);
+                $body.css('overflow', '');
+            }
+        });
+
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape' && $overlay.is(':visible')) {
+                $overlay.fadeOut(200);
+                $body.css('overflow', '');
+            }
+        });
+    }
+
+
+    // ── Kreiskarte: Label Hover Sync ───────────────────────────────────────
+    // Polygon and label are in different SVG groups, so CSS :hover siblings
+    // don't work. Sync via JS: highlight label when polygon is hovered.
+
+    $('#kreiskarte-municipalities a[data-ov-slug]')
+        .on('mouseenter focusin', function() {
+            var slug = $(this).data('ov-slug');
+            $('#kreiskarte-labels text[data-slug="' + slug + '"]').addClass('kk-label--hover');
+        })
+        .on('mouseleave focusout', function() {
+            var slug = $(this).data('ov-slug');
+            $('#kreiskarte-labels text[data-slug="' + slug + '"]').removeClass('kk-label--hover');
+        });
+
+
+    // ── Responsive Tabs ─────────────────────────────────────────────────────
+
+    if (typeof RESPONSIVEUI !== 'undefined' && RESPONSIVEUI.responsiveTabs) {
+        RESPONSIVEUI.responsiveTabs();
+    }
+
+
+    // ── Sticky "Suchst du deinen Ortsverband?" bar ─────────────────────────
+    // Shows when the user is above the Kreiskarte section, hides once they
+    // scroll into or past it.
+
+    (function() {
+        var stickyBar = document.getElementById('gk-sticky-ov');
+        var ovsSection = document.getElementById('ovs');
+        if (!stickyBar || !ovsSection) return;
+
+        // Small delay so the hero is fully painted before we start observing
+        var hasScrolledPastHero = false;
+
+        // Observer: fires when #ovs enters/exits the viewport.
+        // rootMargin '0px 0px 100px 0px' expands the bottom edge so the
+        // observer fires ~100px before the section scrolls into view,
+        // preventing the sticky bar from overlapping the toolbar.
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting && hasScrolledPastHero) {
+                    // Section is not in the (expanded) viewport —
+                    // only show if section is below us, not above
+                    var rect = entry.boundingClientRect;
+                    if (rect.top > 0) {
+                        stickyBar.hidden = false;
+                        stickyBar.offsetHeight;
+                        stickyBar.classList.add('is-visible');
+                    } else {
+                        stickyBar.classList.remove('is-visible');
+                    }
+                } else {
+                    stickyBar.classList.remove('is-visible');
+                }
+            });
+        }, { threshold: 0, rootMargin: '0px 0px 100px 0px' });
+
+        observer.observe(ovsSection);
+
+        // Don't show the bar until the user has scrolled past the hero
+        $(window).on('scroll.stickyov', function() {
+            if ($(this).scrollTop() > 200) {
+                hasScrolledPastHero = true;
+                // Re-check by triggering observer
+                observer.unobserve(ovsSection);
+                observer.observe(ovsSection);
+            }
+        });
+
+        // When bar link is clicked, hide bar immediately
+        $(stickyBar).find('a').on('click', function() {
+            stickyBar.classList.remove('is-visible');
+        });
+    })();
+
+
+    // ── Kreiskarte: Search, Toggle, Bottom Sheet ───────────────────────────
+
+    var $kr = $('.kreiskarte-responsive');
+    if ($kr.length) {
+        var $search   = $kr.find('.gk-ov-search');
+        var $chips    = $kr.find('.gk-ov-chip');
+        var $noResult = $kr.find('.gk-ov-no-results');
+        var $toggle   = $kr.find('.gk-ov-toggle');
+        var $listView = $kr.find('.gk-ov-list-view');
+        var $mapView  = $kr.find('.gk-ov-map-view');
+        var $sheet    = $kr.find('.gk-ov-sheet');
+        var showingMap = false;
+
+        // Search filter
+        $search.on('input', function() {
+            var q = this.value.toLowerCase().trim();
+            var visible = 0;
+            $chips.each(function() {
+                var name = $(this).attr('data-ov-name').toLowerCase();
+                var match = !q || name.indexOf(q) !== -1;
+                $(this).toggle(match);
+                if (match) visible++;
+            });
+            $noResult.prop('hidden', visible > 0);
+
+            // If user is searching, make sure list view is visible
+            if (q && showingMap) {
+                toggleView(false);
+            }
+        });
+
+        // Map / List toggle
+        function toggleView(toMap) {
+            showingMap = toMap;
+            $toggle.attr('aria-pressed', toMap ? 'true' : 'false');
+            $toggle.find('.gk-ov-toggle__label').text(
+                toMap ? $toggle.data('label-list') : $toggle.data('label-map')
+            );
+            $kr.toggleClass('gk-ov--map-active', toMap);
+        }
+
+        $toggle.on('click', function() {
+            toggleView(!showingMap);
+        });
+
+        // Bottom sheet for mobile map taps
+        if ($sheet.length) {
+            var isMobile = function() { return window.innerWidth < 768; };
+            var $sheetTitle = $sheet.find('.gk-ov-sheet__title');
+            var $sheetCta   = $sheet.find('.gk-ov-sheet__cta');
+
+            // Intercept SVG link clicks on mobile
+            $kr.on('click', '.gk-ov-map-svg a[data-ov-name]', function(e) {
+                if (!isMobile()) return; // desktop: normal navigation
+
+                e.preventDefault();
+                var name = $(this).data('ov-name');
+                var url  = $(this).data('ov-url');
+
+                $sheetTitle.text(name);
+                $sheetCta.attr('href', url);
+                $sheet.prop('hidden', false);
+                // Trigger reflow then add active class for animation
+                $sheet[0].offsetHeight;
+                $sheet.addClass('gk-ov-sheet--open');
+                $body.css('overflow', 'hidden');
+            });
+
+            function closeSheet() {
+                $sheet.removeClass('gk-ov-sheet--open');
+                $body.css('overflow', '');
+                setTimeout(function() { $sheet.prop('hidden', true); }, 300);
+            }
+
+            $sheet.find('.gk-ov-sheet__close, .gk-ov-sheet__backdrop').on('click', closeSheet);
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape' && $sheet.hasClass('gk-ov-sheet--open')) {
+                    closeSheet();
+                }
+            });
+        }
+    }
+
+    // ── Personenliste: OV Filter Tabs ────────────────────────────────────
+
+    $(function() { $('.gk-abteilung').each(function() {
+        var $container = $(this);
+        var $buttons   = $container.find('[data-filter]');
+        var $cards     = $container.find('.gk-abteilung__card');
+        var $empty     = $container.find('.gk-abteilung__empty');
+
+        if (!$buttons.length) return;
+
+        $buttons.on('click', function() {
+            var filter = $(this).data('filter');
+
+            // Update active state
+            $buttons.removeClass('is-active').attr('aria-selected', 'false');
+            $(this).addClass('is-active').attr('aria-selected', 'true');
+
+            // Toggle filtered class (hides OV labels when a specific OV is selected)
+            $container.toggleClass('gk-abteilung--filtered', filter !== 'all');
+
+            // Filter cards
+            var visible = 0;
+            $cards.each(function() {
+                var ov   = $(this).data('ov');
+                var show = filter === 'all' || ov === filter;
+                $(this).prop('hidden', !show);
+                if (show) visible++;
+            });
+
+            $empty.prop('hidden', visible > 0);
+        });
+    }); });
+
+})(jQuery);

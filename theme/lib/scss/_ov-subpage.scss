@@ -1,0 +1,232 @@
+// ==========================================================================
+// Subpage — Sidebar-nav layout for OV and KV subpages
+// ==========================================================================
+
+.subpage {
+    background: var(--color-surface);
+    padding: var(--space-8) 0 var(--space-16);
+}
+
+// --- Grid: sidebar nav + main content ---
+
+.subpage__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+
+    @media (min-width: 768px) {
+        grid-template-columns: 240px 1fr;
+        gap: var(--space-10);
+    }
+
+    @media (min-width: 960px) {
+        grid-template-columns: 260px 1fr;
+    }
+}
+
+
+// ==========================================================================
+// Sidebar Navigation
+// ==========================================================================
+
+.subpage__nav {
+    display: none; // hidden on mobile — main/hamburger menu covers navigation
+
+    @media (min-width: 768px) {
+        display: block;
+        position: sticky;
+        top: calc(var(--space-8) + 60px); // below sticky nav
+        align-self: start;
+    }
+}
+
+.subpage__nav-home {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-4);
+    border-bottom: 3px solid var(--color-primary);
+
+    &:hover {
+        color: var(--color-primary-hover);
+    }
+}
+
+// Navigation list (output by wp_list_pages — .ovnavi for OV, .subpage-nav for KV)
+.subpage__nav .ovnavi,
+.subpage__nav .subpage-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    > li {
+        margin-bottom: var(--space-1);
+
+        > a {
+            display: block;
+            padding: var(--space-2) var(--space-3);
+            color: var(--color-text);
+            text-decoration: none;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            border-radius: var(--radius-sm);
+            transition: background 0.15s, color 0.15s;
+
+            &:hover {
+                background: var(--color-bg-light);
+                color: var(--color-primary);
+            }
+        }
+
+        &.current_page_item > a,
+        &.current_page_ancestor > a {
+            background: var(--color-bg-light);
+            color: var(--color-primary);
+        }
+
+        // Child pages
+        > .children {
+            list-style: none;
+            padding: 0 0 0 var(--space-4);
+            margin: var(--space-1) 0 var(--space-2);
+
+            > li {
+                > a {
+                    display: block;
+                    padding: var(--space-1) var(--space-3);
+                    color: var(--color-text-muted);
+                    text-decoration: none;
+                    font-size: 0.875rem;
+                    border-radius: var(--radius-sm);
+                    transition: background 0.15s, color 0.15s;
+
+                    &:hover {
+                        background: var(--color-bg-light);
+                        color: var(--color-primary);
+                    }
+                }
+
+                &.current_page_item > a {
+                    color: var(--color-primary);
+                    font-weight: 700;
+                }
+
+                // Grandchild pages (level 3)
+                > .children {
+                    list-style: none;
+                    padding: 0 0 0 var(--space-3);
+                    margin: var(--space-1) 0 0;
+
+                    > li > a {
+                        display: block;
+                        padding: var(--space-1) var(--space-3);
+                        color: var(--color-text-muted);
+                        text-decoration: none;
+                        font-size: 0.8125rem;
+                        border-radius: var(--radius-sm);
+                        transition: background 0.15s, color 0.15s;
+
+                        &:hover {
+                            background: var(--color-bg-light);
+                            color: var(--color-primary);
+                        }
+                    }
+
+                    > li.current_page_item > a {
+                        color: var(--color-primary);
+                        font-weight: 700;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+// ==========================================================================
+// Main Content Area
+// ==========================================================================
+
+.subpage__main {
+    min-width: 0;
+    min-height: 300px;
+}
+
+// Hero image
+.subpage__hero {
+    margin-bottom: var(--space-6);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+
+    img {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-height: 400px;
+        object-fit: cover;
+    }
+}
+
+// Title
+.subpage__main .entry-title {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-g-xl);
+    color: var(--color-text);
+    margin-bottom: var(--space-6);
+    line-height: 1.15;
+}
+
+// Content typography
+.subpage__main .entry-content {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+
+    h2 {
+        font-family: var(--font-heading);
+        font-size: var(--font-size-g-l);
+        margin-top: var(--space-10);
+        margin-bottom: var(--space-4);
+        padding-top: var(--space-6);
+        border-top: 1px solid var(--gray-300);
+        color: var(--color-text);
+        line-height: 1.2;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-top: var(--space-6);
+        margin-bottom: var(--space-3);
+    }
+
+    p {
+        margin-bottom: var(--space-4);
+    }
+
+    hr {
+        border: none;
+        border-top: 1px solid var(--gray-300);
+        margin: var(--space-8) 0;
+    }
+
+    > ul, > ol {
+        margin-bottom: var(--space-4);
+        padding-left: var(--space-6);
+    }
+}
+
+// --- Responsive ---
+
+@media (max-width: 639px) {
+    .subpage {
+        padding: var(--space-6) 0 var(--space-12);
+    }
+
+    .subpage__main .entry-title {
+        font-size: var(--font-size-g-l);
+    }
+}

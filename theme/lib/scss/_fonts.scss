@@ -1,0 +1,28 @@
+// ==========================================================================
+// Web Fonts
+// ==========================================================================
+
+@font-face {
+    font-family: 'PT Sans';
+    src: url(../fonts/ptsans-regular.woff) format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'PT Sans';
+    src: url(../fonts/ptsans-bold.woff) format('woff');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'GrueneType';
+    src: url('https://www.gruene.de/fonts/GrueneTypeNeue-Regular.woff2') format('woff2'),
+         url('https://www.gruene.de/fonts/GrueneTypeNeue-Regular.woff') format('woff');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}

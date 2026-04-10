@@ -1,0 +1,231 @@
+// ==========================================================================
+// Design Tokens
+// ==========================================================================
+
+:root {
+    // Primary ("Klee")
+    --klee-50:  #E5F3EB;
+    --klee-100: #CCE7D7;
+    --klee-200: #B2DCC4;
+    --klee-300: #99D0B0;
+    --klee-400: #66B888;
+    --klee-500: #33A161;
+    --klee-600: #008939;
+    --klee-700: #006E2E;
+    --klee-800: #005222;
+    --klee-900: #003717;
+    --klee-950: #002911;
+
+    // Secondary ("Tanne")
+    --tanne-50:  #D5EEE6;
+    --tanne-100: #BEDDD2;
+    --tanne-200: #A6CCBF;
+    --tanne-300: #8EBBAB;
+    --tanne-400: #5F9885;
+    --tanne-500: #2F765E;
+    --tanne-600: #005538;
+    --tanne-700: #00432C;
+    --tanne-800: #003221;
+    --tanne-900: #002216;
+
+    // Neutral ("Sand")
+    --sand-50:  #FDFCFA;
+    --sand-100: #FAF8F4;
+    --sand-200: #F7F4ED;
+    --sand-300: #F5F1E9;
+    --sand-400: #EFE8DB;
+    --sand-500: #E8DFCD;
+
+    // Gray (cool neutral — UI borders, disabled states, placeholders)
+    --gray-100: #F3FAF6;
+    --gray-200: #E8EAEA;
+    --gray-300: #D1DBDA;
+    --gray-400: #9CABAF;
+    --gray-500: #6B7A80;
+    --gray-600: #4B5D63;
+    --gray-700: #374951;
+
+    // Sun ("Sonne")
+    --sonne-100: #FFFCE6;
+    --sonne-200: #FFFACC;
+    --sonne-300: #FFF8B3;
+    --sonne-400: #FFF599;
+    --sonne-500: #FFF380;
+    --sonne-600: #FFF17A;
+    --sonne-700: #D9CC00;
+
+    // Himmel (Sky)
+    --himmel-400: #5FC3E9;
+    --himmel-500: #3CB4E4;
+    --himmel-600: #0BA1DD;
+    --himmel-700: #0981B1;
+
+    // Grashalm
+    --grashalm-500: #A1CA50;
+    --grashalm-600: #8ABD24;
+    --grashalm-700: #6E971D;
+
+    // Magenta (accent)
+    --magenta: #c51d54;
+
+    // Semantic tokens
+    --color-primary:     var(--tanne-600);
+    --color-primary-hover: var(--tanne-700);
+    --color-accent:      var(--klee-600);
+    --color-bg:          var(--sand-300);
+    --color-bg-light:    var(--sand-200);
+    --color-surface:     #fff;
+    --color-text:        var(--tanne-900);
+    --color-text-muted:  var(--tanne-500);
+    --color-text-inverse:#fff;
+    --color-link:        var(--tanne-600);
+    --color-link-hover:  var(--tanne-800);
+    --color-cta:         var(--sonne-600);
+    --color-cta-hover:   var(--sonne-700);
+    --color-border:      var(--gray-500);
+    --color-disabled:    var(--gray-300);
+    --color-placeholder: var(--gray-400);
+    --color-success:     var(--klee-600);
+    --color-info:        var(--himmel-600);
+    --color-warning:     var(--sonne-600);
+    --color-danger:      var(--magenta);
+
+    // Typography
+    --font-heading: 'GrueneType', 'PT Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-brand:   'GrueneType', 'PT Sans', sans-serif;
+    --font-body:    'PT Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-mono:    'Courier New', monospace;
+
+    // Typography scale — GrueneType Neue
+    --font-size-g-l:    1.875rem;  // 30px
+    --font-size-g-xl:   2.5rem;    // 40px
+    --font-size-g-xxl:  3.75rem;   // 60px
+    --font-size-g-xxxl: 5rem;      // 80px
+
+    // Typography scale — PT Sans Subheadlines
+    --font-size-g-subheadline-l:  1.5625rem; // 25px
+    --font-size-g-subheadline:    1.25rem;   // 20px
+    --font-size-g-subheadline-m:  1.125rem;  // 18px
+    --font-size-g-subheadline-s:  1rem;      // 16px
+    --font-size-g-subheadline-xs: 0.8125rem; // 13px
+
+    // Typography scale — PT Sans Body
+    --font-size-g-body-l:  1.5625rem; // 25px
+    --font-size-g-body:    1.25rem;   // 20px
+    --font-size-g-body-m:  1.125rem;  // 18px
+    --font-size-g-body-s:  1rem;      // 16px
+    --font-size-g-body-xs: 0.8125rem; // 13px
+
+    // Typography scale — PT Sans UI
+    --font-size-g-button-l:     1rem;      // 16px
+    --font-size-g-button-m:     0.75rem;   // 12px
+    --font-size-g-input:        1rem;      // 16px
+    --font-size-g-input-helper: 0.8125rem; // 13px
+    --font-size-g-input-label:  1rem;      // 16px
+
+    // Spacing (8px base grid)
+    --space-0:   0;
+    --space-1:   0.25rem;   // 4px
+    --space-2:   0.5rem;    // 8px
+    --space-3:   0.75rem;   // 12px
+    --space-4:   1rem;      // 16px
+    --space-5:   1.25rem;   // 20px
+    --space-6:   1.5rem;    // 24px
+    --space-8:   2rem;      // 32px
+    --space-10:  2.5rem;    // 40px
+    --space-12:  3rem;      // 48px
+    --space-14:  3.5rem;    // 56px
+    --space-16:  4rem;      // 64px
+    --space-20:  5rem;      // 80px
+    --space-24:  6rem;      // 96px
+    --space-40:  10rem;     // 160px
+
+    // Border radius
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-full: 9999px;
+
+    // Shadows
+    --shadow-sm:  0 1px 2px rgba(0, 34, 22, 0.06);
+    --shadow-md:  0 4px 12px rgba(0, 34, 22, 0.08);
+    --shadow-lg:  0 8px 24px rgba(0, 34, 22, 0.12);
+
+    // Navigation bar
+    --nav-bar-bg:           var(--color-surface);
+    --nav-bar-border:       3px solid var(--color-primary);
+    --nav-bar-padding-x:    var(--space-4);
+    --nav-bar-logo-height:  48px;
+    --nav-bar-logo-height-mobile: 36px;
+    --nav-bar-logo-font:    1.25rem;
+    --nav-bar-padding-y:    var(--space-3);
+}
+
+// Dark mode token overrides
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-primary:      var(--tanne-400);
+        --color-primary-hover: var(--tanne-300);
+        --color-accent:       var(--klee-400);
+        --color-bg:           var(--tanne-900);
+        --color-bg-light:     var(--tanne-800);
+        --color-surface:      var(--tanne-800);
+        --color-text:         var(--sand-200);
+        --color-text-muted:   var(--tanne-300);
+        --color-text-inverse: var(--tanne-900);
+        --color-link:         var(--sand-200);
+        --color-link-hover:   var(--sand-100);
+        --color-border:       var(--tanne-500);
+        --color-info:         var(--himmel-400);
+        --color-danger:       #F06B8A;
+        --color-disabled:     var(--tanne-600);
+        --color-placeholder:  var(--tanne-400);
+        --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.4);
+        --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.5);
+        --shadow-lg:  0 8px 24px rgba(0, 0, 0, 0.6);
+    }
+}
+
+// Force dark mode via class (for kitchen sink toggle)
+body.design-grundlagen2024.dark-mode {
+    --color-primary:      var(--tanne-400);
+    --color-primary-hover: var(--tanne-300);
+    --color-accent:       var(--klee-400);
+    --color-bg:           var(--tanne-900);
+    --color-bg-light:     var(--tanne-800);
+    --color-surface:      var(--tanne-800);
+    --color-text:         var(--sand-200);
+    --color-text-muted:   var(--tanne-300);
+    --color-text-inverse: var(--tanne-900);
+    --color-link:         var(--sand-200);
+    --color-link-hover:   var(--sand-100);
+    --color-border:       var(--tanne-500);
+    --color-info:         var(--himmel-400);
+    --color-danger:       #F06B8A;
+    --color-disabled:     var(--tanne-600);
+    --color-placeholder:  var(--tanne-400);
+    --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-lg:  0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+// Light-mode class override
+body.design-grundlagen2024.light-mode {
+    --color-primary:     var(--tanne-600);
+    --color-primary-hover: var(--tanne-700);
+    --color-accent:      var(--klee-600);
+    --color-bg:          var(--sand-300);
+    --color-bg-light:    var(--sand-200);
+    --color-surface:     #fff;
+    --color-text:        var(--tanne-900);
+    --color-text-muted:  var(--tanne-500);
+    --color-text-inverse:#fff;
+    --color-link:        var(--tanne-600);
+    --color-link-hover:  var(--tanne-800);
+    --color-border:      var(--gray-500);
+    --color-disabled:    var(--gray-300);
+    --color-placeholder: var(--gray-400);
+    --shadow-sm:  0 1px 2px rgba(0, 34, 22, 0.06);
+    --shadow-md:  0 4px 12px rgba(0, 34, 22, 0.08);
+    --shadow-lg:  0 8px 24px rgba(0, 34, 22, 0.12);
+}

@@ -1,0 +1,149 @@
+// ==========================================================================
+// Component: Team
+// ==========================================================================
+
+.gk-team {
+    padding: var(--space-16) 0;
+    background: var(--color-bg);
+
+    &__tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        justify-content: center;
+        margin-bottom: var(--space-8);
+    }
+
+    &__tab {
+        background: transparent;
+        border: 2px solid var(--color-primary);
+        color: var(--color-text);
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        font-weight: 700;
+        padding: 0.5rem 1.25rem;
+        border-radius: var(--radius-full);
+        cursor: pointer;
+        transition: all 0.25s ease;
+        white-space: nowrap;
+
+        &:hover {
+            background: var(--color-primary);
+            color: var(--color-text-inverse);
+        }
+
+        &.is-active {
+            background: var(--color-primary);
+            color: var(--color-text-inverse);
+            box-shadow: var(--shadow-sm);
+        }
+    }
+
+    &__panel {
+        display: none;
+
+        &.is-active {
+            display: block;
+            animation: gk-teamFadeIn 0.35s ease;
+        }
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: var(--space-8);
+    }
+
+    &__card {
+        text-align: center;
+        text-decoration: none;
+        color: var(--color-text);
+        transition: transform 0.2s;
+
+        &:hover {
+            transform: translateY(-4px);
+        }
+    }
+
+    &__photo {
+        aspect-ratio: 1;
+        overflow: hidden;
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--space-3);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+    }
+
+    &__placeholder {
+        width: 100%;
+        height: 100%;
+        color: var(--color-text);
+        background: var(--color-bg-light);
+    }
+
+    &__card:hover &__photo img {
+        transform: scale(1.04);
+    }
+
+    &__name {
+        font-family: var(--font-heading);
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--color-text);
+    }
+
+    &__role {
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        margin: 0.25rem 0 0;
+    }
+}
+
+@keyframes gk-teamFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// --- Responsive ---
+@media (max-width: 639px) {
+    .gk-team {
+        padding: var(--space-12) 0;
+    }
+}
+
+// --- Dark Mode ---
+@media (prefers-color-scheme: dark) {
+    .gk-team__tab {
+        border-color: var(--color-primary);
+        color: var(--color-text);
+
+        &:hover,
+        &.is-active {
+            background: var(--color-primary);
+            color: var(--color-text-inverse);
+        }
+    }
+}
+
+// --- Reduced Motion ---
+@media (prefers-reduced-motion: reduce) {
+    .gk-team__card:hover .gk-team__photo img {
+        transform: none;
+    }
+
+    .gk-team__panel.is-active {
+        animation: none;
+    }
+}

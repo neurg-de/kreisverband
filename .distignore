@@ -1,0 +1,13 @@
+# Files excluded from theme distribution (release zip)
+.git
+.github
+.gitignore
+.distignore
+docker-compose.yml
+Makefile
+CONTRIBUTING.md
+.DS_Store
+.idea
+.vscode
+*.swp
+node_modules

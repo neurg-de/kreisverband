@@ -1,0 +1,48 @@
+// ==========================================================================
+// Header
+// ==========================================================================
+
+#header {
+    background: var(--nav-bar-bg);
+    color: var(--color-text);
+    position: relative;
+    z-index: 100;
+
+    .sitetitle {
+        display: none;
+    }
+}
+
+
+// Header mobile bar
+.header-mobile {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--nav-bar-padding-x);
+    background: var(--nav-bar-bg);
+    border-bottom: var(--nav-bar-border);
+
+    .logolink {
+        padding: var(--nav-bar-padding-y) 0;
+
+        img {
+            height: var(--nav-bar-logo-height-mobile);
+        }
+    }
+
+    a {
+        text-decoration: none;
+    }
+}
+
+.switch-menu {
+    color: var(--color-text);
+    font-size: 1.5rem;
+    padding: var(--space-2);
+    display: inline-block;
+    margin-left: auto;
+
+    &:hover {
+        color: var(--color-primary);
+    }
+}

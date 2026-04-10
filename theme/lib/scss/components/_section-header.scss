@@ -1,0 +1,35 @@
+// ==========================================================================
+// Component: Section Header
+// ==========================================================================
+
+.gk-section-header {
+    text-align: center;
+    margin-bottom: var(--space-10);
+
+    h2 {
+        font-family: var(--font-heading);
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        font-weight: 700;
+        margin: 0 0 var(--space-2);
+        color: var(--color-text);
+    }
+
+    p {
+        font-size: 1.1rem;
+        color: var(--color-text-muted);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    // --- Variant: Light (on dark backgrounds, e.g. hero) ---
+    &--light {
+        h2 {
+            color: var(--hero-text, #fff);
+        }
+
+        p {
+            color: var(--hero-text-dim, rgba(255, 255, 255, 0.85));
+        }
+    }
+}

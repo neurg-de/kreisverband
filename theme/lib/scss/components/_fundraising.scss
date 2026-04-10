@@ -1,0 +1,44 @@
+// ==========================================================================
+// Component: Fundraising Bar
+// ==========================================================================
+
+.gk-fundraising-bar {
+    max-width: 480px;
+    margin: 0 auto var(--space-8);
+
+    // Designed for dark (hero) backgrounds — uses light colors
+    --bar-text: #fff;
+    --bar-fill: #fff;
+    --bar-track: rgba(255, 255, 255, 0.2);
+
+    &__track {
+        height: 14px;
+        background: var(--bar-track);
+        border-radius: var(--radius-full);
+        overflow: hidden;
+        margin-bottom: var(--space-3);
+    }
+
+    &__fill {
+        height: 100%;
+        background: var(--bar-fill);
+        border-radius: var(--radius-full);
+        transition: width 1s ease;
+        min-width: 14px;
+    }
+
+    &__stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        color: var(--bar-text);
+        opacity: 0.8;
+    }
+
+    &__current {
+        font-weight: 700;
+        color: var(--bar-text);
+        font-size: 1.1rem;
+        opacity: 1;
+    }
+}

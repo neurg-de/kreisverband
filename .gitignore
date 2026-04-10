@@ -1,0 +1,26 @@
+# Environment (credentials)
+.env
+
+# Docker volumes (not tracked)
+db_data/
+wp_data/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node
+node_modules/
+dist/
+package-lock.json
+
+# WordPress dev artifacts
+*.log
+*.sql
+wp-cli.phar

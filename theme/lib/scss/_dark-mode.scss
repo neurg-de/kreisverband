@@ -1,0 +1,96 @@
+// ==========================================================================
+// Global Dark Mode Overrides
+// ==========================================================================
+
+@media (prefers-color-scheme: dark) {
+    // Logo text in nav-desktop and fly-in nav
+    .logolink h2,
+    .logo-desktop h2 {
+        color: var(--sand-200) !important;
+    }
+
+    // Desktop nav link colors (non-homepage)
+    #nav-desktop {
+        background: var(--tanne-800);
+        border-bottom-color: var(--klee-400);
+
+        .nav-main a {
+            color: var(--sand-200);
+
+            &:hover { color: var(--sonne-600); }
+        }
+
+        nav.nav-main > ul > li.current-menu-item > a,
+        nav.nav-main > ul > li.current-menu-ancestor > a {
+            border-bottom-color: var(--klee-400);
+            color: var(--sand-200);
+        }
+
+        .nav-main li ul li.current-menu-item > a {
+            color: var(--tanne-900);
+        }
+    }
+
+    // Fly-in nav
+    #nav-flyin {
+        background: var(--tanne-800);
+        border-bottom-color: var(--klee-400);
+
+        .logo-desktop h2 {
+            color: var(--sand-200) !important;
+        }
+
+        .nav-main a {
+            color: var(--sand-200);
+
+            &:hover { color: var(--sonne-600); }
+        }
+
+        .nav-main li ul li.current-menu-item > a {
+            color: var(--tanne-900);
+        }
+    }
+
+    // Submenu dropdowns
+    nav.nav-main > ul > li > ul {
+        background: var(--tanne-800);
+        border-top-color: var(--klee-400);
+    }
+
+    nav.nav-main li ul li a {
+        color: var(--sand-200);
+        border-bottom-color: var(--tanne-700);
+
+        &:hover {
+            background: var(--tanne-700);
+            color: var(--sonne-600);
+        }
+    }
+
+    // CTA button in nav
+    nav.nav-main > ul > li.cta li a {
+        color: var(--sand-200);
+        background: var(--tanne-800);
+
+        &:hover { background: var(--tanne-700); }
+    }
+
+    // Search desktop overlay
+    .search-desktop {
+        background: var(--tanne-800);
+    }
+
+    // Mobile header
+    .header-mobile {
+        background: var(--tanne-800);
+    }
+
+    // Lightbox
+    .gk-lightbox-overlay {
+        background: rgba(0, 0, 0, 0.9);
+    }
+
+    .gk-lightbox-caption {
+        color: var(--sand-200);
+    }
+}

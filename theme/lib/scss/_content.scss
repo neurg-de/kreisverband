@@ -1,0 +1,46 @@
+// ==========================================================================
+// Content Area & Article Lists
+// ==========================================================================
+
+#content {
+    background: var(--color-surface);
+    padding: var(--space-8) 0 var(--space-12);
+}
+
+#main {
+    min-height: 300px;
+}
+
+.postpic {
+    width: 100%;
+    height: 300px;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-6);
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+    }
+
+    @media (min-width: 768px) {
+        height: 400px;
+    }
+}
+
+// Post list styles moved to components/_post-list.scss
+// Legacy selector kept there as alias: article.postlist
+
+article ul,
+article ol {
+    padding: var(--space-4);
+}
+
+// .nav-sozial styles are in _social-bar.scss
+
+.sidebar a,
+.sidebar a:visited {
+    color: var(--color-link);
+}

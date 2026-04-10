@@ -1,0 +1,163 @@
+// ==========================================================================
+// Component: Contact
+// ==========================================================================
+
+.gk-contact {
+    padding: var(--space-16) 0;
+    background: var(--color-bg);
+
+    &__card {
+        max-width: 640px;
+        margin: 0 auto;
+        background: var(--color-surface);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__info {
+        padding: var(--space-8) var(--space-8) var(--space-6);
+
+        h3 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.15rem;
+            margin: 0 0 var(--space-4);
+            color: var(--color-text);
+        }
+    }
+
+    &__details {
+        font-style: normal;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    &__item {
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-3);
+        padding: var(--space-3) 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        border-bottom: 1px solid var(--color-border, rgba(0, 0, 0, 0.06));
+
+        &:last-child {
+            border-bottom: 0;
+        }
+
+        i {
+            flex-shrink: 0;
+            width: 1.25em;
+            text-align: center;
+            color: var(--color-primary);
+            font-size: 0.9rem;
+        }
+
+        span {
+            color: var(--color-text);
+        }
+
+        a {
+            display: flex;
+            align-items: baseline;
+            gap: var(--space-3);
+            color: var(--color-text);
+            text-decoration: none;
+            transition: color 0.15s;
+
+            &:hover {
+                color: var(--color-primary);
+            }
+        }
+    }
+
+    &__social {
+        padding: var(--space-5) var(--space-8) var(--space-8);
+        border-top: 1px solid var(--color-border, rgba(0, 0, 0, 0.06));
+    }
+
+    &__social-heading {
+        font-family: var(--font-heading);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-text-muted);
+        margin: 0 0 var(--space-3);
+    }
+
+    // Social links inside the card: compact icon pills.
+    .gk-social-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+
+        a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.9rem;
+            background: var(--color-bg);
+            border-radius: var(--radius-full);
+            text-decoration: none;
+            color: var(--color-primary);
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.15s;
+
+            &:hover {
+                background: var(--color-primary);
+                color: var(--color-text-inverse);
+            }
+
+            i {
+                font-size: 0.95rem;
+            }
+        }
+    }
+}
+
+// --- Responsive ---
+@media (max-width: 639px) {
+    .gk-contact {
+        padding: var(--space-12) 0;
+
+        &__card {
+            border-radius: var(--radius-md);
+            margin: 0 var(--space-2);
+        }
+
+        &__info,
+        &__social {
+            padding-left: var(--space-5);
+            padding-right: var(--space-5);
+        }
+    }
+}
+
+// --- Dark Mode ---
+@media (prefers-color-scheme: dark) {
+    .gk-contact {
+        &__item {
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+
+        &__social {
+            border-top-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .gk-social-links a {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--color-text);
+
+            &:hover {
+                background: var(--color-primary);
+                color: var(--color-text-inverse);
+            }
+        }
+    }
+}

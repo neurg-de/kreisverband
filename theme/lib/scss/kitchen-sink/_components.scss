@@ -1,0 +1,499 @@
+// ==========================================================================
+// Kitchen Sink — Component showcases
+// ==========================================================================
+
+// --- Link showcase ---
+
+.ks-link-states {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6) var(--space-10);
+    margin-bottom: var(--space-6);
+}
+
+.ks-link-state {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+
+    .ks-link-state__label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--color-text-muted);
+    }
+
+    // Simulate hover/active states statically
+    &--hover a,
+    &--active a {
+        color: var(--color-text);
+        text-decoration-line: none;
+        margin-inline: calc(var(--mark-overlap) * -1);
+        padding-inline: var(--mark-overlap);
+        background-color: transparent;
+        background-image:
+            linear-gradient(to bottom right, transparent 0 50%, var(--mark-color) 50% 100%),
+            linear-gradient(var(--mark-color), var(--mark-color)),
+            linear-gradient(to top left, transparent 50%, var(--mark-color) 50%);
+        background-size:
+            var(--mark-skew) var(--mark-height),
+            calc(100% - var(--mark-skew) * 2 + 0.5px) var(--mark-height),
+            var(--mark-skew) var(--mark-height);
+        background-position: 0 100%, center bottom, 100% 100%;
+        background-repeat: no-repeat;
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+    }
+
+    &--visited a {
+        color: var(--color-link);
+        text-decoration-line: underline;
+        text-underline-offset: 4px;
+    }
+}
+
+.ks-link-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+
+    li {
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-2);
+
+        &::before {
+            content: "\25B8";
+            color: var(--color-primary);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+    }
+}
+
+.ks-link-sizes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6) var(--space-10);
+    align-items: baseline;
+    margin-bottom: var(--space-6);
+}
+
+.ks-link-size {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+
+    .ks-link-size__label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--color-text-muted);
+    }
+
+    &--standard a { font-size: 1rem; }
+    &--medium a   { font-size: 0.875rem; }
+    &--small a    { font-size: 0.75rem; }
+}
+
+// --- Button showcase ---
+
+.ks-btn-type-label {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+.ks-btn-states {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6) var(--space-8);
+    margin-bottom: var(--space-6);
+}
+
+.ks-btn-state {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+
+    .ks-btn-state__label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--color-text-muted);
+    }
+
+    // Simulated focus ring
+    &--focus a {
+        outline: var(--color-info) solid 2px;
+        outline-offset: 2px;
+    }
+
+    // Simulated hover
+    &--hover .gk-btn--icon-only {
+        background-color: var(--color-cta);
+        color: var(--color-text);
+        fill: var(--color-text);
+    }
+
+    &--hover .gk-btn--primary {
+        background-color: var(--color-cta);
+        color: var(--color-text);
+        fill: var(--color-text);
+    }
+
+    &--hover .gk-btn--filter,
+    &--active .gk-btn--filter {
+        background-color: var(--color-cta);
+        color: var(--color-text);
+        fill: var(--color-text);
+        outline: transparent solid 2px;
+        outline-offset: 2px;
+    }
+
+    // Prevent pointer events on showcase buttons
+    a, button {
+        pointer-events: none;
+    }
+}
+
+// --- Checkbox showcase ---
+
+.ks-cb-states {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6) var(--space-8);
+    margin-bottom: var(--space-6);
+}
+
+.ks-cb-states--labeled {
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.ks-cb-state {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+
+    // Simulated focus ring on the checkbox
+    &--focus input[type="checkbox"] {
+        box-shadow: 0 0 0 2px var(--color-info);
+    }
+
+    // Prevent interaction
+    input[type="checkbox"],
+    label {
+        pointer-events: none;
+    }
+}
+
+// Label-left layout: label text on the left, checkbox on the right
+.ks-cb-label-left {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    width: 20.5rem; // 328px
+    cursor: default;
+}
+
+// Label-right layout: checkbox on the left, label text on the right
+.ks-cb-label-right {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 20.5rem; // 328px
+    cursor: default;
+}
+
+.ks-cb-text {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--color-text);
+}
+
+// --- Input showcase ---
+
+.ks-input-states {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.ks-input-state {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+
+    .ks-btn-state__label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--color-text-muted);
+        width: 4.5rem;
+        flex-shrink: 0;
+    }
+
+    input[type="text"] {
+        pointer-events: none;
+    }
+
+    &--hover .ks-input-wrap input[type="text"] {
+        border-color: var(--color-primary);
+    }
+
+    &--active .ks-input-wrap input[type="text"] {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px var(--color-info);
+        outline: none;
+    }
+}
+
+.ks-input-wrap {
+    width: 20.5rem; // 328px
+}
+
+.ks-input-wrap--labeled {
+    label {
+        display: block;
+        font-family: var(--font-body);
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: var(--space-1);
+    }
+}
+
+// --- Select/Dropdown showcase ---
+
+.ks-select-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    margin-bottom: var(--space-6);
+    align-items: flex-start;
+}
+
+.ks-select-item-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+
+    .ks-btn-state__label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--color-text-muted);
+    }
+}
+
+// Trigger button (looks like a form input)
+.ks-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 20.5rem; // 328px
+    padding: 0.5rem 0.75rem;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.5;
+    cursor: default;
+    box-sizing: border-box;
+    pointer-events: none;
+
+    &--open {
+        border-color: var(--color-primary);
+    }
+
+    &__text {
+        flex: 1;
+        color: var(--color-text-muted); // placeholder style
+    }
+
+    &__icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        flex-shrink: 0;
+        fill: var(--color-text-muted);
+    }
+}
+
+// Dropdown panel
+.ks-select-panel {
+    width: 20.5rem; // 328px
+    background: var(--color-surface);
+    border: 2px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+
+    &--cols2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+// Individual list item
+.ks-select-opt {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.6rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-text);
+    background: var(--color-surface);
+    cursor: default;
+
+    svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        flex-shrink: 0;
+        fill: var(--color-text);
+    }
+
+    input[type="checkbox"] {
+        flex-shrink: 0;
+        pointer-events: none;
+    }
+
+    &--hover {
+        background: var(--color-cta);
+        color: var(--color-text);
+    }
+
+    &--selected {
+        background: var(--color-primary);
+        color: var(--color-text-inverse);
+
+        svg { fill: var(--color-text-inverse); }
+        input[type="checkbox"] { accent-color: var(--sonne-600); }
+    }
+}
+
+// Standalone list items (Tab 3)
+.ks-select-items-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    align-items: flex-start;
+}
+
+.ks-select-item-standalone {
+    width: 20rem; // 320px
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+
+    &--overflow {
+        span,
+        & {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+// --- Switch/Toggle showcase ---
+
+// Base switch layout (no label)
+.ks-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: default;
+
+    // --- Track ---
+    input[type="checkbox"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+    }
+
+    &__track {
+        display: inline-flex;
+        align-items: center;
+        position: relative;
+        width: 3.375rem;  // 54px
+        height: 2.125rem; // 34px
+        border-radius: var(--radius-full);
+        background: var(--color-border);
+        border: 2px solid var(--color-border);
+        flex-shrink: 0;
+        transition: background 0.2s, border-color 0.2s;
+        box-sizing: border-box;
+
+        // Thumb
+        &::after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            width: 1.5rem;  // 24px
+            height: 1.5rem;
+            border-radius: var(--radius-full);
+            background: var(--color-surface);
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+    }
+
+    // Checked -> thumb moves right + green track
+    input[type="checkbox"]:checked + .ks-switch__track {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+
+        &::after {
+            transform: translateX(calc(3.375rem - 1.5rem - 6px));
+        }
+    }
+
+    // Disabled
+    input[type="checkbox"]:disabled + .ks-switch__track {
+        opacity: 0.45;
+    }
+
+    // Focus ring (simulated via wrapper class)
+    &--focus .ks-switch__track {
+        box-shadow: 0 0 0 2px var(--color-info);
+    }
+
+    // Label left: text -- [switch]
+    &--label-left {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 20.5rem; // 328px
+        gap: var(--space-2);
+    }
+
+    // Label right: [switch] -- text
+    &--label-right {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+}
