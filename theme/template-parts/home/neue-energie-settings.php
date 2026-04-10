@@ -481,6 +481,9 @@ function gk_home_neue_energie_sanitize( $input ) {
         'news_heading'       => sanitize_text_field( $input['news_heading'] ?? 'Aktuell' ),
         'news_image'         => absint( $input['news_image'] ?? 0 ),
 
+        // Minimal mode
+        'minimal_title'       => sanitize_text_field( $input['minimal_title'] ?? '' ),
+
         // Fundraising mode
         'fundraising_title'   => sanitize_text_field( $input['fundraising_title'] ?? '' ),
         'fundraising_text'    => sanitize_textarea_field( $input['fundraising_text'] ?? '' ),
