@@ -51,6 +51,9 @@ class PostTypesTest extends WP_UnitTestCase {
     }
 
     public function test_kreisverband_default_term_exists() {
+        // Ensure the init hook that creates the default term has run.
+        gk_ensure_zuordnung_defaults();
+
         $term = get_term_by( 'slug', 'kreisverband', 'gk_zuordnung' );
         $this->assertInstanceOf( WP_Term::class, $term );
         $this->assertEquals( 'Kreisverband', $term->name );

@@ -13,7 +13,6 @@
     </testsuites>
 
     <php>
-        <const name="ABSPATH" value="/tmp/wordpress/"/>
         <const name="WP_TESTS_DIR" value="/tmp/wordpress-tests-lib/"/>
     </php>
 </phpunit>
