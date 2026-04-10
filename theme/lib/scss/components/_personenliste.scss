@@ -135,6 +135,52 @@
     }
 }
 
+// --- Dark Mode ---
+@media (prefers-color-scheme: dark) {
+    .gk-abteilung {
+        &__header p {
+            color: var(--tanne-200);
+        }
+
+        &__filters .gk-btn--filter {
+            color: var(--tanne-200);
+            outline-color: var(--tanne-400);
+
+            &:hover,
+            &.is-active {
+                background-color: var(--color-cta);
+                color: var(--color-text);
+                outline-color: var(--color-cta);
+            }
+        }
+
+        &__card {
+            color: var(--sand-200);
+        }
+
+        &__position {
+            background: var(--tanne-400);
+            color: var(--tanne-900);
+        }
+
+        &__name {
+            color: var(--sand-200);
+        }
+
+        &__role {
+            color: var(--tanne-200);
+        }
+
+        &__ov {
+            color: var(--tanne-200);
+        }
+
+        &__empty {
+            color: var(--tanne-200);
+        }
+    }
+}
+
 // --- Reduced Motion ---
 @media (prefers-reduced-motion: reduce) {
     .gk-abteilung__card:hover .gk-abteilung__photo img {

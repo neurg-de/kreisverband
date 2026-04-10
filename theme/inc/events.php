@@ -106,7 +106,7 @@ function gk_event_details_cb( $post ) {
         <td><input type="time" name="gk_event_end_time" id="gk_event_end_time" value="<?php echo esc_attr( $end_time ); ?>" /></td>
     </tr>
     <tr>
-        <th><label for="gk_event_all_day">Ganztaegig</label></th>
+        <th><label for="gk_event_all_day">Ganztägig</label></th>
         <td><input type="checkbox" name="gk_event_all_day" id="gk_event_all_day" value="1" <?php checked( $all_day, '1' ); ?> /></td>
         <th></th><td></td>
     </tr>
@@ -325,7 +325,7 @@ function gk_shortcode_termine( $atts ) {
                 <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
                 <p class="gk-event-item__meta">
                     <?php if ( $all_day === '1' ) : ?>
-                        Ganztaegig
+                        Ganztägig
                     <?php elseif ( $start_time ) : ?>
                         <?php echo esc_html( $start_time ); ?> Uhr
                         <?php if ( $end_time ) : ?>
@@ -550,7 +550,7 @@ function gk_format_event_date( $post_id ) {
     $out = date_i18n( 'l, j. F Y', strtotime( $start_date ) );
 
     if ( $all_day === '1' ) {
-        $out .= ' (ganztaegig)';
+        $out .= ' (ganztägig)';
     } elseif ( $start_time ) {
         $out .= ', ' . $start_time . ' Uhr';
     }

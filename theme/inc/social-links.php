@@ -194,7 +194,7 @@ function gk_social_links_bar( $links, $args = array() ) {
             $def = $platforms[ $platform ] ?? null;
             if ( ! $def ) continue;
         ?>
-            <a href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener" title="<?php echo esc_attr( $def['label'] ); ?>" data-platform="<?php echo esc_attr( $platform ); ?>">
+            <a href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo esc_attr( $def['label'] ); ?>" data-platform="<?php echo esc_attr( $platform ); ?>">
                 <i class="<?php echo esc_attr( $def['icon'] ); ?>" aria-hidden="true"></i>
                 <span class="gk-social-links__label"><?php echo esc_html( $def['label'] ); ?></span>
             </a>
@@ -276,7 +276,7 @@ function gk_footer_social_bar() {
             $def = $platforms[ $platform ] ?? null;
             if ( ! $def ) continue;
         ?>
-            <a href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener" title="<?php echo esc_attr( $def['label'] ); ?>" data-platform="<?php echo esc_attr( $platform ); ?>" style="--brand-color: <?php echo esc_attr( $def['color'] ); ?>">
+            <a href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo esc_attr( $def['label'] ); ?>" data-platform="<?php echo esc_attr( $platform ); ?>" style="--brand-color: <?php echo esc_attr( $def['color'] ); ?>">
                 <i class="<?php echo esc_attr( $def['icon'] ); ?>" aria-hidden="true"></i>
                 <span class="gk-social-links__label"><?php echo esc_html( $def['label'] ); ?></span>
             </a>

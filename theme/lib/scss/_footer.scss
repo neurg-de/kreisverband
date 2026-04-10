@@ -185,6 +185,16 @@
     margin: 0;
 }
 
+@media (max-width: 539px) {
+    .footer-verbaende-list {
+        gap: var(--space-1) var(--space-3);
+
+        li:not(:last-child)::after {
+            margin-left: var(--space-3);
+        }
+    }
+}
+
 @media (max-width: 767px) {
     .footer-bottom .inner {
         flex-direction: column;

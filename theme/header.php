@@ -8,10 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="theme-color" content="<?php echo esc_attr( apply_filters( 'gk_theme_color', '#0A321E' ) ); ?>">
 
-    <meta name="publisher" content="<?php bloginfo( 'name' ); ?>" />
-    <meta name="author" content="<?php bloginfo( 'name' ); ?>" />
-
     <link rel="icon" href="<?php echo esc_url( GK_URI . '/favicon.ico' ); ?>">
+    <?php if ( file_exists( get_template_directory() . '/apple-touch-icon.png' ) ) : ?>
+        <link rel="apple-touch-icon" href="<?php echo esc_url( GK_URI . '/apple-touch-icon.png' ); ?>">
+    <?php endif; ?>
 
     <?php wp_head(); ?>
 </head>
@@ -30,12 +30,41 @@
 ?>
 <body <?php body_class( $gk_is_ov ? 'gk-ov-context' : '' ); ?>>
     
-    <nav class="unsichtbar"><h6>Sprungmarken</h6><ul>
-        <li><a href="#content">Direkt zum Inhalt</a></li>
-        <li><a href="#hauptmenue">Zur Navigation</a></li>
-        <li><a href="#sidebar1">Seitenleiste</a></li>
-        <li><a href="#footer">Fussbereich</a></li>
+    <nav class="gk-skip-links" aria-label="Sprungmarken"><ul>
+        <li><a href="#content" class="gk-skip-link">Direkt zum Inhalt</a></li>
+        <li><a href="#hauptmenue" class="gk-skip-link">Zur Navigation</a></li>
+        <li><a href="#sidebar1" class="gk-skip-link">Seitenleiste</a></li>
+        <li><a href="#footer" class="gk-skip-link">Fussbereich</a></li>
     </ul></nav>
+    <style>
+        .gk-skip-links { position: absolute; }
+        .gk-skip-links ul { list-style: none; margin: 0; padding: 0; }
+        .gk-skip-link {
+            position: absolute;
+            left: -9999px;
+            top: auto;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            z-index: 100000;
+        }
+        .gk-skip-link:focus {
+            position: fixed;
+            top: 6px;
+            left: 6px;
+            width: auto;
+            height: auto;
+            padding: 12px 24px;
+            background: #0A321E;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.3);
+            outline: 2px solid #fff;
+        }
+    </style>
 
     <!-- header -->
     <header id="header">
@@ -55,14 +84,14 @@
                 <?php endif; ?>
                 <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : get_bloginfo( 'name' ); ?></h2>
             </a>
-            <a class="switch-menu" href="#nav-mobile"><span class="fa fa-bars"></span><span class="hidden">Menu</span></a>
+            <a class="switch-menu" href="#nav-mobile" role="button" aria-expanded="false" aria-label="Menü öffnen"><span class="fa fa-bars" aria-hidden="true"></span><span class="hidden">Menu</span></a>
         </section>
     </header>
 
     <!-- mobile menu -->
     <div id="nav-mobile">
         <div class="nav-mobile-view">
-            <a class="switch-menu" href="#header"><span class="fa fa-times"></span>Menu schliessen</a>
+            <a class="switch-menu" href="#header" role="button" aria-expanded="true" aria-label="Menü schliessen"><span class="fa fa-times" aria-hidden="true"></span>Menu schliessen</a>
             <div class="logo">
                 <?php if ( $gk_is_ov ) : ?>
                     <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="kv-back" title="Zurück zum Kreisverband">KV</a>
@@ -126,7 +155,7 @@
     <!-- search desktop (below nav) -->
     <div class="search-desktop" id="suche"><div class="inner">
         <?php get_search_form(); ?>
-        <a href="#header"><i class="fa fa-times"></i> Suche schliessen</a>
+        <a href="#header" aria-label="Suche schliessen"><i class="fa fa-times" aria-hidden="true"></i> Suche schliessen</a>
     </div></div>
 
     <?php gk_context_social_bar(); ?>

@@ -8,16 +8,33 @@
 
     var $mobileNav = $('#nav-mobile');
     var $body = $('body');
+    var $hamburger = $('.switch-menu');
 
-    $('.switch-menu').on('click', function(e) {
+    $hamburger.on('click', function(e) {
         e.preventDefault();
+        var isOpen = $mobileNav.hasClass('is-open');
         $mobileNav.toggleClass('is-open');
         $body.toggleClass('nav-open');
+
+        if (!isOpen) {
+            // Opening: set aria-expanded and move focus to first link
+            $hamburger.attr('aria-expanded', 'true');
+            var $firstLink = $mobileNav.find('a').first();
+            if ($firstLink.length) {
+                $firstLink.focus();
+            }
+        } else {
+            // Closing: set aria-expanded and return focus to hamburger
+            $hamburger.attr('aria-expanded', 'false');
+            $hamburger.focus();
+        }
     });
 
     $('.mobile-overlay').on('click', function() {
         $mobileNav.removeClass('is-open');
         $body.removeClass('nav-open');
+        $hamburger.attr('aria-expanded', 'false');
+        $hamburger.focus();
     });
 
 
@@ -316,8 +333,8 @@
             var filter = $(this).data('filter');
 
             // Update active state
-            $buttons.removeClass('is-active').attr('aria-selected', 'false');
-            $(this).addClass('is-active').attr('aria-selected', 'true');
+            $buttons.removeClass('is-active').attr('aria-selected', 'false').attr('aria-pressed', 'false');
+            $(this).addClass('is-active').attr('aria-selected', 'true').attr('aria-pressed', 'true');
 
             // Toggle filtered class (hides OV labels when a specific OV is selected)
             $container.toggleClass('gk-abteilung--filtered', filter !== 'all');

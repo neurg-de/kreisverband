@@ -29,11 +29,17 @@ function gk_cookie_consent_banner() {
     <div id="gk-cookie-consent" class="gk-cookie-consent" role="dialog" aria-label="Cookie-Hinweis">
         <div class="gk-cookie-inner">
             <p>
-                Diese Website verwendet technisch notwendige Cookies, um die bestmögliche Funktionalität zu gewährleisten.
+                Diese Website verwendet ausschließlich technisch notwendige Cookies. Es werden keine Tracking- oder Marketing-Cookies eingesetzt.
                 <?php if ( $privacy_url ) : ?>
-                    Mehr dazu in unserer <a href="<?php echo esc_url( $privacy_url ); ?>">Datenschutzerklärung</a>.
+                    Weitere Informationen findest du in unserer <a href="<?php echo esc_url( $privacy_url ); ?>">Datenschutzerklärung</a>.
                 <?php endif; ?>
             </p>
+            <details class="gk-cookie-details">
+                <summary>Welche Cookies werden gesetzt?</summary>
+                <ul>
+                    <li><strong>gk_cookie_consent</strong> — Speichert, dass du diesen Hinweis bestätigt hast. Gültigkeit: 1 Jahr.</li>
+                </ul>
+            </details>
             <button type="button" id="gk-cookie-accept" class="gk-cookie-accept">Verstanden</button>
         </div>
     </div>
@@ -70,3 +76,20 @@ function gk_cookie_consent_banner() {
     <?php
 }
 add_action( 'wp_footer', 'gk_cookie_consent_banner', 100 );
+
+
+/**
+ * [cookie_einstellungen] — Renders a link to revoke cookie consent and re-show the banner.
+ *
+ * Intended for the footer or privacy page.
+ */
+function gk_shortcode_cookie_einstellungen( $atts ) {
+    $atts = shortcode_atts( array(
+        'text' => 'Cookie-Einstellungen',
+    ), $atts );
+
+    return '<a href="#" class="gk-cookie-revoke" onclick="document.cookie=\'gk_cookie_consent=; path=/; max-age=0\'; location.reload(); return false;">'
+        . esc_html( $atts['text'] )
+        . '</a>';
+}
+add_shortcode( 'cookie_einstellungen', 'gk_shortcode_cookie_einstellungen' );

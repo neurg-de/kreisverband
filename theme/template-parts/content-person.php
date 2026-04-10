@@ -76,7 +76,7 @@ if ( $variant === 'personenliste' ) :
     <?php if ( has_post_thumbnail( $post_id ) ) : ?>
         <a class="postimglist" href="<?php echo $permalink; ?>"><?php echo get_the_post_thumbnail( $post_id, '350uncropped', array( 'alt' => $title ) ); ?></a>
     <?php else : ?>
-        <a class="postimglist" href="<?php echo $permalink; ?>"><img src="<?php echo esc_url( GK_IMAGE_DIR . 'nopic.jpg' ); ?>" alt="" /></a>
+        <a class="postimglist" href="<?php echo $permalink; ?>"><img src="<?php echo esc_url( GK_IMAGE_DIR . 'nopic.jpg' ); ?>" alt="Kein Foto vorhanden" /></a>
     <?php endif; ?>
 
     <h4><a href="<?php echo $permalink; ?>">

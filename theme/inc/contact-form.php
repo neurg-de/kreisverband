@@ -50,8 +50,8 @@ function gk_shortcode_kontaktformular( $atts ) {
 
         // Honeypot
         if ( ! empty( $_POST['gk_website_url'] ) ) {
-            // Bot detected — silently pretend success
-            $success = true;
+            // Bot detected — silently do nothing
+            return '';
         }
 
         if ( ! $success && empty( $errors ) ) {
@@ -72,7 +72,7 @@ function gk_shortcode_kontaktformular( $atts ) {
                 $transient_key = 'gk_contact_' . md5( $ip );
                 $count = (int) get_transient( $transient_key );
                 if ( $count >= 3 ) {
-                    $errors[] = 'Zu viele Nachrichten. Bitte versuche es später erneut.';
+                    $errors[] = 'Zu viele Nachrichten. Es sind maximal 3 Nachrichten pro Stunde erlaubt. Bitte versuche es später erneut.';
                 } else {
                     set_transient( $transient_key, $count + 1, HOUR_IN_SECONDS );
                 }
@@ -122,13 +122,13 @@ function gk_shortcode_kontaktformular( $atts ) {
 
     if ( $success ) :
     ?>
-        <div class="gk-contact-success">
+        <div class="gk-contact-success" role="status" aria-live="polite">
             <p><strong>Vielen Dank!</strong> Deine Nachricht wurde erfolgreich gesendet.</p>
         </div>
     <?php else : ?>
 
         <?php if ( ! empty( $errors ) ) : ?>
-            <div class="gk-contact-errors">
+            <div class="gk-contact-errors" role="alert" aria-live="polite">
                 <?php foreach ( $errors as $error ) : ?>
                     <p><?php echo esc_html( $error ); ?></p>
                 <?php endforeach; ?>
@@ -164,8 +164,8 @@ function gk_shortcode_kontaktformular( $atts ) {
             </p>
 
             <p class="gk-field gk-field-checkbox">
-                <label>
-                    <input type="checkbox" name="gk_contact_privacy" value="1" required />
+                <input type="checkbox" name="gk_contact_privacy" id="gk_contact_privacy" value="1" required aria-required="true" />
+                <label for="gk_contact_privacy">
                     Ich habe die
                     <?php if ( $privacy_url ) : ?>
                         <a href="<?php echo esc_url( $privacy_url ); ?>" target="_blank">Datenschutzerklärung</a>
@@ -177,7 +177,7 @@ function gk_shortcode_kontaktformular( $atts ) {
             </p>
 
             <p class="gk-field gk-field-submit">
-                <button type="submit" name="gk_contact_submit" class="button">Nachricht senden</button>
+                <button type="submit" name="gk_contact_submit" class="button" onclick="this.disabled=true;this.form.submit();">Nachricht senden</button>
             </p>
         </form>
     <?php

@@ -101,6 +101,11 @@ nav.nav-main {
                     color: var(--color-primary);
                     background: var(--color-bg-light);
                 }
+
+                &:focus-visible {
+                    outline: 2px solid var(--color-primary);
+                    outline-offset: -2px;
+                }
             }
 
             &.current-menu-item > a,
@@ -128,6 +133,7 @@ nav.nav-main {
             }
 
             &:hover > ul { display: block; }
+            &:focus-within > ul { display: block; }
 
             // CTA "Mitmachen" — matches .gk-btn--primary
             &.cta {
@@ -526,6 +532,13 @@ body.gk-ov-context #nav-mobile nav.kv {
 
 
 // ── 7. Search panel ─────────────────────────────────────────────────────────
+
+// --- Mobile submenu: reduce padding on very small screens ---
+@media (max-width: 360px) {
+    .nav-mobile-view nav ul li ul {
+        padding-left: var(--space-2);
+    }
+}
 
 .search-desktop.is-open {
     display: block;

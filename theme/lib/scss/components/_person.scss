@@ -52,3 +52,26 @@
         }
     }
 }
+
+// --- Dark Mode ---
+@media (prefers-color-scheme: dark) {
+    .gk-person {
+        color: var(--sand-200);
+
+        &__name {
+            color: var(--sand-200);
+        }
+
+        &__role {
+            color: var(--tanne-200);
+        }
+
+        &__contact a {
+            color: var(--tanne-300);
+
+            &:hover {
+                color: var(--tanne-200);
+            }
+        }
+    }
+}

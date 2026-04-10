@@ -72,9 +72,13 @@ function gk_person_shortcode( $atts, $template_part, $section_class, $sort_key =
     ob_start();
     ?>
     <section class="<?php echo esc_attr( $section_class ); ?> clearfix">
-    <?php while ( $wp_query->have_posts() ) : $wp_query->the_post(); ?>
-        <?php get_template_part( 'template-parts/' . $template_part, null, array( 'variant' => $variant ) ); ?>
-    <?php endwhile; ?>
+    <?php if ( $wp_query->have_posts() ) : ?>
+        <?php while ( $wp_query->have_posts() ) : $wp_query->the_post(); ?>
+            <?php get_template_part( 'template-parts/' . $template_part, null, array( 'variant' => $variant ) ); ?>
+        <?php endwhile; ?>
+    <?php else : ?>
+        <p class="gk-empty-state">Keine Personen gefunden.</p>
+    <?php endif; ?>
     </section>
     <?php
     $wp_query = $temp;
@@ -275,7 +279,7 @@ function gk_shortcode_abteilung( $atts ) {
         </div>
         <?php endif; ?>
 
-        <div class="gk-abteilung__grid">
+        <div class="gk-abteilung__grid" aria-live="polite">
         <?php foreach ( $persons as $item ) :
             $pid       = $item['post']->ID;
             $permalink = esc_url( get_permalink( $pid ) );
@@ -295,7 +299,7 @@ function gk_shortcode_abteilung( $atts ) {
                     <?php if ( has_post_thumbnail( $pid ) ) : ?>
                         <?php echo get_the_post_thumbnail( $pid, 'medium', array( 'alt' => $title ) ); ?>
                     <?php else : ?>
-                        <img src="<?php echo esc_url( GK_IMAGE_DIR . 'platzhalter.png' ); ?>" alt="" />
+                        <img src="<?php echo esc_url( GK_IMAGE_DIR . 'platzhalter.png' ); ?>" alt="Kein Foto vorhanden" />
                     <?php endif; ?>
                 </div>
                 <?php if ( $position && ! $hidden ) : ?>

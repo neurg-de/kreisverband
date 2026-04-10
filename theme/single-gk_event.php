@@ -34,7 +34,7 @@ while ( have_posts() ) : the_post();
 
         if ( $all_day === '1' ) {
             $gcal_start = str_replace( '-', '', $start_date );
-            $gcal_end   = $end_date ? str_replace( '-', '', date( 'Y-m-d', strtotime( $end_date . ' +1 day' ) ) ) : $gcal_start;
+            $gcal_end   = $end_date ? str_replace( '-', '', date( 'Y-m-d', strtotime( $end_date . ' +1 day' ) ) ) : str_replace( '-', '', date( 'Y-m-d', strtotime( $start_date . ' +1 day' ) ) );
             $gcal_base .= '&dates=' . $gcal_start . '/' . $gcal_end;
         } else {
             $gcal_start = str_replace( '-', '', $start_date ) . 'T' . str_replace( ':', '', $start_time ?: '0000' ) . '00';
@@ -106,7 +106,7 @@ while ( have_posts() ) : the_post();
                     <h1 class="gk-event-single__title"><?php the_title(); ?></h1>
 
                     <?php if ( $is_past ) : ?>
-                        <p class="gk-event-single__past-notice">Dieser Termin liegt in der Vergangenheit.</p>
+                        <p class="gk-event-single__past-notice" role="status">Dieser Termin liegt in der Vergangenheit.</p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -146,7 +146,7 @@ while ( have_posts() ) : the_post();
                             <?php endif; ?>
                         </p>
                         <?php if ( $address ) : ?>
-                            <a href="https://maps.google.com/?q=<?php echo rawurlencode( $address ); ?>" target="_blank" rel="noopener noreferrer" class="gk-event-single__map-link">
+                            <a href="https://maps.google.com/?q=<?php echo rawurlencode( $address ); ?>" target="_blank" rel="noopener noreferrer" class="gk-event-single__map-link" aria-label="Route planen (öffnet in neuem Tab)">
                                 <span class="fa fa-external-link-alt" aria-hidden="true"></span> Route planen
                             </a>
                         <?php endif; ?>
@@ -171,7 +171,7 @@ while ( have_posts() ) : the_post();
 
             <!-- Actions: Calendar buttons -->
             <div class="gk-event-single__actions">
-                <a href="<?php the_permalink(); ?>?ical=1" class="gk-btn gk-btn--primary gk-btn--sm">
+                <a href="<?php the_permalink(); ?>?ical=1" download="event.ics" class="gk-btn gk-btn--primary gk-btn--sm">
                     <span class="fa fa-download" aria-hidden="true"></span> In Kalender speichern
                 </a>
                 <?php if ( $gcal_url ) : ?>

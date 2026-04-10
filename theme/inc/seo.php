@@ -58,6 +58,22 @@ function gk_seo_meta_tags() {
                 $og_image_h = $img[2];
             }
         }
+
+        // Fallback: custom logo or default theme image
+        if ( ! $og_image ) {
+            $custom_logo_id = get_theme_mod( 'custom_logo' );
+            if ( $custom_logo_id ) {
+                $logo_img = wp_get_attachment_image_src( $custom_logo_id, 'full' );
+                if ( $logo_img ) {
+                    $og_image   = $logo_img[0];
+                    $og_image_w = $logo_img[1];
+                    $og_image_h = $logo_img[2];
+                }
+            }
+        }
+        if ( ! $og_image && defined( 'GK_IMAGE_DIR' ) && file_exists( get_template_directory() . '/lib/images/og-default.png' ) ) {
+            $og_image = GK_IMAGE_DIR . 'og-default.png';
+        }
     } elseif ( is_category() || is_tag() || is_tax() ) {
         $term = get_queried_object();
         $og_title = $term->name;
@@ -104,11 +120,15 @@ function gk_seo_meta_tags() {
             echo '<meta property="og:image:width" content="' . (int) $og_image_w . '" />' . "\n";
             echo '<meta property="og:image:height" content="' . (int) $og_image_h . '" />' . "\n";
         }
+        $og_image_alt = is_singular() ? get_the_title() : $og_title;
+        echo '<meta property="og:image:alt" content="' . esc_attr( $og_image_alt ) . '" />' . "\n";
     }
 
     // Article-specific OG tags
     if ( is_singular( 'post' ) ) {
         global $post;
+        $article_author = function_exists( 'gk_kv_name' ) ? gk_kv_name() : get_bloginfo( 'name' );
+        echo '<meta property="article:author" content="' . esc_attr( $article_author ) . '" />' . "\n";
         echo '<meta property="article:published_time" content="' . esc_attr( get_the_date( 'c' ) ) . '" />' . "\n";
         echo '<meta property="article:modified_time" content="' . esc_attr( get_the_modified_date( 'c' ) ) . '" />' . "\n";
         $tags = get_the_tags();
@@ -129,6 +149,18 @@ function gk_seo_meta_tags() {
     echo '<meta name="twitter:description" content="' . esc_attr( $og_description ) . '" />' . "\n";
     if ( $og_image ) {
         echo '<meta name="twitter:image" content="' . esc_url( $og_image ) . '" />' . "\n";
+    }
+
+    // Twitter site handle from KV social settings
+    $kv_info    = function_exists( 'gk_get_kv_info' ) ? gk_get_kv_info() : array();
+    $twitter_handle = '';
+    if ( ! empty( $kv_info['social_x'] ) ) {
+        $twitter_handle = '@' . ltrim( $kv_info['social_x'], '@' );
+    } elseif ( ! empty( $kv_info['social_twitter'] ) ) {
+        $twitter_handle = '@' . ltrim( $kv_info['social_twitter'], '@' );
+    }
+    if ( $twitter_handle ) {
+        echo '<meta name="twitter:site" content="' . esc_attr( $twitter_handle ) . '" />' . "\n";
     }
 
     // Canonical URL — all page types
@@ -379,6 +411,62 @@ function gk_seo_jsonld_event() {
     echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) . '</script>' . "\n";
 }
 add_action( 'wp_head', 'gk_seo_jsonld_event', 3 );
+
+
+// ── JSON-LD: Person (single person CPT) ───────────────────────────────────
+
+function gk_seo_jsonld_person() {
+    if ( ! is_singular( 'person' ) ) return;
+
+    global $post;
+
+    $schema = array(
+        '@context' => 'https://schema.org',
+        '@type'    => 'Person',
+        'name'     => get_the_title(),
+        'url'      => get_permalink(),
+    );
+
+    // Description from excerpt or content
+    if ( has_excerpt( $post->ID ) ) {
+        $schema['description'] = wp_strip_all_tags( get_the_excerpt() );
+    } else {
+        $desc = wp_strip_all_tags( wp_trim_words( strip_shortcodes( $post->post_content ), 30, '...' ) );
+        if ( $desc ) {
+            $schema['description'] = $desc;
+        }
+    }
+
+    // Featured image
+    if ( has_post_thumbnail( $post->ID ) ) {
+        $img = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'large' );
+        if ( $img ) {
+            $schema['image'] = $img[0];
+        }
+    }
+
+    // Job title from post meta
+    $job_title = get_post_meta( $post->ID, 'gk_person_job_title', true );
+    if ( ! $job_title ) {
+        $job_title = get_post_meta( $post->ID, 'job_title', true );
+    }
+    if ( $job_title ) {
+        $schema['jobTitle'] = $job_title;
+    }
+
+    // Affiliation: the organization
+    $kv_name = function_exists( 'gk_kv_name' ) ? gk_kv_name() : get_bloginfo( 'name' );
+    if ( $kv_name ) {
+        $schema['affiliation'] = array(
+            '@type' => 'Organization',
+            'name'  => $kv_name,
+            'url'   => home_url( '/' ),
+        );
+    }
+
+    echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) . '</script>' . "\n";
+}
+add_action( 'wp_head', 'gk_seo_jsonld_person', 3 );
 
 
 // ── JSON-LD: BreadcrumbList ────────────────────────────────────────────────

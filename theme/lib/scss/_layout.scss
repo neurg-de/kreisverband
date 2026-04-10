@@ -37,6 +37,16 @@
     // sidebar styles
 }
 
+@media (max-width: 767px) {
+    .gk-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .wrap {
+        gap: var(--space-4);
+    }
+}
+
 // Legacy grid classes (kept for backward compatibility)
 .ninecol {
     width: 100%;

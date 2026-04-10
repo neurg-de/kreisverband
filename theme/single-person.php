@@ -50,6 +50,12 @@ $has_content = trim( get_the_content() ) !== '';
 
 ?>
 
+<nav class="gk-back-nav">
+    <div class="wrap">
+        <a href="javascript:history.back()">&larr; Zurück</a>
+    </div>
+</nav>
+
 <article id="post-<?php the_ID(); ?>" <?php post_class( 'gk-profile' ); ?>>
 
     <?php // ── Hero section: photo + identity ──────────────────────────────── ?>
@@ -58,7 +64,7 @@ $has_content = trim( get_the_content() ) !== '';
 
             <?php if ( has_post_thumbnail() ) : ?>
                 <div class="gk-profile__photo">
-                    <?php the_post_thumbnail( 'medium', array( 'class' => 'gk-profile__img' ) ); ?>
+                    <?php the_post_thumbnail( 'medium', array( 'class' => 'gk-profile__img', 'loading' => 'eager' ) ); ?>
                 </div>
             <?php endif; ?>
 
@@ -108,21 +114,21 @@ $has_content = trim( get_the_content() ) !== '';
             <?php if ( $email || $telefon || $www ) : ?>
                 <div class="gk-profile__contact-direct">
                     <?php if ( $email ) : ?>
-                        <a href="mailto:<?php echo esc_attr( $email ); ?>" class="gk-profile__contact-link">
+                        <a href="mailto:<?php echo esc_attr( $email ); ?>" class="gk-profile__contact-link" aria-label="E-Mail an <?php the_title(); ?> schreiben">
                             <i class="fas fa-envelope" aria-hidden="true"></i>
                             <span>E-Mail schreiben</span>
                         </a>
                     <?php endif; ?>
 
                     <?php if ( $telefon ) : ?>
-                        <a href="tel:<?php echo esc_attr( $telefon ); ?>" class="gk-profile__contact-link">
+                        <a href="tel:<?php echo esc_attr( $telefon ); ?>" class="gk-profile__contact-link" aria-label="<?php the_title(); ?> anrufen">
                             <i class="fas fa-phone" aria-hidden="true"></i>
                             <span><?php echo esc_html( $telefon ); ?></span>
                         </a>
                     <?php endif; ?>
 
                     <?php if ( $www ) : ?>
-                        <a href="<?php echo esc_url( $www ); ?>" class="gk-profile__contact-link" target="_blank" rel="noopener noreferrer">
+                        <a href="<?php echo esc_url( $www ); ?>" class="gk-profile__contact-link" target="_blank" rel="noopener noreferrer" aria-label="Website von <?php the_title(); ?> besuchen">
                             <i class="fas fa-globe" aria-hidden="true"></i>
                             <span>Website</span>
                         </a>

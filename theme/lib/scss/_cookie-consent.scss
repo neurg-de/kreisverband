@@ -72,7 +72,10 @@
     &:hover {
         background-color: var(--color-cta);
         color: var(--color-text);
-        transform: scale(1.03);
+
+        @media (prefers-reduced-motion: no-preference) {
+            transform: scale(1.03);
+        }
     }
 
     &:focus-visible {

@@ -450,7 +450,7 @@ select.is-invalid {
 
     input::placeholder,
     textarea::placeholder {
-        color: var(--tanne-400);
+        color: var(--tanne-200);
     }
 
     input:disabled,
@@ -551,5 +551,46 @@ select.is-invalid {
     .switch input[type="checkbox"]:focus + .switch__track,
     .toggle input[type="checkbox"]:focus + .toggle__track {
         box-shadow: 0 0 0 3px rgba(60, 180, 228, 0.35);
+    }
+}
+
+// --- Contact form success & error states ---
+
+.gk-contact-success {
+    padding: var(--space-4);
+    background: var(--klee-50);
+    border: 1px solid var(--klee-400);
+    border-radius: var(--radius-md);
+    color: var(--klee-800);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: var(--space-4);
+
+    @media (prefers-color-scheme: dark) {
+        background: rgba(0, 137, 57, 0.15);
+        border-color: var(--klee-600);
+        color: var(--klee-200);
+    }
+}
+
+.gk-contact-errors {
+    padding: var(--space-4);
+    background: rgba(197, 29, 84, 0.08);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    color: var(--color-danger);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: var(--space-4);
+
+    ul {
+        margin: var(--space-2) 0 0;
+        padding-left: var(--space-5);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        background: rgba(197, 29, 84, 0.15);
+        border-color: #F06B8A;
+        color: #F06B8A;
     }
 }

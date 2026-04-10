@@ -237,4 +237,33 @@
     .gk-events__track {
         background: var(--tanne-700);
     }
+
+    .termin-item {
+        border-bottom-color: var(--tanne-600);
+    }
+
+    .termin-zeit,
+    .termin-ort {
+        color: var(--tanne-200);
+    }
+
+    .termin-zuordnung {
+        background: var(--tanne-700);
+        border-color: var(--tanne-600);
+        color: var(--tanne-100);
+    }
+
+    .termine-filter select {
+        background: var(--tanne-800);
+        border-color: var(--tanne-600);
+        color: var(--sand-200);
+    }
+
+    .gk-events__month-header {
+        color: var(--sand-200);
+    }
+
+    .gk-events__empty {
+        color: var(--tanne-200);
+    }
 }

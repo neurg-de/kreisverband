@@ -14,3 +14,11 @@
     vertical-align: middle;
     white-space: nowrap;
 }
+
+@media (prefers-color-scheme: dark) {
+    .gk-badge {
+        background: var(--tanne-700);
+        border-color: var(--tanne-600);
+        color: var(--tanne-100);
+    }
+}

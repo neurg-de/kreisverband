@@ -126,15 +126,16 @@ function gk_shortcode_spenden( $atts ) {
                     <tr><th>Verwendungszweck</th><td><?php echo esc_html( $config['purpose'] ); ?></td></tr>
                 <?php endif; ?>
             </table>
+            <p class="spenden-hinweis"><small>Spenden an BÜNDNIS 90/DIE GRÜNEN sind steuerlich absetzbar.</small></p>
         </div>
         <?php endif; ?>
 
         <div class="spenden-buttons">
             <?php if ( $atts['twingle'] ) : ?>
-                <a href="<?php echo esc_url( $atts['twingle'] ); ?>" class="button spenden-button spenden-twingle" target="_blank" rel="noopener noreferrer">Online spenden</a>
+                <a href="<?php echo esc_url( $atts['twingle'] ); ?>" class="button spenden-button spenden-twingle" target="_blank" rel="noopener noreferrer" aria-label="Online spenden (öffnet in neuem Fenster)">Online spenden</a>
             <?php endif; ?>
             <?php if ( $atts['paypal'] ) : ?>
-                <a href="<?php echo esc_url( $atts['paypal'] ); ?>" class="button spenden-button spenden-paypal" target="_blank" rel="noopener noreferrer">PayPal</a>
+                <a href="<?php echo esc_url( $atts['paypal'] ); ?>" class="button spenden-button spenden-paypal" target="_blank" rel="noopener noreferrer" aria-label="Mit PayPal spenden (öffnet in neuem Fenster)">PayPal</a>
             <?php endif; ?>
         </div>
     </div>
