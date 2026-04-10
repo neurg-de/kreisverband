@@ -2,6 +2,8 @@
 
 WordPress-Theme fuer GRUENE Kreisverband- und Ortsverband-Websites.
 
+![Screenshot](theme/screenshot.png)
+
 Inspiriert von "Joseph knows best" von Benjamin Jopen (kre8tiv.de) und der Weiterentwicklung von Andreas Gregor (andreasgregor.de). Vollstaendig neu aufgebaut von Severin Kistner (neurg.de).
 
 ## Features
