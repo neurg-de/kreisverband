@@ -38,6 +38,125 @@
     });
 
 
+    // ── Priority+ Navigation (overflow → "Mehr" dropdown) ────────────────────
+
+    (function() {
+        var navs = document.querySelectorAll('#nav-desktop nav.nav-main, #nav-flyin nav.nav-main');
+        if (!navs.length) return;
+
+        navs.forEach(function(nav) {
+            var ul = nav.querySelector(':scope > ul') || nav.querySelector(':scope > .nav-fallback > ul');
+            if (!ul) return;
+
+            // Create "Mehr" list item with dropdown
+            var moreLi = document.createElement('li');
+            moreLi.className = 'gk-nav-more';
+            moreLi.innerHTML = '<button aria-expanded="false" aria-haspopup="true">Mehr</button><ul></ul>';
+            var moreBtn = moreLi.querySelector('button');
+            var moreUl = moreLi.querySelector('ul');
+
+            ul.appendChild(moreLi);
+
+            // Toggle dropdown
+            moreBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var open = moreUl.classList.toggle('is-open');
+                moreBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+
+            // Close on outside click
+            document.addEventListener('click', function() {
+                moreUl.classList.remove('is-open');
+                moreBtn.setAttribute('aria-expanded', 'false');
+            });
+
+            // Close on Escape
+            moreLi.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    moreUl.classList.remove('is-open');
+                    moreBtn.setAttribute('aria-expanded', 'false');
+                    moreBtn.focus();
+                }
+            });
+
+            // Collect original items (excluding the "Mehr" item itself)
+            var items = [];
+            var children = ul.children;
+            for (var i = 0; i < children.length; i++) {
+                if (children[i] !== moreLi) {
+                    items.push(children[i]);
+                }
+            }
+
+            function reflow() {
+                // Skip if nav is not visible (e.g. #nav-flyin before scroll)
+                if (nav.offsetWidth === 0) return;
+
+                // Reset: show all items, clear overflow list
+                for (var i = 0; i < items.length; i++) {
+                    items[i].classList.remove('gk-nav-hidden');
+                }
+                moreUl.innerHTML = '';
+                moreLi.style.display = 'none';
+
+                // Measure available width
+                var navWidth = nav.getBoundingClientRect().width;
+                // Account for logo or other non-ul siblings
+                var logo = nav.querySelector(':scope > .logolink, :scope > .kv-back');
+                var usedByOthers = 0;
+                if (logo) usedByOthers += logo.getBoundingClientRect().width;
+                // Account for OV nav if present
+                var ovNav = nav.querySelector(':scope > ul.nav-ov');
+                if (ovNav) usedByOthers += ovNav.getBoundingClientRect().width;
+
+                var available = navWidth - usedByOthers;
+                var moreWidth = 90; // reserve space for "Mehr" button
+
+                // Measure each item
+                var totalWidth = 0;
+                var breakIndex = -1;
+                for (var i = 0; i < items.length; i++) {
+                    totalWidth += items[i].getBoundingClientRect().width;
+                    if (totalWidth > available - moreWidth) {
+                        breakIndex = i;
+                        break;
+                    }
+                }
+
+                // If everything fits, no need for "Mehr"
+                if (breakIndex === -1) {
+                    // Double check: does everything really fit without "Mehr" reserve?
+                    if (totalWidth <= available) return;
+                    breakIndex = items.length - 1;
+                }
+
+                // Move overflowing items to dropdown
+                moreLi.style.display = '';
+                for (var i = breakIndex; i < items.length; i++) {
+                    items[i].classList.add('gk-nav-hidden');
+                    var clone = items[i].cloneNode(true);
+                    clone.classList.remove('gk-nav-hidden');
+                    // Flatten: only keep the top-level link, drop submenus
+                    var submenus = clone.querySelectorAll('ul');
+                    for (var j = 0; j < submenus.length; j++) submenus[j].remove();
+                    moreUl.appendChild(clone);
+                }
+            }
+
+            // Initial layout and resize handling
+            reflow();
+            var resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(reflow, 100);
+            });
+
+            // Expose reflow for deferred navs (fly-in)
+            nav._gkReflow = reflow;
+        });
+    })();
+
+
     // ── Sticky Fly-in Navigation ────────────────────────────────────────────
 
     var $flyinNav = $('#nav-flyin');
@@ -48,7 +167,13 @@
 
         // Show/hide fly-in nav
         if (scrollTop > flyinOffset) {
+            var wasHidden = !$flyinNav.hasClass('is-visible');
             $flyinNav.addClass('is-visible');
+            // Trigger Priority+ reflow on first show
+            if (wasHidden) {
+                var flyinNavEl = $flyinNav.find('nav.nav-main')[0];
+                if (flyinNavEl && flyinNavEl._gkReflow) flyinNavEl._gkReflow();
+            }
         } else {
             $flyinNav.removeClass('is-visible');
         }

@@ -1,7 +1,7 @@
 <?php get_header(); ?>
 
 <section id="content"><div class="inner gk-layout clearfix">
-    <div class="archive-title gk-layout__main first">
+    <div class="archive-title gk-layout__full">
         <h1>Suchergebnisse für: &ldquo;<?php echo esc_html( get_search_query() ); ?>&rdquo;</h1>
     </div>
 

@@ -37,10 +37,7 @@
     vertical-align: middle;
     padding: 0;
     margin: 0;
-}
-
-.logo-desktop h2 {
-    text-wrap: nowrap;
+    white-space: nowrap;
 }
 
 .logo-desktop img,
@@ -74,10 +71,13 @@ body.design-grundlagen2024.dark-mode .logolink img {
 }
 
 // Nav items (shared by #nav-desktop and #nav-flyin)
+// Direct > ul when wp_nav_menu outputs without container,
+// or > .nav-fallback > ul when wp_page_menu fallback wraps in a div.
 nav.nav-main {
-    > ul {
+    > ul,
+    > .nav-fallback > ul {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         list-style: none;
         margin: 0;
         margin-left: auto;
@@ -95,6 +95,7 @@ nav.nav-main {
                 font-weight: 700;
                 font-size: 1rem;
                 text-decoration: none;
+                white-space: nowrap;
                 transition: background 0.2s, color 0.2s;
 
                 &:hover {
@@ -227,6 +228,96 @@ nav.nav-main {
         color: var(--color-primary);
         font-weight: 700;
     }
+}
+
+// Priority+ "Mehr" overflow item
+.gk-nav-more {
+    position: relative;
+
+    > button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25em;
+        padding: var(--space-3) var(--space-4);
+        color: var(--color-text);
+        font-family: var(--font-body);
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+        white-space: nowrap;
+
+        &::after {
+            content: '';
+            display: inline-block;
+            width: 0.5em;
+            height: 0.5em;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            transform: rotate(45deg);
+            margin-top: -0.15em;
+            transition: transform 0.2s;
+        }
+
+        &:hover {
+            color: var(--color-primary);
+            background: var(--color-bg-light);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: -2px;
+        }
+
+        &[aria-expanded="true"]::after {
+            transform: rotate(-135deg);
+            margin-top: 0.15em;
+        }
+    }
+
+    > ul {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: var(--color-surface);
+        min-width: 220px;
+        box-shadow: var(--shadow-lg);
+        z-index: 200;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        border-top: 3px solid var(--color-primary);
+
+        &.is-open {
+            display: block;
+        }
+
+        li a {
+            display: block;
+            padding: var(--space-2) var(--space-4);
+            font-size: 0.9375rem;
+            color: var(--color-text);
+            text-decoration: none;
+            border-bottom: 1px solid var(--color-border);
+            font-weight: 700;
+            white-space: nowrap;
+
+            &:hover {
+                background: var(--color-bg-light);
+                color: var(--color-primary);
+            }
+        }
+    }
+}
+
+// Hide items that JS marks as overflowed
+nav.nav-main > ul > li.gk-nav-hidden,
+nav.nav-main > .nav-fallback > ul > li.gk-nav-hidden {
+    display: none;
 }
 
 

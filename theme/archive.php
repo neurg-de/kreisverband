@@ -1,7 +1,7 @@
 <?php get_header(); ?>
 
 <section id="content"><div class="inner gk-layout clearfix">
-    <div class="archive-title gk-layout__main first">
+    <div class="archive-title gk-layout__full">
         <h1><?php the_archive_title(); ?></h1>
         <?php the_archive_description( '<div class="archive-description">', '</div>' ); ?>
     </div>

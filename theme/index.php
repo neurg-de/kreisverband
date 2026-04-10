@@ -4,19 +4,19 @@
 <section id="content"><div class="inner gk-layout clearfix">
 
     <?php if ( is_category() ) : ?>
-        <div class="archive-title gk-layout__main first">
+        <div class="archive-title gk-layout__full">
             <h1><?php single_cat_title(); ?></h1>
             <?php echo category_description(); ?>
         </div>
     <?php elseif ( is_tag() ) : ?>
-        <div class="archive-title gk-layout__main first"><h1><?php single_tag_title(); ?></h1></div>
+        <div class="archive-title gk-layout__full"><h1><?php single_tag_title(); ?></h1></div>
     <?php elseif ( is_author() ) : ?>
-        <h1 class="archive-title h2">
+        <h1 class="archive-title gk-layout__full h2">
             <span><?php echo get_the_author_meta( 'display_name', get_queried_object_id() ); ?></span>
         </h1>
     <?php endif; ?>
 
-    <h1 class="whitetext" style="padding: 1em 0 0 1em">Aktuelles</h1>
+    <h1 class="whitetext gk-layout__full">Aktuelles</h1>
 
     <div id="main" class="gk-layout__main first clearfix" role="main">
         <div class="list-article">
