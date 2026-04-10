@@ -24,8 +24,8 @@ a {
         text-underline-offset: 4px;
     }
 
-    &:hover,
-    &:active {
+    &:hover:not([class*="gk-btn"]):not(.morebutton):not(.more-link):not(.wp-block-button__link),
+    &:active:not([class*="gk-btn"]):not(.morebutton):not(.more-link):not(.wp-block-button__link) {
         color: var(--color-text);
         text-decoration-line: none;
         margin-inline: calc(var(--mark-overlap) * -1);
@@ -79,10 +79,6 @@ nav a,
     text-decoration: none;
     background-image: none;
     margin-inline: 0;
-
-    &:hover {
-        background-image: none;
-    }
 }
 
 nav a:hover,
