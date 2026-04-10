@@ -10,8 +10,8 @@
     .ks-btn-state--hover .gk-btn--icon-only,
     .ks-btn-state--hover .gk-btn--filter,
     .ks-btn-state--active .gk-btn--filter {
-        color: var(--tanne-900);
-        fill: var(--tanne-900);
+        color: var(--color-on-cta);
+        fill: var(--color-on-cta);
     }
 
     // Button disabled states
@@ -37,9 +37,9 @@
 
     // Select dropdown
     .ks-select-opt--hover {
-        color: var(--tanne-900);
+        color: var(--color-on-cta);
 
-        svg { fill: var(--tanne-900); }
+        svg { fill: var(--color-on-cta); }
     }
 
     .ks-select-opt--selected { color: var(--color-text-inverse); }
@@ -146,7 +146,7 @@ body.design-grundlagen2024.dark-mode {
 
         &:hover {
             background-color: var(--color-cta);
-            color: var(--tanne-900);
+            color: var(--color-on-cta);
         }
     }
 
@@ -158,8 +158,8 @@ body.design-grundlagen2024.dark-mode {
 
         &:hover {
             background-color: var(--color-cta);
-            color: var(--tanne-900);
-            fill: var(--tanne-900);
+            color: var(--color-on-cta);
+            fill: var(--color-on-cta);
         }
     }
 
@@ -170,8 +170,8 @@ body.design-grundlagen2024.dark-mode {
         &:hover,
         &.is-active {
             background-color: var(--color-cta);
-            color: var(--tanne-900);
-            fill: var(--tanne-900);
+            color: var(--color-on-cta);
+            fill: var(--color-on-cta);
             outline-color: transparent;
         }
     }
@@ -205,8 +205,8 @@ body.design-grundlagen2024.dark-mode {
     .ks-btn-state--hover .gk-btn--icon-only,
     .ks-btn-state--hover .gk-btn--filter,
     .ks-btn-state--active .gk-btn--filter {
-        color: var(--tanne-900);
-        fill: var(--tanne-900);
+        color: var(--color-on-cta);
+        fill: var(--color-on-cta);
     }
 
     // ----------------------------------------------------------------
@@ -341,9 +341,9 @@ body.design-grundlagen2024.dark-mode {
     // ----------------------------------------------------------------
 
     .ks-select-opt--hover {
-        color: var(--tanne-900);
+        color: var(--color-on-cta);
 
-        svg { fill: var(--tanne-900); }
+        svg { fill: var(--color-on-cta); }
     }
 
     .ks-select-opt--selected { color: var(--color-text-inverse); }

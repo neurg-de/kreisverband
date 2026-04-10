@@ -149,7 +149,7 @@
             &:hover,
             &.is-active {
                 background-color: var(--color-cta);
-                color: var(--color-text);
+                color: var(--color-on-cta);
                 outline-color: var(--color-cta);
             }
         }

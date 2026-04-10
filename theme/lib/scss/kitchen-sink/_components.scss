@@ -144,21 +144,21 @@
     // Simulated hover
     &--hover .gk-btn--icon-only {
         background-color: var(--color-cta);
-        color: var(--color-text);
-        fill: var(--color-text);
+        color: var(--color-on-cta);
+        fill: var(--color-on-cta);
     }
 
     &--hover .gk-btn--primary {
         background-color: var(--color-cta);
-        color: var(--color-text);
-        fill: var(--color-text);
+        color: var(--color-on-cta);
+        fill: var(--color-on-cta);
     }
 
     &--hover .gk-btn--filter,
     &--active .gk-btn--filter {
         background-color: var(--color-cta);
-        color: var(--color-text);
-        fill: var(--color-text);
+        color: var(--color-on-cta);
+        fill: var(--color-on-cta);
         outline: transparent solid 2px;
         outline-offset: 2px;
     }

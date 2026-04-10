@@ -77,8 +77,8 @@
 
     &:hover {
         background-color: var(--color-cta);
-        color: var(--color-text);
-        fill: var(--color-text);
+        color: var(--color-on-cta);
+        fill: var(--color-on-cta);
         outline: var(--color-cta) solid 2px;
         outline-offset: -2px;
     }
@@ -90,7 +90,7 @@
 
     &:active {
         background-color: var(--color-cta-hover);
-        color: var(--color-text);
+        color: var(--color-on-cta);
         outline: var(--color-cta-hover) solid 2px;
         outline-offset: -2px;
     }
@@ -136,8 +136,8 @@
 
     &:hover {
         background-color: var(--color-cta);
-        color: var(--color-text);
-        fill: var(--color-text);
+        color: var(--color-on-cta);
+        fill: var(--color-on-cta);
     }
 
     &:focus-visible {
@@ -147,7 +147,7 @@
 
     &:active {
         background-color: var(--color-cta-hover);
-        color: var(--color-text);
+        color: var(--color-on-cta);
     }
 
     &:disabled,
@@ -199,8 +199,8 @@
     &:hover,
     &.is-active {
         background-color: var(--color-cta);
-        color: var(--color-text);
-        fill: var(--color-text);
+        color: var(--color-on-cta);
+        fill: var(--color-on-cta);
         outline: var(--color-cta) solid 2px;
         outline-offset: -2px;
     }
@@ -212,7 +212,7 @@
 
     &:active {
         background-color: var(--color-cta-hover);
-        color: var(--color-text);
+        color: var(--color-on-cta);
         outline: var(--color-cta-hover) solid 2px;
         outline-offset: -2px;
     }

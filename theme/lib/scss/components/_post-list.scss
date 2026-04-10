@@ -31,12 +31,12 @@ article.postlist {
     }
 
     h2 a {
-        color: var(--color-primary);
+        color: #fff;
         text-decoration: none;
         font-weight: 700;
 
         &:hover {
-            color: var(--color-link-hover);
+            color: var(--color-cta);
         }
     }
 
