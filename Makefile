@@ -40,7 +40,7 @@ wp-activate:
 	docker exec theme-dev-wordpress-1 bash -c '\
 		curl -sO https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 		chmod +x wp-cli.phar && \
-		php wp-cli.phar theme activate gruene-kreisverband --allow-root && \
+		php wp-cli.phar theme activate neurg-kreisverband --allow-root && \
 		rm wp-cli.phar'
 
 # ── Seed Data ────────────────────────────────────────────────────────────────
@@ -87,13 +87,10 @@ css-watch:
 VERSION := $(shell grep 'Version:' theme/style.css | head -1 | sed 's/.*Version: *//')
 
 zip:
-	@echo "Building release zip for version $(VERSION)..."
-	@cd theme && zip -r ../neurg-kreisverband-$(VERSION).zip . \
-		-x '*.DS_Store' -x '__MACOSX/*'
-	@echo "Created neurg-kreisverband-$(VERSION).zip"
+	@bin/build-zip.sh
 
 # ── Cleanup ──────────────────────────────────────────────────────────────────
 
 clean:
 	docker compose down -v
-	rm -f neurg-kreisverband-*.zip gruene-kreisverband-*.zip
+	rm -f neurg-kreisverband-*.zip

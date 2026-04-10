@@ -14,18 +14,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
 
       - name: Build theme zip
-        run: |
-          cd theme
-          zip -r ../neurg-kreisverband-${{ steps.version.outputs.VERSION }}.zip . \
-            -x '*.DS_Store' -x '__MACOSX/*'
+        run: bin/build-zip.sh
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: neurg-kreisverband-${{ steps.version.outputs.VERSION }}.zip
+          files: neurg-kreisverband-*.zip
           generate_release_notes: true
