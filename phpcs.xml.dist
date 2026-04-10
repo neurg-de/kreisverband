@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<ruleset name="Neurg Kreisverband">
+    <description>Coding standards for the Neurg Kreisverband WordPress theme.</description>
+
+    <!-- Scan theme directory -->
+    <file>./theme</file>
+
+    <!-- Exclude dev-only files from strict checks -->
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/lib/js/*.min.js</exclude-pattern>
+
+    <!-- WordPress coding standards -->
+    <rule ref="WordPress">
+        <!-- Allow short array syntax -->
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+        <!-- Allow arrow functions -->
+        <exclude name="Generic.WhiteSpace.DisallowSpaceIndent"/>
+    </rule>
+
+    <!-- Use WordPress-Extra for stricter checks -->
+    <rule ref="WordPress-Extra"/>
+
+    <!-- Check for PHP cross-version compatibility -->
+    <config name="testVersion" value="8.1-"/>
+    <rule ref="PHPCompatibilityWP"/>
+
+    <!-- Set text domain -->
+    <config name="text_domain" value="neurg-kreisverband"/>
+    <config name="minimum_wp_version" value="6.4"/>
+</ruleset>

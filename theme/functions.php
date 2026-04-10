@@ -2,9 +2,9 @@
 /**
  * Neurg Kreisverband Theme
  *
- * Based on "Joseph knows best" by Benjamin Jopen (kre8tiv.de)
- * Modified by Andreas Gregor (andreasgregor.de)
- * Extracted and developed by Severin Kistner
+ * Inspired by "Joseph knows best" by Benjamin Jopen (kre8tiv.de)
+ * and the work of Andreas Gregor (andreasgregor.de).
+ * Full rewrite by Severin Kistner.
  *
  * @package Neurg_Kreisverband
  */
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'GK_VERSION', '0.3.5' );
+define( 'GK_VERSION', '0.4.0' );
 define( 'GK_DIR', get_template_directory() );
 define( 'GK_URI', get_template_directory_uri() );
 define( 'GK_IMAGE_DIR', GK_URI . '/lib/images/' );

@@ -1,5 +1,10 @@
 {
-  "name": "gruene-kreisverband-theme",
+  "name": "neurg-kreisverband",
+  "version": "0.4.0",
+  "description": "WordPress-Theme fuer GRUENE Kreisverband- und Ortsverband-Websites. Inspiriert von Joseph knows best, vollstaendig neu aufgebaut.",
+  "author": "Severin Kistner",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://neurg.de",
   "private": true,
   "scripts": {
     "build": "sass theme/lib/scss:theme/lib/css --style=compressed --no-source-map",

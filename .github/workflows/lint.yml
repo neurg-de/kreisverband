@@ -1,4 +1,4 @@
-name: PHP Lint
+name: Lint & Test
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  lint:
+  php-syntax:
+    name: PHP Syntax Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,3 +20,44 @@ jobs:
 
       - name: Check PHP syntax
         run: find theme -name "*.php" -exec php -l {} \; | grep -v "No syntax errors"
+
+  phpunit:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mariadb:11
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mysqli
+          tools: composer
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Install WordPress test suite
+        run: bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest
+        env:
+          WP_TESTS_DIR: /tmp/wordpress-tests-lib
+          WP_CORE_DIR: /tmp/wordpress
+
+      - name: Run PHPUnit
+        run: composer exec phpunit
+        env:
+          WP_TESTS_DIR: /tmp/wordpress-tests-lib

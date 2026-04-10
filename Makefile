@@ -1,4 +1,4 @@
-.PHONY: up down restart logs shell db-shell wp-install wp-activate zip clean css css-watch
+.PHONY: up down restart logs shell db-shell wp-install wp-activate seed setup zip clean css css-watch test phpcs
 
 # ── Development Environment ──────────────────────────────────────────────────
 
@@ -28,7 +28,7 @@ wp-install:
 		chmod +x wp-cli.phar && \
 		php wp-cli.phar core install \
 			--url=http://localhost:8080 \
-			--title="Gruene Kreisverband" \
+			--title="GRÜNE Musterkreis" \
 			--admin_user=admin \
 			--admin_password=admin \
 			--admin_email=admin@example.com \
@@ -42,6 +42,35 @@ wp-activate:
 		chmod +x wp-cli.phar && \
 		php wp-cli.phar theme activate gruene-kreisverband --allow-root && \
 		rm wp-cli.phar'
+
+# ── Seed Data ────────────────────────────────────────────────────────────────
+
+seed:
+	docker exec theme-dev-wordpress-1 bash -c '\
+		curl -sO https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+		chmod +x wp-cli.phar && \
+		php wp-cli.phar eval "gk_seed_all();" --allow-root && \
+		php wp-cli.phar rewrite flush --allow-root && \
+		rm wp-cli.phar'
+	@echo "Seed data created. Visit http://localhost:8080"
+
+# ── Full Setup (install + activate + seed) ───────────────────────────────────
+
+setup: up
+	@echo "Waiting for containers..."
+	@sleep 5
+	@$(MAKE) wp-install
+	@$(MAKE) wp-activate
+	@$(MAKE) seed
+	@echo "Done! Visit http://localhost:8080 (admin/admin)"
+
+# ── Tests ────────────────────────────────────────────────────────────────────
+
+test:
+	composer exec phpunit
+
+phpcs:
+	composer exec phpcs -- --standard=phpcs.xml.dist theme/
 
 
 
@@ -59,12 +88,12 @@ VERSION := $(shell grep 'Version:' theme/style.css | head -1 | sed 's/.*Version:
 
 zip:
 	@echo "Building release zip for version $(VERSION)..."
-	@cd theme && zip -r ../gruene-kreisverband-$(VERSION).zip . \
+	@cd theme && zip -r ../neurg-kreisverband-$(VERSION).zip . \
 		-x '*.DS_Store' -x '__MACOSX/*'
-	@echo "Created gruene-kreisverband-$(VERSION).zip"
+	@echo "Created neurg-kreisverband-$(VERSION).zip"
 
 # ── Cleanup ──────────────────────────────────────────────────────────────────
 
 clean:
 	docker compose down -v
-	rm -f gruene-kreisverband-*.zip
+	rm -f neurg-kreisverband-*.zip gruene-kreisverband-*.zip

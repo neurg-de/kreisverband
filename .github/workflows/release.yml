@@ -21,11 +21,11 @@ jobs:
       - name: Build theme zip
         run: |
           cd theme
-          zip -r ../gruene-kreisverband-${{ steps.version.outputs.VERSION }}.zip . \
+          zip -r ../neurg-kreisverband-${{ steps.version.outputs.VERSION }}.zip . \
             -x '*.DS_Store' -x '__MACOSX/*'
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: gruene-kreisverband-${{ steps.version.outputs.VERSION }}.zip
+          files: neurg-kreisverband-${{ steps.version.outputs.VERSION }}.zip
           generate_release_notes: true

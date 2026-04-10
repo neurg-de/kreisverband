@@ -20,7 +20,19 @@ node_modules/
 dist/
 package-lock.json
 
+# Composer
+vendor/
+composer.lock
+
 # WordPress dev artifacts
 *.log
 *.sql
 wp-cli.phar
+
+# PHPUnit
+.phpunit.result.cache
+.phpunit.cache/
+
+# Build artifacts
+neurg-kreisverband-*.zip
+gruene-kreisverband-*.zip
