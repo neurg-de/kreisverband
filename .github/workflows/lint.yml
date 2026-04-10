@@ -19,7 +19,13 @@ jobs:
           php-version: '8.3'
 
       - name: Check PHP syntax
-        run: find theme -name "*.php" -exec php -l {} \; | grep -v "No syntax errors"
+        run: |
+          errors=$(find theme -name "*.php" -exec php -l {} \; 2>&1 | grep -v "No syntax errors" || true)
+          if [ -n "$errors" ]; then
+            echo "$errors"
+            exit 1
+          fi
+          echo "All PHP files pass syntax check."
 
   phpunit:
     name: PHPUnit
