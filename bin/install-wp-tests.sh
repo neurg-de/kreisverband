@@ -57,8 +57,9 @@ install_wp() {
     fi
 
     download "$ARCHIVE_URL" /tmp/wordpress.zip
-    unzip -q /tmp/wordpress.zip -d /tmp
-    mv /tmp/wordpress/* "$WP_CORE_DIR"
+    unzip -q /tmp/wordpress.zip -d /tmp/wp-extract
+    mv /tmp/wp-extract/wordpress/* "$WP_CORE_DIR"
+    rm -rf /tmp/wp-extract
 }
 
 install_test_suite() {
