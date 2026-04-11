@@ -15,15 +15,15 @@ logs:
 	docker compose logs -f wordpress
 
 shell:
-	docker exec -it theme-dev-wordpress-1 bash
+	docker compose exec wordpress bash
 
 db-shell:
-	docker exec -it theme-dev-db-1 mariadb -u wordpress -pwordpress wordpress
+	docker compose exec db mariadb -u wordpress -pwordpress wordpress
 
 # ── WordPress Setup ──────────────────────────────────────────────────────────
 
 wp-install:
-	docker exec theme-dev-wordpress-1 bash -c '\
+	docker compose exec wordpress bash -c '\
 		curl -sO https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 		chmod +x wp-cli.phar && \
 		php wp-cli.phar core install \
@@ -37,7 +37,7 @@ wp-install:
 		rm wp-cli.phar'
 
 wp-activate:
-	docker exec theme-dev-wordpress-1 bash -c '\
+	docker compose exec wordpress bash -c '\
 		curl -sO https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 		chmod +x wp-cli.phar && \
 		php wp-cli.phar theme activate neurg-kreisverband --allow-root && \
@@ -46,7 +46,7 @@ wp-activate:
 # ── Seed Data ────────────────────────────────────────────────────────────────
 
 seed:
-	docker exec theme-dev-wordpress-1 bash -c '\
+	docker compose exec wordpress bash -c '\
 		curl -sO https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 		chmod +x wp-cli.phar && \
 		php wp-cli.phar eval "gk_seed_all();" --allow-root && \
@@ -71,8 +71,6 @@ test:
 
 phpcs:
 	composer exec phpcs -- --standard=phpcs.xml.dist theme/
-
-
 
 # ── CSS Build ────────────────────────────────────────────────────────────
 

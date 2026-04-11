@@ -177,6 +177,24 @@
     margin: 0;
 }
 
+.neurg-theme-credit {
+    font-size: 0.75rem;
+    color: var(--footer-text-dim);
+    opacity: 0.6;
+    margin: 0;
+
+    a {
+        color: inherit;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+
+        &:hover {
+            color: var(--footer-text);
+            opacity: 1;
+        }
+    }
+}
+
 @media (max-width: 539px) {
     .footer-verbaende-list {
         gap: var(--space-1) var(--space-3);

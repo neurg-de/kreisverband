@@ -125,42 +125,48 @@ function gk_taurus_sanitize_lang( $value ) {
 // ── Footer output ──────────────────────────────────────────────────────────────
 
 /**
- * Render The Taurus element in the footer.
- *
- * With slug: shows the live compliance badge.
- * Without slug: shows the subtle sponsor credit line.
- * Controlled by a single toggle (gk_taurus_show_footer).
+ * Render The Taurus compliance badge in the footer (when a slug is configured).
+ * Controlled by the show_footer toggle.
  */
-function gk_taurus_render_footer_taurus() {
+function gk_taurus_render_footer_badge() {
     if ( ! gk_taurus_option( 'show_footer', true ) ) {
         return;
     }
 
     $slug = gk_taurus_option( 'slug', '' );
-    $lang = gk_taurus_badge_lang();
-
-    if ( $slug ) {
-        // Live badge — replaces the sponsor credit
-        $badge_url   = 'https://thetaurus.com/profile/org/' . rawurlencode( $slug ) . '/badge?lang=' . $lang;
-        $profile_url = 'https://thetaurus.com/' . rawurlencode( $slug ) . '?utm_source=neurg&utm_medium=widget&utm_campaign=badge';
-        $alt         = ( $lang === 'de' ) ? 'Compliance-Status auf The Taurus' : 'Compliance status on The Taurus';
-        $title       = ( $lang === 'de' ) ? 'Compliance-Profil auf The Taurus ansehen' : 'View compliance profile on The Taurus';
-
-        printf(
-            '<div class="neurg-taurus-badge"><a href="%s" target="_blank" rel="noopener" title="%s"><img src="%s" alt="%s" loading="lazy" width="200" height="46" /></a></div>',
-            esc_url( $profile_url ),
-            esc_attr( $title ),
-            esc_url( $badge_url ),
-            esc_attr( $alt )
-        );
-    } else {
-        // Subtle sponsor credit — always German, matching the theme language
-        $url = 'https://thetaurus.com/de?utm_source=neurg&utm_medium=theme&utm_campaign=footer';
-        printf(
-            '<p class="neurg-sponsor-credit">Gesponsert von <a href="%s" target="_blank" rel="noopener">The Taurus</a> — Compliance für politische Werbung</p>',
-            esc_url( $url )
-        );
+    if ( ! $slug ) {
+        return;
     }
+
+    $lang        = gk_taurus_badge_lang();
+    $badge_url   = 'https://thetaurus.com/profile/org/' . rawurlencode( $slug ) . '/badge?lang=' . $lang;
+    $profile_url = 'https://thetaurus.com/' . rawurlencode( $slug ) . '?utm_source=neurg&utm_medium=widget&utm_campaign=badge';
+    $alt         = ( $lang === 'de' ) ? 'Compliance-Status auf The Taurus' : 'Compliance status on The Taurus';
+    $title       = ( $lang === 'de' ) ? 'Compliance-Profil auf The Taurus ansehen' : 'View compliance profile on The Taurus';
+
+    printf(
+        '<div class="neurg-taurus-badge"><a href="%s" target="_blank" rel="noopener" title="%s"><img src="%s" alt="%s" loading="lazy" width="200" height="46" /></a></div>',
+        esc_url( $profile_url ),
+        esc_attr( $title ),
+        esc_url( $badge_url ),
+        esc_attr( $alt )
+    );
+}
+
+/**
+ * Render inline sponsor credit appended to the theme credit line.
+ * Controlled by the show_footer toggle.
+ */
+function gk_taurus_render_sponsor_credit() {
+    if ( ! gk_taurus_option( 'show_footer', true ) ) {
+        return;
+    }
+
+    $url = 'https://thetaurus.com/de?utm_source=neurg&utm_medium=theme&utm_campaign=footer';
+    printf(
+        ' · Gesponsert von <a href="%s" target="_blank" rel="noopener">The Taurus</a>',
+        esc_url( $url )
+    );
 }
 
 

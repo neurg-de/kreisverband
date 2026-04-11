@@ -128,6 +128,17 @@ echo ""
 echo "  $RELEASE_TYPE release: $OLD_VERSION → $NEW_VERSION (tag: $TAG_NAME)"
 echo ""
 
+# ── Run tests ─────────────────────────────────────────────────────────────
+
+echo "  Running tests..."
+if ! composer exec phpunit 2>&1; then
+    echo "" >&2
+    echo "ERROR: Tests failed — aborting release." >&2
+    exit 1
+fi
+echo "  ✓ All tests passed"
+echo ""
+
 # ── Bump version in all files ──────────────────────────────────────────────
 
 echo "  Bumping version in source files..."

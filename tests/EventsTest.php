@@ -49,7 +49,7 @@ class EventsTest extends WP_UnitTestCase {
         update_post_meta( $event_id, 'gk_event_all_day', '1' );
 
         $formatted = gk_format_event_date( $event_id );
-        $this->assertStringContainsString( 'ganztaegig', $formatted );
+        $this->assertStringContainsString( 'ganztägig', $formatted );
     }
 
     public function test_multi_day_event() {

@@ -4,7 +4,7 @@ Contributors: severinkistner
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.5.0
+Stable tag: 0.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ WordPress-Theme fuer GRUENE Kreisverband- und Ortsverband-Websites.
 
 == Description ==
 
-Neurg Kreisverband ist ein spezialisiertes WordPress-Theme fuer GRUENE Kreisverband- und Ortsverband-Websites.
+Neurg Kreisverband ist ein spezialisiertes, kostenloses WordPress-Theme fuer GRUENE Kreisverband- und Ortsverband-Websites. Entwickelt und gepflegt unter [neurg.de](https://neurg.de).
 
 Funktionen:
 
@@ -51,6 +51,14 @@ Unter Beitraege > Zuordnung (KV/OV) einen neuen Term anlegen und als OV-Typ konf
 Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Theme integriert.
 
 == Changelog ==
+
+= 0.5.1 =
+* The Taurus Integration: Compliance-Badge, Customizer-Einstellungen, Dashboard-Promo
+* Optionaler Dark Mode (abschaltbar im Customizer)
+* Sponsor-Credit im Footer immer auf Deutsch
+* Theme-Credit (neurg.de) im Footer
+* Filter-Button :visited-Fix
+* minimal_title-Sanitization fuer Neue-Energie-Einstellungen
 
 = 0.4.0 =
 * Erstes oeffentliches Pre-Release

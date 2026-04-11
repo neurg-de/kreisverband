@@ -1,6 +1,8 @@
-# Neurg Kreisverband
+# [Neurg Kreisverband](https://neurg.de)
 
 WordPress-Theme fuer GRUENE Kreisverband- und Ortsverband-Websites.
+
+**[neurg.de](https://neurg.de)** — Download, Dokumentation und Demo.
 
 ![Screenshot](theme/screenshot.png)
 

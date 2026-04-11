@@ -55,7 +55,7 @@ class ThemeSetupTest extends WP_UnitTestCase {
 
     public function test_gk_version_constant_defined() {
         $this->assertTrue( defined( 'GK_VERSION' ) );
-        $this->assertEquals( '0.4.0', GK_VERSION );
+        $this->assertMatchesRegularExpression( '/^\d+\.\d+\.\d+$/', GK_VERSION );
     }
 
     public function test_gk_dir_constant_defined() {
