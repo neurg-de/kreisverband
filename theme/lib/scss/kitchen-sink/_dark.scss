@@ -5,6 +5,7 @@
 // @media rules for OS-level dark mode (kitchen-sink-specific only;
 // component rules for buttons/forms/nav live in their own files)
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     // Simulated button hover states — text must be dark on yellow CTA bg
     .ks-btn-state--hover .gk-btn--primary,
     .ks-btn-state--hover .gk-btn--icon-only,
@@ -79,6 +80,7 @@
         background: var(--tanne-800);
         border: 1px solid var(--color-border);
     }
+  }
 }
 
 // --- On-dark link panel (always dark, regardless of mode) ---

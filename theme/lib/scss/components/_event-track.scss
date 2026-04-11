@@ -234,6 +234,7 @@
 
 // --- Dark Mode ---
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-events__track {
         background: var(--tanne-700);
     }
@@ -266,4 +267,5 @@
     .gk-events__empty {
         color: var(--tanne-200);
     }
+  }
 }

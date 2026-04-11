@@ -321,6 +321,7 @@
 
 // --- Dark Mode ---
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-event-single__detail-card {
         background: var(--tanne-700);
         border-color: var(--tanne-600);
@@ -329,4 +330,5 @@
     .gk-event-single__actions {
         border-top-color: var(--tanne-600);
     }
+  }
 }

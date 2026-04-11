@@ -276,6 +276,7 @@ button.gk-ov-toggle {
 // --- Kreiskarte dark mode ---
 
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     input.gk-ov-search {
         background: var(--color-surface);
         color: var(--color-text);
@@ -317,4 +318,5 @@ button.gk-ov-toggle {
             &:hover { color: var(--color-text); }
         }
     }
+  }
 }

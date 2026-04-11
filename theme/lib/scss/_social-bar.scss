@@ -67,11 +67,13 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-social-bar {
         --social-bar-bg: var(--tanne-900);
         --social-bar-link-bg: var(--tanne-600);
         --social-bar-link-color: var(--sand-100);
     }
+  }
 }
 
 // Back-to-top button

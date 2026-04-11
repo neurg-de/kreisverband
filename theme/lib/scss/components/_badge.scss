@@ -16,9 +16,11 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-badge {
         background: var(--tanne-700);
         border-color: var(--tanne-600);
         color: var(--tanne-100);
     }
+  }
 }

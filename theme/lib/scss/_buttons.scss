@@ -292,6 +292,7 @@
 // --- Dark-mode button overrides ---
 
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-btn,
     .gk-btn--primary,
     .morebutton,
@@ -314,6 +315,7 @@
             color: var(--color-on-cta);
         }
     }
+  }
 }
 
 // Light-mode class overrides

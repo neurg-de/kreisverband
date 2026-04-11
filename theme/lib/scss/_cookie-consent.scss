@@ -99,9 +99,11 @@
 
 // --- Dark Mode ---
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-cookie-consent {
         --cookie-bg: var(--tanne-800);
         --cookie-text: var(--sand-300);
         --cookie-text-bright: var(--sand-100);
     }
+  }
 }

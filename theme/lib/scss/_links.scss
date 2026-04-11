@@ -79,7 +79,7 @@ a {
 // 3. Dark-mode mark color
 // ---------------------------------------------------------------------------
 @media (prefers-color-scheme: dark) {
-    :root {
+    body:not(.no-dark-mode) {
         --mark-color: var(--klee-600);
     }
 }

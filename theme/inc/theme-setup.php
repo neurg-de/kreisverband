@@ -82,9 +82,36 @@ function gk_editor_styles() {
 
 function gk_body_class_design_theme( $classes ) {
     $classes[] = 'design-grundlagen2024';
+    if ( ! get_theme_mod( 'gk_dark_mode', true ) ) {
+        $classes[] = 'no-dark-mode';
+    }
     return $classes;
 }
 add_filter( 'body_class', 'gk_body_class_design_theme' );
+
+
+// ── Customizer ──────────────────────────────────────────────────────────────
+
+add_action( 'customize_register', 'gk_theme_customizer' );
+
+function gk_theme_customizer( $wp_customize ) {
+
+    $wp_customize->add_section( 'gk_theme', array(
+        'title'    => __( 'Theme-Einstellungen', 'neurg-kreisverband' ),
+        'priority' => 30,
+    ) );
+
+    $wp_customize->add_setting( 'gk_dark_mode', array(
+        'default'           => true,
+        'sanitize_callback' => 'wp_validate_boolean',
+    ) );
+    $wp_customize->add_control( 'gk_dark_mode', array(
+        'label'       => __( 'Dark Mode', 'neurg-kreisverband' ),
+        'description' => __( 'Automatischer Dark Mode basierend auf den Geräte-Einstellungen der Besucher.', 'neurg-kreisverband' ),
+        'section'     => 'gk_theme',
+        'type'        => 'checkbox',
+    ) );
+}
 
 
 // ── Sidebars ─────────────────────────────────────────────────────────────────

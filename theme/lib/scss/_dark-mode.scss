@@ -3,6 +3,7 @@
 // ==========================================================================
 
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     // Logo text in nav-desktop and fly-in nav
     .logolink h2,
     .logo-desktop h2 {
@@ -93,4 +94,5 @@
     .gk-lightbox-caption {
         color: var(--sand-200);
     }
+  }
 }

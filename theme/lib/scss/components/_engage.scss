@@ -68,7 +68,9 @@
 
 // --- Dark Mode ---
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-engage__icon-wrap {
         background: var(--color-accent);
     }
+  }
 }

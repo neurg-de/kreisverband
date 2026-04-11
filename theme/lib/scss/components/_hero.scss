@@ -234,6 +234,7 @@
 // Hero is always dark — text stays white via --hero-text.
 // Only the background and button colors need adjustment.
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-hero {
         --hero-overlay: linear-gradient(
             to top,
@@ -243,6 +244,7 @@
         );
         --hero-btn-text: var(--tanne-900);
     }
+  }
 }
 
 // --- Reduced Motion ---

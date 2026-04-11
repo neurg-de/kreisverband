@@ -141,6 +141,7 @@
 
 // --- Dark Mode ---
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-contact {
         &__item {
             border-bottom-color: rgba(255, 255, 255, 0.08);
@@ -160,4 +161,5 @@
             }
         }
     }
+  }
 }

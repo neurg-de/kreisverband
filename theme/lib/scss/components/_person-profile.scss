@@ -284,6 +284,7 @@
 // Header is pinned (always dark) — no overrides needed there.
 // Only contact bar and body sections adapt to dark mode.
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-profile {
         &__contact-link {
             background: var(--color-surface);
@@ -295,6 +296,7 @@
             }
         }
     }
+  }
 }
 
 // ── Reduced motion ─────────────────────────────────────────────────────────

@@ -422,6 +422,7 @@ select.is-invalid {
 // --- Dark mode overrides for form controls ---
 
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     #{$text-inputs},
     textarea,
     select {
@@ -552,6 +553,7 @@ select.is-invalid {
     .toggle input[type="checkbox"]:focus + .toggle__track {
         box-shadow: 0 0 0 3px rgba(60, 180, 228, 0.35);
     }
+  }
 }
 
 // --- Contact form success & error states ---
@@ -567,9 +569,11 @@ select.is-invalid {
     margin-bottom: var(--space-4);
 
     @media (prefers-color-scheme: dark) {
-        background: rgba(0, 137, 57, 0.15);
-        border-color: var(--klee-600);
-        color: var(--klee-200);
+        body:not(.no-dark-mode) & {
+            background: rgba(0, 137, 57, 0.15);
+            border-color: var(--klee-600);
+            color: var(--klee-200);
+        }
     }
 }
 
@@ -589,8 +593,10 @@ select.is-invalid {
     }
 
     @media (prefers-color-scheme: dark) {
-        background: rgba(197, 29, 84, 0.15);
-        border-color: #F06B8A;
-        color: #F06B8A;
+        body:not(.no-dark-mode) & {
+            background: rgba(197, 29, 84, 0.15);
+            border-color: #F06B8A;
+            color: #F06B8A;
+        }
     }
 }

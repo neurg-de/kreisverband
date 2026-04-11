@@ -164,7 +164,7 @@
 
 // Dark mode token overrides
 @media (prefers-color-scheme: dark) {
-    :root {
+    body:not(.no-dark-mode) {
         --color-primary:      var(--tanne-400);
         --color-primary-hover: var(--tanne-300);
         --color-accent:       var(--klee-400);

@@ -55,6 +55,7 @@
 
 // --- Dark Mode ---
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-person {
         color: var(--sand-200);
 
@@ -74,4 +75,5 @@
             }
         }
     }
+  }
 }

@@ -55,10 +55,12 @@
     box-sizing: content-box;
 
     @media (prefers-color-scheme: dark) {
-        background-color: transparent;
-        padding: 0;
-        margin-top: 0;
-        margin-bottom: 0;
+        body:not(.no-dark-mode) & {
+            background-color: transparent;
+            padding: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
     }
 }
 

@@ -132,6 +132,7 @@
 
 // Dark mode
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-social-links a {
         background: var(--color-surface);
         color: var(--color-text);
@@ -152,4 +153,5 @@
             color: #fff;
         }
     }
+  }
 }

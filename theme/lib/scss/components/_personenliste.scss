@@ -137,6 +137,7 @@
 
 // --- Dark Mode ---
 @media (prefers-color-scheme: dark) {
+  body:not(.no-dark-mode) {
     .gk-abteilung {
         &__header p {
             color: var(--tanne-200);
@@ -179,6 +180,7 @@
             color: var(--tanne-200);
         }
     }
+  }
 }
 
 // --- Reduced Motion ---
