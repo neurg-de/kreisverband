@@ -154,18 +154,12 @@ function gk_taurus_render_footer_taurus() {
             esc_attr( $alt )
         );
     } else {
-        // Subtle sponsor credit
-        $site_lang = gk_taurus_get_lang();
-
-        if ( $site_lang === 'de' ) {
-            $url  = 'https://thetaurus.com/de?utm_source=neurg&utm_medium=theme&utm_campaign=footer';
-            $text = 'Gesponsert von <a href="%s" target="_blank" rel="noopener">The Taurus</a> — Compliance für politische Werbung';
-        } else {
-            $url  = 'https://thetaurus.com?utm_source=neurg&utm_medium=theme&utm_campaign=footer';
-            $text = 'Sponsored by <a href="%s" target="_blank" rel="noopener">The Taurus</a> — Compliance for political advertising';
-        }
-
-        printf( '<p class="neurg-sponsor-credit">' . $text . '</p>', esc_url( $url ) );
+        // Subtle sponsor credit — always German, matching the theme language
+        $url = 'https://thetaurus.com/de?utm_source=neurg&utm_medium=theme&utm_campaign=footer';
+        printf(
+            '<p class="neurg-sponsor-credit">Gesponsert von <a href="%s" target="_blank" rel="noopener">The Taurus</a> — Compliance für politische Werbung</p>',
+            esc_url( $url )
+        );
     }
 }
 
