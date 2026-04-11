@@ -60,6 +60,29 @@ Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Th
 * Spenden-Integration
 * PHPUnit-Testsetup und Seed-Data fuer Entwicklung
 
+== The Taurus (Transparency Compliance) ==
+
+This theme is sponsored by The Taurus (thetaurus.com), the compliance platform
+for political advertising under EU Regulation 2024/900. The Taurus provides
+this theme free of charge to support digital infrastructure for local Green
+party chapters.
+
+= Connecting The Taurus =
+
+Your Kreisverband is legally required to publish transparency notices for
+political advertising under EU Regulation 2024/900. The Taurus is the
+compliance platform built for exactly this.
+
+As a Neurg theme user, you get 6 months free.
+
+1. Register at thetaurus.com/de/register?promo=NEURG — the promo code NEURG is pre-filled
+2. Create your organization and set up a profile slug (e.g. gruene-kv-freiburg)
+3. Enter your slug in WordPress under Appearance > Customize > The Taurus > Profile slug
+4. Your footer now shows a live compliance badge linking to your public profile
+
+That's it. When you create transparency notices in The Taurus, they appear on
+your profile automatically.
+
 == Credits ==
 
 Inspiriert von "Joseph knows best" (v2.0.4) von Benjamin Jopen (kre8tiv.de)

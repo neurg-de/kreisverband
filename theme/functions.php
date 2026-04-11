@@ -84,6 +84,9 @@ require_once GK_DIR . '/inc/admin.php';
 // Widgets
 require_once GK_DIR . '/inc/widgets.php';
 
+// The Taurus integration: compliance badge, Customizer settings, sponsor credit
+require_once GK_DIR . '/inc/taurus.php';
+
 // Kreiskarte: interactive SVG map of the Landkreis
 require_once GK_DIR . '/inc/kreiskarte.php';
 

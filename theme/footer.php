@@ -55,6 +55,11 @@
                         <li><a href="<?php echo esc_url( get_permalink( $datenschutz_id ) ); ?>">Datenschutz</a></li>
                     <?php endif; ?>
                 </ul>
+                <?php
+                if ( function_exists( 'gk_taurus_render_footer_taurus' ) ) {
+                    gk_taurus_render_footer_taurus();
+                }
+                ?>
                 <p class="footer-copyright">
                     &copy; <?php echo date( 'Y' ); ?> <?php bloginfo( 'name' ); ?>
                 </p>

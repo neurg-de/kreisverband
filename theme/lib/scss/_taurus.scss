@@ -1,0 +1,93 @@
+// ==========================================================================
+// The Taurus – Compliance badge & sponsor credit
+// ==========================================================================
+
+// Footer section containing badge or CTA
+.footer-taurus {
+    background-color: var(--footer-bg-deepest);
+    padding: var(--space-6) 0;
+    text-align: center;
+    border-bottom: 1px solid var(--footer-border);
+}
+
+// ── Live badge ─────────────────────────────────────────────────────────────
+
+.neurg-taurus-badge {
+    display: inline-block;
+
+    a {
+        display: inline-block;
+        transition: opacity 0.2s;
+
+        &:hover {
+            opacity: 0.85;
+        }
+    }
+
+    img {
+        display: block;
+        height: auto;
+        max-width: 200px;
+    }
+}
+
+// ── Signup CTA (no slug configured) ────────────────────────────────────────
+
+.neurg-taurus-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+
+    p {
+        margin: 0;
+        color: var(--footer-text);
+        font-size: 0.875rem;
+    }
+}
+
+.neurg-taurus-cta-button {
+    display: inline-block;
+    padding: var(--space-2) var(--space-6);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-inverse);
+    background-color: var(--color-cta);
+    border-radius: var(--radius-sm, 4px);
+    text-decoration: none;
+    transition: background-color 0.2s, transform 0.1s;
+
+    &:hover {
+        background-color: var(--color-cta-hover, var(--color-cta));
+        transform: translateY(-1px);
+    }
+
+    &:visited {
+        color: var(--color-text-inverse);
+    }
+}
+
+.neurg-taurus-cta-note {
+    font-size: 0.75rem;
+    color: var(--footer-text-dim);
+}
+
+// ── Sponsor credit line ────────────────────────────────────────────────────
+
+.neurg-sponsor-credit {
+    font-size: 0.75rem;
+    color: var(--footer-text-dim);
+    opacity: 0.6;
+    margin: 0;
+
+    a {
+        color: inherit;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+
+        &:hover {
+            color: var(--footer-text);
+            opacity: 1;
+        }
+    }
+}
