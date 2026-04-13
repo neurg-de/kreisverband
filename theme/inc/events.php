@@ -42,7 +42,7 @@ function gk_register_event_post_type() {
         'rewrite'      => array( 'slug' => 'termin', 'with_front' => false ),
         'menu_icon'    => 'dashicons-calendar-alt',
         'menu_position' => 6,
-        'supports'     => array( 'title', 'editor', 'thumbnail', 'author', 'excerpt', 'revisions' ),
+        'supports'     => array( 'title', 'editor', 'thumbnail', 'author', 'excerpt', 'revisions', 'custom-fields' ),
         'show_in_rest' => true,
     ) );
 
@@ -70,9 +70,57 @@ function gk_flush_rewrite_once() {
 add_action( 'init', 'gk_flush_rewrite_once', 99 );
 
 
-// ── Event Meta Box ──────────────────────────────────────────────────────────
+// ── Register meta for REST / Block Editor ──────────────────────────────────
+
+function gk_register_event_meta() {
+    $fields = array(
+        'gk_event_start_date',
+        'gk_event_start_time',
+        'gk_event_end_date',
+        'gk_event_end_time',
+        'gk_event_all_day',
+        'gk_event_location',
+        'gk_event_address',
+        'gk_event_organizer',
+        'gk_event_url',
+    );
+    foreach ( $fields as $key ) {
+        register_post_meta( 'gk_event', $key, array(
+            'show_in_rest'  => true,
+            'single'        => true,
+            'type'          => 'string',
+            'auth_callback' => function () { return current_user_can( 'edit_posts' ); },
+        ) );
+    }
+}
+add_action( 'init', 'gk_register_event_meta' );
+
+function gk_enqueue_event_sidebar() {
+    $screen = get_current_screen();
+    if ( ! $screen || $screen->post_type !== 'gk_event' ) {
+        return;
+    }
+    wp_enqueue_script(
+        'gk-event-sidebar',
+        GK_URI . '/lib/js/event-sidebar.js',
+        array( 'wp-plugins', 'wp-edit-post', 'wp-element', 'wp-components', 'wp-data', 'wp-editor' ),
+        GK_VERSION,
+        true
+    );
+}
+add_action( 'enqueue_block_editor_assets', 'gk_enqueue_event_sidebar' );
+
+
+// ── Event Meta Box (classic editor fallback) ───────────────────────────────
 
 function gk_event_meta_boxes() {
+    // Skip meta box when block editor is active — fields are in the sidebar.
+    if ( function_exists( 'get_current_screen' ) ) {
+        $screen = get_current_screen();
+        if ( $screen && $screen->is_block_editor() ) {
+            return;
+        }
+    }
     add_meta_box( 'gk_event_details', 'Termin-Details', 'gk_event_details_cb', 'gk_event', 'normal', 'high' );
 }
 add_action( 'add_meta_boxes', 'gk_event_meta_boxes' );

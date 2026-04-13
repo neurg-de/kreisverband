@@ -180,7 +180,7 @@ function gk_zuordnung_meta_box_cb( $post ) {
 
     wp_nonce_field( 'gk_zuordnung_save', 'gk_zuordnung_nonce' );
 
-    echo '<select name="gk_zuordnung_select" style="width:100%">';
+    echo '<select name="gk_zuordnung_select" style="width:100%;max-width:100%;box-sizing:border-box">';
     echo '<option value="">' . esc_html__( '— Bitte wählen —', 'neurg-kreisverband' ) . '</option>';
     foreach ( $terms as $term ) {
         printf(
