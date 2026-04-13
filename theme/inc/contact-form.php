@@ -164,8 +164,8 @@ function gk_shortcode_kontaktformular( $atts ) {
             </p>
 
             <p class="gk-field gk-field-checkbox">
-                <input type="checkbox" name="gk_contact_privacy" id="gk_contact_privacy" value="1" required aria-required="true" />
                 <label for="gk_contact_privacy">
+                    <input type="checkbox" name="gk_contact_privacy" id="gk_contact_privacy" value="1" required aria-required="true" />
                     Ich habe die
                     <?php if ( $privacy_url ) : ?>
                         <a href="<?php echo esc_url( $privacy_url ); ?>" target="_blank">Datenschutzerklärung</a>
@@ -177,7 +177,7 @@ function gk_shortcode_kontaktformular( $atts ) {
             </p>
 
             <p class="gk-field gk-field-submit">
-                <button type="submit" name="gk_contact_submit" class="button" onclick="this.disabled=true;this.form.submit();">Nachricht senden</button>
+                <button type="submit" name="gk_contact_submit" class="gk-btn" onclick="this.disabled=true;this.form.submit();">Nachricht senden</button>
             </p>
         </form>
     <?php
