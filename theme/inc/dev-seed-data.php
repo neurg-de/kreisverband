@@ -431,17 +431,97 @@ function gk_seed_persons() {
                 'kr8mb_pers_contact_www'   => 'https://hans-bergmann.example.de',
             ),
         ),
+        // ── OV Musterstadt ─────────────────────────────────────────────
         array(
             'name'        => 'Anna Wiesengrund',
-            'content'     => 'Stadträtin in Musterstadt. Schwerpunkt: Bildung und Soziales.',
-            'abteilungen' => array( 'stadtrat' ),
-            'abt_meta'    => array( 'stadtrat' => array( 'position' => '1', 'function' => 'Fraktionsvorsitzende', 'hidden' => false ) ),
+            'content'     => 'Sprecherin des OV Musterstadt und Stadträtin. Schwerpunkt: Bildung und Soziales.',
+            'abteilungen' => array( 'ortsvorstand', 'stadtrat' ),
+            'abt_meta'    => array(
+                'ortsvorstand' => array( 'position' => '1', 'function' => 'Sprecherin', 'hidden' => false ),
+                'stadtrat'     => array( 'position' => '1', 'function' => 'Fraktionsvorsitzende', 'hidden' => false ),
+            ),
             'contact'     => array(
-                'kr8mb_pers_contact_email'    => 'anna@gruene-musterstadt.de',
-                'kr8mb_pers_contact_threads'  => 'anna.wiesengrund',
+                'kr8mb_pers_contact_email'   => 'anna@gruene-musterstadt.de',
+                'kr8mb_pers_contact_threads' => 'anna.wiesengrund',
             ),
             'zuordnung'   => 'ov-musterstadt',
         ),
+        array(
+            'name'        => 'Jonas Eichenbach',
+            'content'     => 'Sprecher des OV Musterstadt. Stadtplaner mit Leidenschaft für lebenswerte Quartiere.',
+            'abteilungen' => array( 'ortsvorstand' ),
+            'abt_meta'    => array( 'ortsvorstand' => array( 'position' => '2', 'function' => 'Sprecher', 'hidden' => false ) ),
+            'contact'     => array(
+                'kr8mb_pers_contact_email' => 'jonas@gruene-musterstadt.de',
+            ),
+            'zuordnung'   => 'ov-musterstadt',
+        ),
+        array(
+            'name'        => 'Fatima Karim',
+            'content'     => 'Schatzmeisterin des OV und engagiert in der Integrationspolitik.',
+            'abteilungen' => array( 'ortsvorstand' ),
+            'abt_meta'    => array( 'ortsvorstand' => array( 'position' => '3', 'function' => 'Schatzmeisterin', 'hidden' => false ) ),
+            'contact'     => array(
+                'kr8mb_pers_contact_email' => 'fatima@gruene-musterstadt.de',
+            ),
+            'zuordnung'   => 'ov-musterstadt',
+        ),
+        array(
+            'name'        => 'Rainer Hofmann',
+            'content'     => 'Stadtrat und Sprecher der AG Verkehr. Setzt sich für Tempo 30 und sichere Schulwege ein.',
+            'abteilungen' => array( 'stadtrat' ),
+            'abt_meta'    => array( 'stadtrat' => array( 'position' => '2', 'function' => '', 'hidden' => false ) ),
+            'contact'     => array(
+                'kr8mb_pers_contact_email' => 'rainer@gruene-musterstadt.de',
+                'kr8mb_pers_contact_www'   => 'https://rainer-hofmann.example.de',
+            ),
+            'zuordnung'   => 'ov-musterstadt',
+        ),
+        array(
+            'name'        => 'Susanne Bäcker',
+            'content'     => 'Stadträtin mit Schwerpunkt Kultur und Stadtentwicklung.',
+            'abteilungen' => array( 'stadtrat' ),
+            'abt_meta'    => array( 'stadtrat' => array( 'position' => '3', 'function' => '', 'hidden' => false ) ),
+            'contact'     => array(
+                'kr8mb_pers_contact_email' => 'susanne@gruene-musterstadt.de',
+            ),
+            'zuordnung'   => 'ov-musterstadt',
+        ),
+        array(
+            'name'        => 'Nele Winther',
+            'content'     => 'Sprecherin der GRÜNEN Jugend Musterstadt. Studiert Umweltwissenschaften.',
+            'abteilungen' => array( 'gruene-jugend' ),
+            'abt_meta'    => array( 'gruene-jugend' => array( 'position' => '1', 'function' => 'Sprecherin', 'hidden' => false ) ),
+            'contact'     => array(
+                'kr8mb_pers_contact_insta'  => 'nele.winther',
+                'kr8mb_pers_contact_tiktok' => '@nele.winther',
+            ),
+            'zuordnung'   => 'ov-musterstadt',
+        ),
+        array(
+            'name'        => 'Luca Brandt',
+            'content'     => 'Aktiv in der GRÜNEN Jugend. Organisiert Klimastreiks und Podiumsdiskussionen.',
+            'abteilungen' => array( 'gruene-jugend' ),
+            'abt_meta'    => array( 'gruene-jugend' => array( 'position' => '2', 'function' => '', 'hidden' => false ) ),
+            'contact'     => array(
+                'kr8mb_pers_contact_insta' => 'luca.brandt',
+            ),
+            'zuordnung'   => 'ov-musterstadt',
+        ),
+        array(
+            'name'        => 'Elvira Moosbach',
+            'content'     => 'Beisitzerin im OV-Vorstand. Engagiert sich für Naturschutz und Artenvielfalt.',
+            'abteilungen' => array( 'ortsvorstand', 'ag-energie' ),
+            'abt_meta'    => array(
+                'ortsvorstand' => array( 'position' => '4', 'function' => 'Beisitzerin', 'hidden' => false ),
+                'ag-energie'   => array( 'position' => '', 'function' => '', 'hidden' => false ),
+            ),
+            'contact'     => array(
+                'kr8mb_pers_contact_email' => 'elvira@gruene-musterstadt.de',
+            ),
+            'zuordnung'   => 'ov-musterstadt',
+        ),
+        // ── OV Neuburg ────────────────────────────────────────────────
         array(
             'name'        => 'Peter Lichtblick',
             'content'     => 'Sprecher des OV Neuburg. Kümmert sich um Stadtentwicklung und Wohnen.',

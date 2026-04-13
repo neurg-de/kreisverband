@@ -1,10 +1,10 @@
 <?php
 /**
- * Kreiskarte Generator — Admin Tool
+ * Kreiskarte — Admin Tool
  *
- * Lets the admin search for a Landkreis on OpenStreetMap,
- * fetches all Gemeinden boundaries via Overpass API,
- * generates the SVG map, and creates zuordnung terms + homepage pages.
+ * Two-phase workflow:
+ *   Phase 1 (one-time): Search Landkreis → preview map → confirm & save
+ *   Phase 2 (ongoing):  Configure Gemeinden — types, links, create OV entries
  *
  * @package Neurg_Kreisverband
  */
@@ -15,26 +15,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 add_action( 'admin_menu', 'gk_kreiskarte_generator_menu' );
 add_action( 'wp_ajax_gk_save_kreiskarte', 'gk_ajax_save_kreiskarte' );
+add_action( 'wp_ajax_gk_update_kreiskarte_mappings', 'gk_ajax_update_kreiskarte_mappings' );
 add_action( 'wp_ajax_gk_create_ortsverbaende', 'gk_ajax_create_ortsverbaende' );
 add_action( 'wp_ajax_gk_get_ortsverbaende', 'gk_ajax_get_ortsverbaende' );
 
-/**
- * Register admin page under "Einstellungen".
- */
 function gk_kreiskarte_generator_menu() {
     add_submenu_page(
         'gk-settings',
-        'Kreiskarte erstellen',
-        'Kreiskarte erstellen',
+        'Kreiskarte',
+        'Kreiskarte',
         'manage_options',
         'kreiskarte-generator',
         'gk_kreiskarte_generator_page'
     );
 }
 
-/**
- * Enqueue generator scripts only on our admin page.
- */
 add_action( 'admin_enqueue_scripts', function ( $hook ) {
     if ( $hook !== 'verband_page_kreiskarte-generator' ) {
         return;
@@ -58,81 +53,120 @@ add_action( 'admin_enqueue_scripts', function ( $hook ) {
     );
 } );
 
-/**
- * Render the admin page.
- */
 function gk_kreiskarte_generator_page() {
-    $existing = file_exists( GK_DIR . '/lib/data/kreiskarte.json' );
+    $json_path = GK_DIR . '/lib/data/kreiskarte.json';
+    $has_map   = file_exists( $json_path );
+    $json_data = $has_map ? file_get_contents( $json_path ) : '';
     ?>
     <div class="wrap gk-kreiskarte-generator">
-        <h1>Kreiskarte erstellen</h1>
-        <p class="description">
-            Suche deinen Landkreis auf OpenStreetMap. Das Tool l&auml;dt automatisch alle Gemeindegrenzen
-            und erstellt eine interaktive SVG-Karte sowie die Ortsverband-Eintr&auml;ge.
-        </p>
 
-        <?php if ( $existing ) : ?>
-            <div class="notice notice-info inline">
-                <p>Es existiert bereits eine Kreiskarte. Du kannst sie unten neu generieren.</p>
-            </div>
-        <?php endif; ?>
+        <!-- ============================================================
+             PHASE 1 — Load a map (hidden once a map exists)
+             ============================================================ -->
+        <div id="gk-phase-load" <?php if ( $has_map ) echo 'style="display:none"'; ?>>
 
-        <!-- Step 1: Search -->
-        <div id="gk-step-search" class="gk-step">
-            <h2>1. Landkreis suchen</h2>
-            <div class="gk-search-row">
-                <input type="text" id="gk-search-input"
-                       placeholder="z.B. Landkreis Starnberg, Landkreis M&uuml;nchen..."
-                       class="regular-text" />
-                <button id="gk-search-btn" class="button button-primary">Suchen</button>
-            </div>
-            <div id="gk-search-results"></div>
-        </div>
-
-        <!-- Step 2: Loading -->
-        <div id="gk-step-loading" class="gk-step" style="display:none;">
-            <h2>2. Gemeindegrenzen laden...</h2>
-            <div class="gk-progress">
-                <div class="gk-progress-bar"></div>
-            </div>
-            <p id="gk-loading-status">Abfrage an Overpass API...</p>
-        </div>
-
-        <!-- Step 3: Preview & Save -->
-        <div id="gk-step-preview" class="gk-step" style="display:none;">
-            <h2>2. Vorschau</h2>
-            <div id="gk-preview-info"></div>
-            <div id="gk-preview-map"></div>
-
-            <h2>3. Ortsverb&auml;nde zuordnen</h2>
+            <h1>Kreiskarte einrichten</h1>
             <p class="description">
-                Ordne die Gemeinden auf der Karte bestehenden Ortsverb&auml;nden zu.
-                Gemeinden ohne Zuordnung werden als neue Ortsverb&auml;nde angelegt.
+                Suche deinen Landkreis. Das Tool l&auml;dt die Gemeindegrenzen von OpenStreetMap
+                und erstellt eine interaktive Karte.
             </p>
-            <div id="gk-mapping-table"></div>
 
-            <h2>4. &Uuml;bernehmen</h2>
-            <p>
-                <label>
-                    <input type="checkbox" id="gk-create-ovs" checked />
-                    Eintr&auml;ge automatisch anlegen (Ortsverb&auml;nde, Ortsgruppen, Werbeseiten)
-                </label>
-            </p>
-            <button id="gk-save-btn" class="button button-primary button-hero">
-                Kreiskarte speichern &amp; Eintr&auml;ge anlegen
-            </button>
-            <div id="gk-save-status"></div>
+            <!-- Search -->
+            <div id="gk-search" class="gk-card">
+                <div class="gk-search-row">
+                    <input type="text" id="gk-search-input"
+                           placeholder="z.B. Landkreis Starnberg, Landkreis Neuburg-Schrobenhausen..."
+                           class="regular-text" autofocus />
+                    <button type="button" id="gk-search-btn" class="button button-primary">Suchen</button>
+                </div>
+                <div id="gk-search-results"></div>
+            </div>
+
+            <!-- Loading -->
+            <div id="gk-loading" class="gk-card" style="display:none">
+                <div class="gk-progress">
+                    <div class="gk-progress-bar"></div>
+                </div>
+                <p id="gk-loading-status">Lade Gemeindegrenzen...</p>
+            </div>
+
+            <!-- Preview (after loading, before saving) -->
+            <div id="gk-preview" class="gk-card" style="display:none">
+                <div id="gk-preview-map"></div>
+                <div id="gk-preview-info"></div>
+                <div class="gk-preview-actions">
+                    <button type="button" id="gk-confirm-btn" class="button button-primary button-hero">
+                        Karte &uuml;bernehmen
+                    </button>
+                    <button type="button" id="gk-back-btn" class="button">
+                        Andere suchen
+                    </button>
+                </div>
+                <div id="gk-confirm-status"></div>
+            </div>
         </div>
+
+        <!-- ============================================================
+             PHASE 2 — Configure Gemeinden (permanent workspace)
+             ============================================================ -->
+        <div id="gk-phase-config" <?php if ( ! $has_map ) echo 'style="display:none"'; ?>>
+
+            <h1>Kreiskarte</h1>
+
+            <div id="gk-config-map"></div>
+
+            <h2>Gemeinden konfigurieren</h2>
+            <p class="description">
+                W&auml;hle f&uuml;r jede Gemeinde den Typ, ordne sie einem bestehenden Ortsverband zu
+                oder setze einen eigenen Link.
+            </p>
+
+            <div id="gk-config-table"></div>
+
+            <div class="gk-config-actions">
+                <button type="button" id="gk-save-btn" class="button button-primary button-hero">
+                    Speichern
+                </button>
+                <button type="button" id="gk-create-btn" class="button button-hero">
+                    Markierte Eintr&auml;ge anlegen
+                </button>
+            </div>
+            <div id="gk-config-status"></div>
+
+            <hr />
+            <details class="gk-reload-section">
+                <summary>Karte neu laden</summary>
+                <p class="description">
+                    Lade die Karte von OpenStreetMap neu. Die Gemeinde-Konfiguration bleibt erhalten,
+                    sofern die Gemeinde-Slugs &uuml;bereinstimmen.
+                </p>
+                <div class="gk-search-row">
+                    <input type="text" id="gk-reload-input"
+                           placeholder="z.B. Landkreis Starnberg..."
+                           class="regular-text" />
+                    <button type="button" id="gk-reload-btn" class="button button-primary">Suchen</button>
+                </div>
+                <div id="gk-reload-results"></div>
+                <div id="gk-reload-loading" style="display:none">
+                    <div class="gk-progress"><div class="gk-progress-bar"></div></div>
+                    <p id="gk-reload-status">Lade Gemeindegrenzen...</p>
+                </div>
+            </details>
+        </div>
+
     </div>
+
+    <script>
+        window.gkExistingKreiskarte = <?php echo $has_map ? $json_data : 'null'; ?>;
+    </script>
     <?php
 }
 
-/**
- * AJAX: Save the generated kreiskarte.json.
- */
+
+// ── AJAX Handlers ──────────────────────────────────────────────────────────
+
 function gk_ajax_save_kreiskarte() {
     check_ajax_referer( 'gk_kreiskarte', 'nonce' );
-
     if ( ! current_user_can( 'manage_options' ) ) {
         wp_send_json_error( 'Keine Berechtigung.' );
     }
@@ -151,18 +185,74 @@ function gk_ajax_save_kreiskarte() {
     $written = file_put_contents( $dir . '/kreiskarte.json', $json );
 
     if ( $written === false ) {
+        wp_send_json_error( 'Datei konnte nicht geschrieben werden. Prüfe die Schreibrechte für ' . $dir );
+    }
+
+    wp_send_json_success( array( 'bytes' => $written ) );
+}
+
+function gk_ajax_update_kreiskarte_mappings() {
+    check_ajax_referer( 'gk_kreiskarte', 'nonce' );
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Keine Berechtigung.' );
+    }
+
+    $json_path = GK_DIR . '/lib/data/kreiskarte.json';
+    if ( ! file_exists( $json_path ) ) {
+        wp_send_json_error( 'Keine Kreiskarte vorhanden.' );
+    }
+
+    $data = json_decode( file_get_contents( $json_path ), true );
+    if ( ! $data || empty( $data['municipalities'] ) ) {
+        wp_send_json_error( 'Ungültige Kartendaten.' );
+    }
+
+    $mappings = json_decode( stripslashes( $_POST['mappings'] ?? '' ), true );
+    if ( ! is_array( $mappings ) ) {
+        wp_send_json_error( 'Ungültige Zuordnungsdaten.' );
+    }
+
+    $new_munis = array();
+    foreach ( $data['municipalities'] as $slug => $muni ) {
+        if ( isset( $mappings[ $slug ] ) ) {
+            $m    = $mappings[ $slug ];
+            $type = sanitize_text_field( $m['type'] ?? $muni['type'] ?? 'ov' );
+            $muni['type'] = $type;
+
+            // Link field only for the 'link' type.
+            if ( $type === 'link' ) {
+                $link = esc_url_raw( $m['link'] ?? '' );
+                if ( $link ) {
+                    $muni['link'] = $link;
+                } else {
+                    unset( $muni['link'] );
+                }
+            } else {
+                unset( $muni['link'] );
+            }
+
+            // Slug remapping only for WP types that have an OV assignment.
+            $needs_wp = in_array( $type, array( 'ov', 'ortsgruppe', 'werbung' ), true );
+            $new_slug = $needs_wp ? sanitize_title( $m['ovSlug'] ?? '' ) : '';
+            $new_munis[ $new_slug ?: $slug ] = $muni;
+        } else {
+            $new_munis[ $slug ] = $muni;
+        }
+    }
+    $data['municipalities'] = $new_munis;
+
+    $json    = json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
+    $written = file_put_contents( $json_path, $json );
+
+    if ( $written === false ) {
         wp_send_json_error( 'Datei konnte nicht geschrieben werden.' );
     }
 
     wp_send_json_success( array( 'bytes' => $written ) );
 }
 
-/**
- * AJAX: Create zuordnung terms (and optionally homepage pages) for each municipality.
- */
 function gk_ajax_create_ortsverbaende() {
     check_ajax_referer( 'gk_kreiskarte', 'nonce' );
-
     if ( ! current_user_can( 'manage_options' ) ) {
         wp_send_json_error( 'Keine Berechtigung.' );
     }
@@ -172,56 +262,35 @@ function gk_ajax_create_ortsverbaende() {
         wp_send_json_error( 'Ungültige Daten.' );
     }
 
-    $created  = 0;
-    $skipped  = 0;
-    $errors   = array();
+    $created = 0;
+    $skipped = 0;
+    $errors  = array();
 
     foreach ( $municipalities as $muni ) {
         $slug = sanitize_title( $muni['slug'] ?? '' );
         $name = sanitize_text_field( $muni['name'] ?? '' );
+        if ( ! $slug || ! $name ) continue;
 
-        if ( ! $slug || ! $name ) {
-            continue;
-        }
-
-        // Check if zuordnung term with this slug already exists.
         $existing = get_term_by( 'slug', $slug, 'gk_zuordnung' );
-        if ( $existing ) {
-            $skipped++;
-            continue;
-        }
+        if ( $existing ) { $skipped++; continue; }
 
         $type = sanitize_text_field( $muni['type'] ?? 'ov' );
 
-        // Build display name based on type.
-        switch ( $type ) {
-            case 'ortsgruppe':
-                $display_name = 'Ortsgruppe ' . $name;
-                break;
-            case 'werbung':
-                $display_name = 'Grüne in ' . $name;
-                break;
-            default:
-                $display_name = 'OV ' . $name;
-                break;
-        }
+        $display_name = match ( $type ) {
+            'ortsgruppe' => 'Ortsgruppe ' . $name,
+            'werbung'    => 'Grüne in ' . $name,
+            default      => 'OV ' . $name,
+        };
 
-        // Create the zuordnung term.
-        $result = wp_insert_term( $display_name, 'gk_zuordnung', array(
-            'slug' => $slug,
-        ) );
-
+        $result = wp_insert_term( $display_name, 'gk_zuordnung', array( 'slug' => $slug ) );
         if ( is_wp_error( $result ) ) {
             $errors[] = $name . ': ' . $result->get_error_message();
             continue;
         }
 
         $term_id = $result['term_id'];
-
-        // Store type as term meta.
         update_term_meta( $term_id, '_gk_ov_type', $type );
 
-        // Set default header text.
         $header_text = match ( $type ) {
             'ortsgruppe' => 'Ortsgruppe Grüne ' . $name,
             'werbung'    => 'Grüne in ' . $name,
@@ -229,29 +298,18 @@ function gk_ajax_create_ortsverbaende() {
         };
         update_term_meta( $term_id, '_gk_ov_header', $header_text );
 
-        // Create a homepage page for full OVs.
         if ( $type === 'ov' || $type === 'ortsgruppe' ) {
-            $page_content = sprintf(
-                '<h2>Willkommen bei den Grünen in %s!</h2>' . "\n" .
-                '<p>Der %s %s von BÜNDNIS 90/DIE GRÜNEN stellt sich hier vor.</p>',
-                esc_html( $name ),
-                $type === 'ortsgruppe' ? 'Die Ortsgruppe' : 'Der Ortsverband',
-                esc_html( $name )
-            );
-
             $page_id = wp_insert_post( array(
-                'post_type'    => 'page',
-                'post_title'   => $display_name,
-                'post_name'    => $slug,
-                'post_status'  => 'publish',
-                'post_content' => $page_content,
+                'post_type'     => 'page',
+                'post_title'    => $display_name,
+                'post_name'     => $slug,
+                'post_status'   => 'publish',
+                'post_content'  => '',
                 'page_template' => 'page-OV.php',
             ) );
 
             if ( ! is_wp_error( $page_id ) ) {
-                // Assign zuordnung to the page.
                 wp_set_object_terms( $page_id, array( $term_id ), 'gk_zuordnung' );
-                // Store homepage reference on the term.
                 update_term_meta( $term_id, '_gk_homepage_id', $page_id );
             }
         }
@@ -259,34 +317,23 @@ function gk_ajax_create_ortsverbaende() {
         $created++;
     }
 
-    wp_send_json_success( array(
-        'created' => $created,
-        'skipped' => $skipped,
-        'errors'  => $errors,
-    ) );
+    wp_send_json_success( array( 'created' => $created, 'skipped' => $skipped, 'errors' => $errors ) );
 }
 
-/**
- * AJAX: Return all existing OV zuordnung terms for the mapping UI.
- */
 function gk_ajax_get_ortsverbaende() {
     check_ajax_referer( 'gk_kreiskarte', 'nonce' );
-
     if ( ! current_user_can( 'manage_options' ) ) {
         wp_send_json_error( 'Keine Berechtigung.' );
     }
 
-    $ov_terms = gk_get_ov_terms();
-
     $result = array();
-    foreach ( $ov_terms as $term ) {
+    foreach ( gk_get_ov_terms() as $term ) {
         $result[] = array(
-            'id'     => $term->term_id,
-            'slug'   => $term->slug,
-            'title'  => $term->name,
-            'type'   => gk_get_ov_type( $term->term_id ),
+            'id'    => $term->term_id,
+            'slug'  => $term->slug,
+            'title' => $term->name,
+            'type'  => gk_get_ov_type( $term->term_id ),
         );
     }
-
     wp_send_json_success( $result );
 }

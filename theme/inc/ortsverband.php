@@ -242,6 +242,7 @@ function gk_context_social_bar() {
  */
 function gk_register_ov_context_query_var( $vars ) {
     $vars[] = 'gk_ov_context';
+    $vars[] = 'gk_ov_team';
     return $vars;
 }
 add_filter( 'query_vars', 'gk_register_ov_context_query_var' );
@@ -259,6 +260,12 @@ function gk_abteilung_ov_rewrite_rules() {
     add_rewrite_rule(
         '^([^/]+)/abteilung/([^/]+)/?$',
         'index.php?abteilung=$matches[2]&gk_ov_context=$matches[1]',
+        'top'
+    );
+    // OV team overview: {ov-slug}/team/
+    add_rewrite_rule(
+        '^([^/]+)/team/?$',
+        'index.php?gk_ov_team=1&gk_ov_context=$matches[1]',
         'top'
     );
 }
@@ -455,6 +462,44 @@ function gk_ov_child_template( $template ) {
     return $template;
 }
 add_filter( 'template_include', 'gk_ov_child_template' );
+
+
+/**
+ * Route {ov-slug}/team/ to the OV team template.
+ */
+function gk_ov_team_template( $template ) {
+    if ( ! get_query_var( 'gk_ov_team' ) ) {
+        return $template;
+    }
+
+    $ov_slug = sanitize_title( get_query_var( 'gk_ov_context' ) );
+    $ov_term = $ov_slug ? gk_get_ov_term( $ov_slug ) : false;
+    if ( ! $ov_term ) {
+        global $wp_query;
+        $wp_query->set_404();
+        status_header( 404 );
+        return get_404_template();
+    }
+
+    $ov_template = locate_template( 'page-OV-team.php' );
+    if ( $ov_template ) {
+        add_filter( 'body_class', 'gk_ov_body_class' );
+        return $ov_template;
+    }
+    return $template;
+}
+add_filter( 'template_include', 'gk_ov_team_template' );
+
+
+/**
+ * Get the URL for an OV's team overview page.
+ *
+ * @param string $ov_slug Zuordnung slug.
+ * @return string URL.
+ */
+function gk_ov_team_url( $ov_slug ) {
+    return home_url( $ov_slug . '/team/' );
+}
 
 
 /**

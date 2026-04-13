@@ -328,6 +328,11 @@ if ( $show_team ) :
         $abt_groups   = array(); // slug => array of person indices
         $abt_labels   = array(); // slug => name
         while ( $ov_persons->have_posts() ) : $ov_persons->the_post();
+            $terms = get_the_terms( get_the_ID(), 'abteilung' );
+            if ( ! $terms || is_wp_error( $terms ) ) {
+                continue; // Only show persons assigned to an Abteilung
+            }
+
             $person = array(
                 'id'        => get_the_ID(),
                 'title'     => get_the_title(),
@@ -338,20 +343,16 @@ if ( $show_team ) :
             $idx = count( $all_persons );
             $all_persons[] = $person;
 
-            $terms = get_the_terms( get_the_ID(), 'abteilung' );
-            if ( $terms && ! is_wp_error( $terms ) ) {
-                foreach ( $terms as $t ) {
-                    $abt_labels[ $t->slug ] = $t->name;
-                    $abt_groups[ $t->slug ][] = $idx;
-                }
+            foreach ( $terms as $t ) {
+                $abt_labels[ $t->slug ] = $t->name;
+                $abt_groups[ $t->slug ][] = $idx;
             }
         endwhile;
         wp_reset_postdata();
 
-        // Build ordered tab list: "Alle" first, then abteilungen sorted by name
+        // Build ordered tab list (abteilungen only, no "Alle")
         $tabs = array();
         if ( ! empty( $abt_groups ) ) {
-            $tabs['alle'] = 'Alle';
             uksort( $abt_groups, function( $a, $b ) use ( $abt_labels ) {
                 return strcasecmp( $abt_labels[ $a ], $abt_labels[ $b ] );
             });
@@ -360,6 +361,7 @@ if ( $show_team ) :
             }
         }
         $has_tabs = count( $tabs ) > 1;
+        $first_slug = $has_tabs ? array_key_first( $tabs ) : '';
     ?>
 <section class="gk-team" id="ov-team">
     <div class="inner">
@@ -369,9 +371,9 @@ if ( $show_team ) :
         <?php if ( $has_tabs ) : ?>
         <nav class="gk-team__tabs" role="tablist" aria-label="Team-Abteilungen">
             <?php foreach ( $tabs as $slug => $label ) : ?>
-            <button class="gk-team__tab<?php echo $slug === 'alle' ? ' is-active' : ''; ?>"
+            <button class="gk-team__tab<?php echo $slug === $first_slug ? ' is-active' : ''; ?>"
                     role="tab"
-                    aria-selected="<?php echo $slug === 'alle' ? 'true' : 'false'; ?>"
+                    aria-selected="<?php echo $slug === $first_slug ? 'true' : 'false'; ?>"
                     aria-controls="team-panel-<?php echo esc_attr( $slug ); ?>"
                     data-tab="<?php echo esc_attr( $slug ); ?>">
                 <?php echo esc_html( $label ); ?>
@@ -382,9 +384,9 @@ if ( $show_team ) :
 
         <?php if ( $has_tabs ) :
             foreach ( $tabs as $slug => $label ) :
-                $indices = $slug === 'alle' ? range( 0, count( $all_persons ) - 1 ) : $abt_groups[ $slug ];
+                $indices = $abt_groups[ $slug ];
         ?>
-        <div class="gk-team__panel<?php echo $slug === 'alle' ? ' is-active' : ''; ?>"
+        <div class="gk-team__panel<?php echo $slug === $first_slug ? ' is-active' : ''; ?>"
              id="team-panel-<?php echo esc_attr( $slug ); ?>"
              role="tabpanel">
             <div class="gk-team__grid">
@@ -421,6 +423,10 @@ if ( $show_team ) :
             <?php endforeach; ?>
         </div>
         <?php endif; ?>
+
+        <div class="gk-team__footer">
+            <a href="<?php echo esc_url( gk_ov_team_url( $ov_slug ) ); ?>" class="gk-btn gk-btn--primary">Alle anzeigen</a>
+        </div>
     </div>
 </section>
     <?php endif;

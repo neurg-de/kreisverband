@@ -381,22 +381,52 @@ function gk_render_kreiskarte( $args = array() ) {
             <desc id="kreiskarte-desc">Interaktive Karte der Ortsverbände (<?php echo count( $data['municipalities'] ); ?> Gemeinden).</desc>
 
             <style>
-                /* ── Map chrome ─────────────────────────────── */
+                /*
+                 * Map tokens — built from Grüne design system
+                 * (Klee, Tanne, Sand, Himmel scales)
+                 *
+                 * WCAG AA contrast (normal text >= 4.5 : 1):
+                 *   Label on OV:       #002216 / #CCE7D7  = 14 : 1
+                 *   Label on OG:       #002216 / #E5F3EB  = 16 : 1
+                 *   Label on Werbung:  #002216 / #FAF8F4  = 18 : 1
+                 *   Label on Link:     #002216 / #fff     = 19 : 1
+                 *   Hover label:       #fff    / #005538  =  9 : 1
+                 *   Dark label on OV:  #F7F4ED / #1a3d30  = 10 : 1
+                 *   Dark hover label:  #fff    / #008939  =  5 : 1
+                 */
                 :root {
-                    --kk-accent: #e6007e;
-                    --kk-accent-stroke: #ff007d;
-                    --kk-lake: var(--gk-himmel-500, #3CB4E4);
-                    --kk-lake-stroke: var(--gk-himmel-700, #0981B1);
-                    --kk-label: #1a1a1a;
-                    --kk-label-hover: #fff;
-                }
-                .district-shadow { fill: var(--kk-accent); opacity: .18; }
-                .district-fill   { fill: var(--kk-accent); }
+                    /* Borders & interactive */
+                    --kk-stroke:       var(--tanne-600, #005538);
+                    --kk-hover:        var(--tanne-600, #005538);
+                    --kk-focus:        #fff;
 
-                /* ── Polygons ───────────────────────────────── */
+                    /* Polygon fills — green = established, neutral = not */
+                    --kk-fill-ov:      var(--klee-100, #CCE7D7);
+                    --kk-fill-og:      var(--klee-50,  #E5F3EB);
+                    --kk-fill-werbung: var(--sand-100, #FAF8F4);
+                    --kk-fill-link:    #fff;
+                    --kk-fill-keine:   var(--gray-200, #E8EAEA);
+
+                    /* District outline */
+                    --kk-district:     var(--tanne-600, #005538);
+
+                    /* Water */
+                    --kk-lake:         var(--himmel-500, #3CB4E4);
+                    --kk-lake-stroke:  var(--himmel-700, #0981B1);
+
+                    /* Labels */
+                    --kk-label:        var(--tanne-900, #002216);
+                    --kk-label-hover:  #fff;
+                }
+
+                /* ── District outline ──────────────────────── */
+                .district-shadow { fill: var(--kk-district); opacity: .12; }
+                .district-fill   { fill: var(--kk-district); }
+
+                /* ── Polygons ──────────────────────────────── */
                 #kreiskarte-municipalities polygon {
-                    fill: #fff;
-                    stroke: var(--kk-accent-stroke);
+                    fill: var(--kk-fill-ov);
+                    stroke: var(--kk-stroke);
                     stroke-width: 1;
                     stroke-linecap: round;
                     stroke-linejoin: round;
@@ -406,30 +436,38 @@ function gk_render_kreiskarte( $args = array() ) {
                 }
                 #kreiskarte-municipalities a:hover polygon,
                 #kreiskarte-municipalities a:focus polygon {
-                    fill: var(--kk-accent);
+                    fill: var(--kk-hover);
                 }
                 #kreiskarte-municipalities a:focus-visible polygon {
-                    stroke: var(--kk-label-hover);
+                    stroke: var(--kk-focus);
                     stroke-width: 3;
                 }
-                #kreiskarte-municipalities .ov-inactive polygon {
-                    cursor: default; opacity: .6;
-                }
-                #kreiskarte-municipalities .ov-ortsgruppe polygon { fill: #f0f0f0; }
-                #kreiskarte-municipalities a.ov-ortsgruppe:hover polygon,
-                #kreiskarte-municipalities a.ov-ortsgruppe:focus polygon { fill: var(--kk-accent); }
-                #kreiskarte-municipalities .ov-werbung polygon { fill: #f7f4ed; stroke-dasharray: 4 2; }
-                #kreiskarte-municipalities a.ov-werbung:hover polygon,
-                #kreiskarte-municipalities a.ov-werbung:focus polygon { fill: var(--kk-accent); }
 
-                /* ── Water ──────────────────────────────────── */
+                /* Type variants */
+                #kreiskarte-municipalities .ov-ortsgruppe polygon {
+                    fill: var(--kk-fill-og);
+                }
+                #kreiskarte-municipalities .ov-werbung polygon {
+                    fill: var(--kk-fill-werbung);
+                    stroke-dasharray: 4 2;
+                }
+                #kreiskarte-municipalities .ov-link polygon {
+                    fill: var(--kk-fill-link);
+                }
+                #kreiskarte-municipalities .ov-inactive polygon {
+                    fill: var(--kk-fill-keine);
+                    cursor: default;
+                    opacity: .6;
+                }
+
+                /* ── Water ─────────────────────────────────── */
                 #kreiskarte-water path {
                     fill: var(--kk-lake);
                     stroke: var(--kk-lake-stroke);
                     opacity: .7;
                 }
 
-                /* ── Labels (CSS-driven) ────────────────────── */
+                /* ── Labels ────────────────────────────────── */
                 #kreiskarte-labels text {
                     font-family: 'PT Sans', sans-serif;
                     font-weight: 700;
@@ -439,36 +477,32 @@ function gk_render_kreiskarte( $args = array() ) {
                     pointer-events: none;
                     transition: fill .2s, opacity .2s;
                 }
-                /* Size classes */
                 #kreiskarte-labels .kk-label--lg { font-size: 12px; }
                 #kreiskarte-labels .kk-label--md { font-size: 10px; }
                 #kreiskarte-labels .kk-label--sm { font-size: 8.5px; }
-
-                /* Hover state (toggled by JS, labels are in a separate group) */
                 #kreiskarte-labels .kk-label--hover { fill: var(--kk-label-hover); }
 
                 /* ── Dark mode ─────────────────────────────── */
                 @media (prefers-color-scheme: dark) {
                     :root {
-                        --kk-accent: #8a3060;
-                        --kk-accent-stroke: #a04070;
-                        --kk-lake: #0981B1;
-                        --kk-lake-stroke: #066a90;
-                        --kk-label: #e8dfcd;
-                        --kk-label-hover: #FFF17A;
+                        --kk-stroke:       var(--klee-400,  #66B888);
+                        --kk-hover:        var(--klee-600,  #008939);
+                        --kk-focus:        var(--sonne-600, #FFF17A);
+
+                        --kk-fill-ov:      #1a3d30;
+                        --kk-fill-og:      #15332a;
+                        --kk-fill-werbung: #112a22;
+                        --kk-fill-link:    #183530;
+                        --kk-fill-keine:   #0f2920;
+
+                        --kk-district:     #0a1f18;
+
+                        --kk-lake:         var(--himmel-700, #0981B1);
+                        --kk-lake-stroke:  #066a90;
+
+                        --kk-label:        var(--sand-200, #F7F4ED);
+                        --kk-label-hover:  #fff;
                     }
-                    #kreiskarte-municipalities polygon {
-                        fill: #1a3d30;
-                        stroke: var(--kk-accent-stroke);
-                    }
-                    #kreiskarte-municipalities .ov-ortsgruppe polygon { fill: #15332a; }
-                    #kreiskarte-municipalities .ov-werbung polygon { fill: #1e3a30; }
-                    #kreiskarte-municipalities a:hover polygon,
-                    #kreiskarte-municipalities a:focus polygon {
-                        fill: var(--kk-accent);
-                    }
-                    .district-shadow { fill: #0a1f18; }
-                    .district-fill   { fill: #0f2920; }
                 }
             </style>
 
@@ -482,8 +516,6 @@ function gk_render_kreiskarte( $args = array() ) {
             <g id="kreiskarte-municipalities">
                 <?php foreach ( $data['municipalities'] as $slug => $muni ) :
                     $type     = $muni['type'] ?? 'ov';
-                    $ov_entry = isset( $ov_data[ $slug ] ) ? $ov_data[ $slug ] : null;
-                    $has_page = $ov_entry && $ov_entry->homepage_url;
 
                     if ( $type === 'keine' ) : ?>
                     <g class="ov-inactive" aria-label="<?php echo esc_attr( $muni['name'] ); ?>">
@@ -492,17 +524,23 @@ function gk_render_kreiskarte( $args = array() ) {
                     </g>
                     <?php continue; endif;
 
-                    $link       = $has_page ? $ov_entry->homepage_url : '';
+                    // Resolve link: 'link' type uses stored URL, WP types resolve from term/page.
+                    if ( $type === 'link' ) {
+                        $link = ! empty( $muni['link'] ) ? $muni['link'] : '';
+                    } else {
+                        $ov_entry = isset( $ov_data[ $slug ] ) ? $ov_data[ $slug ] : null;
+                        $link     = $ov_entry && $ov_entry->homepage_url ? $ov_entry->homepage_url : '';
+                    }
                     $type_class = 'ov-' . sanitize_html_class( $type );
                 ?>
-                    <?php if ( $has_page && $link ) : ?>
-                    <a href="<?php echo esc_url( $link ); ?>" class="<?php echo $type_class; ?>" aria-label="<?php echo esc_attr( $muni['name'] ); ?>" data-ov-name="<?php echo esc_attr( $muni['name'] ); ?>" data-ov-url="<?php echo esc_url( $link ); ?>" data-ov-slug="<?php echo esc_attr( $slug ); ?>" tabindex="0">
+                    <?php if ( $link ) : ?>
+                    <a href="<?php echo esc_url( $link ); ?>" class="<?php echo $type_class; ?>" aria-label="<?php echo esc_attr( $muni['name'] ); ?>" data-ov-name="<?php echo esc_attr( $muni['name'] ); ?>" data-ov-url="<?php echo esc_url( $link ); ?>" data-ov-slug="<?php echo esc_attr( $slug ); ?>" tabindex="0"<?php if ( $type === 'link' ) echo ' target="_blank" rel="noopener noreferrer"'; ?>>
                     <?php else : ?>
                     <g class="ov-inactive <?php echo $type_class; ?>" aria-label="<?php echo esc_attr( $muni['name'] ); ?>">
                     <?php endif; ?>
                         <polygon points="<?php echo esc_attr( $muni['polygon'] ); ?>"/>
                         <title><?php echo esc_html( $muni['name'] ); ?></title>
-                    <?php if ( $has_page && $link ) : ?>
+                    <?php if ( $link ) : ?>
                     </a>
                     <?php else : ?>
                     </g>
@@ -573,8 +611,12 @@ function gk_render_kreiskarte_responsive( $args = array() ) {
             $type = $muni['type'] ?? 'ov';
             if ( $type === 'keine' ) continue;
 
-            $ov_entry = $ov_data[ $slug ] ?? null;
-            $link     = $ov_entry ? $ov_entry->homepage_url : '';
+            if ( $type === 'link' ) {
+                $link = ! empty( $muni['link'] ) ? $muni['link'] : '';
+            } else {
+                $ov_entry = $ov_data[ $slug ] ?? null;
+                $link     = $ov_entry ? $ov_entry->homepage_url : '';
+            }
 
             $ov_items[] = array(
                 'slug' => $slug,
@@ -636,12 +678,14 @@ function gk_render_kreiskarte_responsive( $args = array() ) {
                 $type_label = '';
                 if ( $item['type'] === 'ortsgruppe' ) $type_label = 'Ortsgruppe';
                 if ( $item['type'] === 'werbung' )    $type_label = 'Im Aufbau';
+                if ( $item['type'] === 'link' )       $type_label = 'Extern';
             ?>
             <a href="<?php echo $item['link'] ? esc_url( $item['link'] ) : '#'; ?>"
                class="gk-ov-chip <?php echo ! $item['link'] ? 'gk-ov-chip--inactive' : ''; ?>"
                role="listitem"
                data-ov-name="<?php echo esc_attr( $item['name'] ); ?>"
-               <?php echo ! $item['link'] ? 'aria-disabled="true"' : ''; ?>>
+               <?php echo ! $item['link'] ? 'aria-disabled="true"' : ''; ?>
+               <?php if ( $item['type'] === 'link' && $item['link'] ) echo 'target="_blank" rel="noopener noreferrer"'; ?>>
                 <span class="gk-ov-chip__arrow" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12H3M21 12l-7-7M21 12l-7 7"/></svg>
                 </span>

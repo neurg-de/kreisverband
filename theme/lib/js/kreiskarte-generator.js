@@ -1,10 +1,9 @@
 /**
- * Kreiskarte Generator
+ * Kreiskarte Admin Tool
  *
- * 1. Search for a Landkreis via Nominatim
- * 2. Fetch Gemeinde boundaries via Overpass API
- * 3. Convert geo coordinates to SVG polygons
- * 4. Preview the map and save to theme
+ * Two phases:
+ *   Phase 1 — Load map: search → loading → preview → confirm & save
+ *   Phase 2 — Configure: map + editable Gemeinde table (permanent workspace)
  */
 (function () {
     'use strict';
@@ -14,118 +13,116 @@
     const SVG_WIDTH = 400;
     const SVG_PADDING = 10;
 
-    let generatedData = null;
-    let existingOVs = [];   // fetched from WP
-    let ovMappings = {};    // gemeinde slug → { type, ovSlug }
+    let pendingData = null;   // generated map data waiting to be saved
+    let currentData = null;   // the saved kreiskarte data
+    let existingOVs = [];
+    let mappings = {};
 
-    // Municipality types for the mapping UI
     const MUNI_TYPES = {
-        ov:         { label: 'Ortsverband',  desc: 'Vollständiger Ortsverband mit eigener Seite' },
-        ortsgruppe: { label: 'Ortsgruppe',   desc: 'Aktive Mitglieder vor Ort, kein eigener Verband' },
-        werbung:    { label: 'Werbeseite',   desc: 'Einladung zum Mitmachen und Gründen' },
-        keine:      { label: 'Keine',        desc: 'Kein Eintrag, nur auf der Karte sichtbar' },
+        ov:         { label: 'Ortsverband',   desc: 'Seite + Zuordnungs-Term. Personen, Termine und Beiträge können zugeordnet werden. Grün auf der Karte.' },
+        ortsgruppe: { label: 'Ortsgruppe',    desc: 'Wie Ortsverband, aber als Ortsgruppe benannt. Eigene Seite und Zuordnung. Hellgrün auf der Karte.' },
+        werbung:    { label: 'Werbeseite',    desc: 'Nur Zuordnungs-Term, keine eigene Seite. Für Gemeinden ohne aktiven Verband. Neutral mit gestricheltem Rand.' },
+        link:       { label: 'Externer Link', desc: 'Verlinkt auf eine beliebige URL. Keine WordPress-Inhalte. Weiß auf der Karte.' },
+        keine:      { label: 'Nur Karte',     desc: 'Wird auf der Karte angezeigt, aber nicht verlinkt. Keine WordPress-Inhalte. Grau und ausgegraut.' },
     };
 
-    /**
-     * Fetch from Overpass API with retry and error handling.
-     * The API sometimes returns XML error pages (rate limit, timeout).
-     */
-    async function fetchOverpass(query, retries = 2) {
-        for (let attempt = 0; attempt <= retries; attempt++) {
-            if (attempt > 0) {
-                const wait = attempt * 5000;
-                console.log(`Overpass: retry ${attempt} after ${wait}ms...`);
-                await new Promise(r => setTimeout(r, wait));
-            }
 
-            const resp = await fetch(OVERPASS, {
-                method: 'POST',
-                body: 'data=' + encodeURIComponent(query),
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            });
+    // ── Init ────────────────────────────────────────────────────────────────
 
-            if (!resp.ok) {
-                const text = await resp.text();
-                if (resp.status === 429 || resp.status === 504) {
-                    console.warn(`Overpass ${resp.status}, retrying...`);
-                    continue;
-                }
-                throw new Error(`Overpass API Fehler ${resp.status}: ${text.slice(0, 200)}`);
-            }
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('[Kreiskarte] Init — existingMap=%s', !!window.gkExistingKreiskarte);
 
-            const contentType = resp.headers.get('content-type') || '';
-            if (!contentType.includes('json')) {
-                const text = await resp.text();
-                if (attempt < retries) {
-                    console.warn('Overpass returned non-JSON, retrying...');
-                    continue;
-                }
-                throw new Error('Overpass API hat kein JSON zurückgegeben. Bitte in 30 Sekunden erneut versuchen.');
-            }
+        // Phase 1 controls
+        const searchBtn = document.getElementById('gk-search-btn');
+        const searchInput = document.getElementById('gk-search-input');
+        const confirmBtn = document.getElementById('gk-confirm-btn');
+        const backBtn = document.getElementById('gk-back-btn');
 
-            return await resp.json();
-        }
-        throw new Error('Overpass API nicht erreichbar nach mehreren Versuchen. Bitte später erneut versuchen.');
-    }
-
-    document.addEventListener('DOMContentLoaded', init);
-
-    function init() {
-        document.getElementById('gk-search-btn').addEventListener('click', doSearch);
-        document.getElementById('gk-search-input').addEventListener('keydown', e => {
-            if (e.key === 'Enter') { e.preventDefault(); doSearch(); }
+        searchBtn.addEventListener('click', () => doSearch('gk-search-results'));
+        searchInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); doSearch('gk-search-results'); }
         });
-        document.getElementById('gk-save-btn').addEventListener('click', doSave);
-    }
+        confirmBtn.addEventListener('click', doConfirm);
+        backBtn.addEventListener('click', backToSearch);
 
-    // ── Step 1: Search for Landkreis ────────────────────────────────────────
+        // Phase 2 controls
+        document.getElementById('gk-save-btn').addEventListener('click', doSaveMappings);
+        document.getElementById('gk-create-btn').addEventListener('click', doCreateSelected);
 
-    async function doSearch() {
-        const q = document.getElementById('gk-search-input').value.trim();
-        if (!q) return;
+        // Reload controls (in Phase 2)
+        const reloadBtn = document.getElementById('gk-reload-btn');
+        const reloadInput = document.getElementById('gk-reload-input');
+        if (reloadBtn) {
+            reloadBtn.addEventListener('click', () => doSearch('gk-reload-results', true));
+            reloadInput.addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault(); doSearch('gk-reload-results', true); }
+            });
+        }
 
-        const results = document.getElementById('gk-search-results');
-        results.innerHTML = '<p>Suche...</p>';
+        // If we already have a saved map, go straight to Phase 2
+        if (window.gkExistingKreiskarte) {
+            currentData = window.gkExistingKreiskarte;
+            showConfigPhase(currentData);
+        }
+    });
+
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  PHASE 1 — Load Map
+    // ════════════════════════════════════════════════════════════════════════
+
+    function show(id) { document.getElementById(id).style.display = ''; }
+    function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+    async function doSearch(resultsId, isReload = false) {
+        const inputId = isReload ? 'gk-reload-input' : 'gk-search-input';
+        const q = document.getElementById(inputId).value.trim();
+        if (!q) {
+            console.log('[Kreiskarte] Suche abgebrochen — Eingabefeld ist leer');
+            return;
+        }
+
+        const resultsEl = document.getElementById(resultsId);
+        resultsEl.innerHTML = '<p>Suche...</p>';
+        console.log('[Kreiskarte] Nominatim-Suche: "%s"', q);
 
         try {
             const url = `${NOMINATIM}?q=${encodeURIComponent(q)}&format=json&countrycodes=de&limit=8&featuretype=settlement&accept-language=de`;
             const resp = await fetch(url, {
                 headers: { 'User-Agent': 'GrueneKreisverbandTheme/1.0' }
             });
+            if (!resp.ok) throw new Error(`Nominatim HTTP ${resp.status}`);
             const data = await resp.json();
+            console.log('[Kreiskarte] Nominatim: %d Treffer', data.length);
 
-            // Filter for admin boundaries (Landkreis = admin_level 6, kreisfreie Stadt = 6)
             const kreise = data.filter(r =>
                 r.osm_type === 'relation' &&
                 r.type && (r.type === 'administrative' || r.type === 'boundary')
             );
+            console.log('[Kreiskarte] Davon Kreise/Relationen: %d', kreise.length);
 
-            if (kreise.length === 0) {
-                // Show all results as fallback
-                renderSearchResults(data);
-            } else {
-                renderSearchResults(kreise);
-            }
+            renderSearchResults(kreise.length > 0 ? kreise : data, resultsId, isReload);
         } catch (err) {
-            results.innerHTML = `<p class="notice notice-error">Fehler: ${err.message}</p>`;
+            console.error('[Kreiskarte] Suche fehlgeschlagen:', err);
+            resultsEl.innerHTML = `<div class="notice notice-error inline"><p>Fehler bei der Suche: ${esc(err.message)}</p></div>`;
         }
     }
 
-    function renderSearchResults(items) {
-        const el = document.getElementById('gk-search-results');
+    function renderSearchResults(items, resultsId, isReload) {
+        const el = document.getElementById(resultsId);
         if (items.length === 0) {
-            el.innerHTML = '<p>Keine Ergebnisse. Versuche z.B. "Landkreis Starnberg".</p>';
+            el.innerHTML = '<p>Keine Ergebnisse gefunden.</p>';
             return;
         }
 
         el.innerHTML = '<ul class="gk-result-list">' +
             items.map(r => `
                 <li>
-                    <button class="button gk-select-kreis"
+                    <button type="button" class="button gk-select-kreis"
                             data-osm-id="${r.osm_id}"
-                            data-osm-type="${r.osm_type}"
-                            data-name="${escHtml(r.display_name)}">
-                        ${escHtml(r.display_name)}
+                            data-name="${esc(r.display_name)}"
+                            data-reload="${isReload ? '1' : '0'}">
+                        ${esc(r.display_name)}
                     </button>
                 </li>
             `).join('') +
@@ -133,26 +130,36 @@
 
         el.querySelectorAll('.gk-select-kreis').forEach(btn => {
             btn.addEventListener('click', () => {
-                selectKreis(btn.dataset.osmId, btn.dataset.osmType, btn.dataset.name);
+                loadKreis(btn.dataset.osmId, btn.dataset.name, btn.dataset.reload === '1');
             });
         });
     }
 
-    // ── Step 2: Fetch Gemeinde boundaries ───────────────────────────────────
+    async function loadKreis(osmId, displayName, isReload) {
+        console.log('[Kreiskarte] Lade Kreis: OSM-ID=%s, Name="%s", reload=%s', osmId, displayName, isReload);
 
-    async function selectKreis(osmId, osmType, displayName) {
-        document.getElementById('gk-step-search').style.display = 'none';
-        document.getElementById('gk-step-loading').style.display = 'block';
+        const loadingId = isReload ? 'gk-reload-loading' : 'gk-loading';
+        const statusId = isReload ? 'gk-reload-status' : 'gk-loading-status';
+        const progressSel = isReload ? '#gk-reload-loading .gk-progress-bar' : '.gk-progress-bar';
 
-        const statusEl = document.getElementById('gk-loading-status');
-        const progressBar = document.querySelector('.gk-progress-bar');
+        if (!isReload) {
+            hide('gk-search');
+        }
+        show(loadingId);
+
+        const statusEl = document.getElementById(statusId);
+        const progressBar = document.querySelector(progressSel);
+
+        const setStatus = (text, pct) => {
+            statusEl.textContent = text;
+            if (pct !== undefined) progressBar.style.width = pct + '%';
+            console.log('[Kreiskarte] %s (%d%%)', text, pct ?? '');
+        };
 
         try {
-            statusEl.textContent = 'Lade Gemeindegrenzen und Kreisgrenzen...';
-            progressBar.style.width = '20%';
+            setStatus('Lade Gemeindegrenzen von Overpass API...', 10);
 
-            // Single Overpass query: Landkreis boundary + all Gemeinden inside
-            const mainQuery = `
+            const query = `
                 [out:json][timeout:90];
                 rel(${osmId});
                 out body;
@@ -168,349 +175,318 @@
                 out skel qt;
             `;
 
-            const mainResp = await fetchOverpass(mainQuery);
+            const resp = await fetchOverpass(query, statusEl);
+            setStatus('Verarbeite Geodaten...', 70);
 
-            progressBar.style.width = '80%';
-            statusEl.textContent = 'Generiere SVG-Karte...';
+            const result = processOverpassData(resp, parseInt(osmId), displayName);
+            const muniCount = Object.keys(result.municipalities || {}).length;
+            console.log('[Kreiskarte] Verarbeitung abgeschlossen: %d Gemeinden', muniCount);
+            setStatus('Generiere SVG-Karte...', 90);
 
-            // All data is in one response — nodes/ways are shared
-            const result = processOverpassData(mainResp, parseInt(osmId), displayName);
+            if (muniCount === 0) {
+                setStatus('Keine Gemeinden gefunden. Bitte ein anderes Ergebnis wählen.', 0);
+                console.warn('[Kreiskarte] Keine Gemeinden in Overpass-Antwort');
+                if (!isReload) show('gk-search');
+                return;
+            }
 
             progressBar.style.width = '100%';
 
-            if (result.municipalities && Object.keys(result.municipalities).length > 0) {
-                generatedData = result;
+            if (isReload) {
+                setStatus('Speichere Karte...', 100);
+                await saveKreiskarte(result);
+                hide(loadingId);
+                currentData = result;
+                showConfigPhase(currentData);
+                document.getElementById('gk-config-status').innerHTML =
+                    `<div class="notice notice-success inline"><p>Karte neu geladen — ${muniCount} Gemeinden.</p></div>`;
+                console.log('[Kreiskarte] Reload abgeschlossen');
+            } else {
+                pendingData = result;
+                hide(loadingId);
                 showPreview(result);
-            } else {
-                statusEl.textContent = 'Keine Gemeinden gefunden. Anderes Ergebnis wählen?';
-                document.getElementById('gk-step-search').style.display = 'block';
+                console.log('[Kreiskarte] Vorschau angezeigt');
             }
+
         } catch (err) {
-            statusEl.textContent = `Fehler: ${err.message}`;
-            console.error(err);
-            document.getElementById('gk-step-search').style.display = 'block';
+            console.error('[Kreiskarte] Laden fehlgeschlagen:', err);
+            setStatus('', 0);
+            statusEl.innerHTML = `<div class="notice notice-error inline"><p>Fehler: ${esc(err.message)}</p></div>`;
+            if (!isReload) show('gk-search');
         }
     }
 
-    // ── Process Overpass data → SVG ─────────────────────────────────────────
+    function showPreview(data) {
+        const munis = Object.keys(data.municipalities).length;
+        const title = data._meta?.title || 'Landkreis';
 
-    function processOverpassData(data, kreisOsmId, displayName) {
-        // Build node lookup
-        const nodes = {};
-        data.elements
-            .filter(e => e.type === 'node')
-            .forEach(n => { nodes[n.id] = [n.lat, n.lon]; });
+        document.getElementById('gk-preview-map').innerHTML = renderSvgPreview(data);
+        document.getElementById('gk-preview-info').innerHTML =
+            `<p class="gk-preview-summary"><strong>${esc(title)}</strong> — ${munis} Gemeinden gefunden</p>`;
 
-        // Build way lookup
-        const ways = {};
-        data.elements
-            .filter(e => e.type === 'way')
-            .forEach(w => {
-                ways[w.id] = (w.nodes || []).map(nid => nodes[nid]).filter(Boolean);
-            });
-
-        // Separate admin_level=8 relations into real Gemeinden vs gemeindefreie Gebiete.
-        // Gemeindefreie Gebiete (lakes, forests) are unincorporated areas that appear
-        // as admin_level=8 but should NOT become Ortsverbände.
-        // Detection uses the official "Amtlicher Gemeindeschlüssel" (AGS):
-        // real Gemeinden have last 3 digits 001–400, gemeindefreie Gebiete 401–999.
-        // (e.g. Starnberger See = 09188451, Starnberg = 09188139)
-        // Also checks the OSM tag "name:prefix" = "Gemeindefreies Gebiet".
-        // Their polygons are already perfectly clipped to the Kreis boundary and
-        // fill exactly the gaps between Gemeinde polygons — no separate water query needed.
-        const allLevel8 = data.elements
-            .filter(e => e.type === 'relation' && e.tags && e.tags.name
-                && e.tags['admin_level'] === '8');
-
-        const waterRels = [];
-        const gemeindeRels = [];
-
-        for (const rel of allLevel8) {
-            const tags = rel.tags;
-            const ags = tags['de:amtlicher_gemeindeschluessel'] || '';
-            const agsLast3 = ags.length >= 3 ? parseInt(ags.slice(-3), 10) : 0;
-            const isGemeindefrei = agsLast3 >= 401 ||
-                tags.natural === 'water' ||
-                (tags['name:prefix'] || '').toLowerCase().includes('gemeindefrei');
-
-            if (isGemeindefrei) {
-                waterRels.push(rel);
-            } else {
-                gemeindeRels.push(rel);
-            }
-        }
-
-        const gemeinden = gemeindeRels
-            .map(rel => {
-                const coords = extractRelationCoords(rel, ways);
-                return {
-                    name: rel.tags.name,
-                    coords: coords,
-                };
-            })
-            .filter(g => g.coords.length > 2);
-
-        // Extract Kreis boundary (the relation matching the searched Landkreis)
-        const kreisRel = data.elements.find(e => e.type === 'relation' && e.id === kreisOsmId);
-        let kreisCoords = [];
-        if (kreisRel) {
-            kreisCoords = extractRelationCoords(kreisRel, ways);
-        }
-
-        if (gemeinden.length === 0) {
-            return { municipalities: {} };
-        }
-
-        // Calculate bounding box of ALL coordinates
-        let minLat = Infinity, maxLat = -Infinity, minLon = Infinity, maxLon = -Infinity;
-        const allCoords = [...gemeinden.flatMap(g => g.coords), ...kreisCoords];
-        for (const [lat, lon] of allCoords) {
-            if (lat < minLat) minLat = lat;
-            if (lat > maxLat) maxLat = lat;
-            if (lon < minLon) minLon = lon;
-            if (lon > maxLon) maxLon = lon;
-        }
-
-        // Projection: lat/lon → SVG coordinates
-        const latRange = maxLat - minLat;
-        const lonRange = maxLon - minLon;
-        // Correct for latitude (rough Mercator at ~48°N)
-        const latCos = Math.cos((minLat + maxLat) / 2 * Math.PI / 180);
-        const correctedLonRange = lonRange * latCos;
-        const aspect = latRange / correctedLonRange;
-        const svgW = SVG_WIDTH;
-        const svgH = svgW * aspect;
-        const usableW = svgW - 2 * SVG_PADDING;
-        const usableH = svgH - 2 * SVG_PADDING;
-
-        function project([lat, lon]) {
-            const x = SVG_PADDING + ((lon - minLon) / lonRange) * usableW;
-            const y = SVG_PADDING + ((maxLat - lat) / latRange) * usableH; // flip Y
-            return [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000];
-        }
-
-        // Build municipality data
-        const municipalities = {};
-        for (const g of gemeinden) {
-            const slug = 'ov-' + slugify(g.name);
-            const projected = g.coords.map(project);
-            const simplified = simplifyPolygon(projected, 0.5);
-
-            if (simplified.length < 3) continue;
-
-            const centroid = polygonCentroid(simplified);
-            const pointsStr = simplified.map(p => p.join(' ')).join(' ');
-
-            municipalities[slug] = {
-                name: g.name,
-                polygon: pointsStr,
-                arrow: `translate(${centroid[0] - 5} ${centroid[1] - 5}) scale(.287)`,
-                label: {
-                    text: g.name,
-                    transform: `translate(${centroid[0] - 15} ${centroid[1] - 15})`
-                }
-            };
-        }
-
-        // Build district outline
-        const district = {};
-        if (kreisCoords.length > 2) {
-            const projKreis = kreisCoords.map(project);
-            const simpKreis = simplifyPolygon(projKreis, 0.8);
-            const kreisPath = polygonToSvgPath(simpKreis);
-            district.shadow = kreisPath;
-            district.fill = kreisPath;
-        }
-
-        // Build water body paths from gemeindefreie Gebiete.
-        // These polygons already represent the exact portion of lakes/forests
-        // within the Kreis that is NOT part of any Gemeinde — no clipping needed.
-        const water = {};
-        for (const rel of waterRels) {
-            const coords = extractRelationCoords(rel, ways);
-            if (coords.length < 3) continue;
-
-            const waterSlug = slugify(rel.tags.name);
-            const projWater = coords.map(project);
-            const simpWater = simplifyPolygon(projWater, 0.4);
-            if (simpWater.length < 3) continue;
-
-            water[waterSlug] = polygonToSvgPath(simpWater);
-        }
-
-        const viewBox = `0 0 ${Math.round(svgW)} ${Math.round(svgH)}`;
-
-        return {
-            _meta: {
-                title: displayName.split(',')[0],
-                description: `Generiert aus OpenStreetMap-Daten`,
-                viewBox: viewBox,
-                source: 'openstreetmap',
-                generated: new Date().toISOString().split('T')[0],
-            },
-            municipalities: municipalities,
-            district: district,
-            water: water,
-        };
+        show('gk-preview');
     }
 
-    /**
-     * Extract outer ring coordinates from an OSM relation.
-     */
-    function extractRelationCoords(rel, ways) {
-        const outerWayIds = (rel.members || [])
-            .filter(m => m.type === 'way' && (m.role === 'outer' || m.role === ''))
-            .map(m => m.ref);
-
-        // Collect all outer way segments
-        const segments = outerWayIds
-            .map(id => ways[id])
-            .filter(Boolean);
-
-        if (segments.length === 0) return [];
-
-        // Try to join segments into a ring
-        return joinSegments(segments);
+    function backToSearch() {
+        hide('gk-preview');
+        show('gk-search');
+        pendingData = null;
     }
 
-    /**
-     * Join way segments into a continuous ring.
-     */
-    function joinSegments(segments) {
-        if (segments.length === 0) return [];
-        if (segments.length === 1) return segments[0];
+    async function doConfirm() {
+        if (!pendingData) return;
 
-        const result = [...segments[0]];
-        const used = new Set([0]);
+        const btn = document.getElementById('gk-confirm-btn');
+        const statusEl = document.getElementById('gk-confirm-status');
+        btn.disabled = true;
+        btn.textContent = 'Speichere...';
 
-        for (let iter = 0; iter < segments.length * 2; iter++) {
-            const lastPt = result[result.length - 1];
-            let found = false;
+        try {
+            await saveKreiskarte(pendingData);
+            currentData = pendingData;
+            pendingData = null;
 
-            for (let i = 0; i < segments.length; i++) {
-                if (used.has(i)) continue;
-                const seg = segments[i];
-                if (!seg || seg.length === 0) continue;
-
-                const first = seg[0];
-                const last = seg[seg.length - 1];
-
-                if (coordsClose(lastPt, first)) {
-                    result.push(...seg.slice(1));
-                    used.add(i);
-                    found = true;
-                    break;
-                } else if (coordsClose(lastPt, last)) {
-                    result.push(...[...seg].reverse().slice(1));
-                    used.add(i);
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) break;
-            if (used.size === segments.length) break;
+            // Transition to Phase 2
+            hide('gk-phase-load');
+            showConfigPhase(currentData);
+        } catch (err) {
+            statusEl.innerHTML = `<div class="notice notice-error inline"><p>Fehler beim Speichern: ${esc(err.message)}</p></div>`;
         }
 
+        btn.disabled = false;
+        btn.textContent = 'Karte übernehmen';
+    }
+
+    async function saveKreiskarte(data) {
+        console.log('[Kreiskarte] Speichere Karte (%d Gemeinden)...', Object.keys(data.municipalities || {}).length);
+        const resp = await fetch(gkKreiskarte.ajaxUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                action: 'gk_save_kreiskarte',
+                nonce: gkKreiskarte.nonce,
+                kreiskarte_data: JSON.stringify(data),
+            }),
+        });
+        const result = await resp.json();
+        if (!result.success) {
+            throw new Error(result.data || 'Speichern fehlgeschlagen');
+        }
+        console.log('[Kreiskarte] Gespeichert (%d Bytes)', result.data?.bytes ?? 0);
         return result;
     }
 
-    function coordsClose(a, b) {
-        if (!a || !b) return false;
-        return Math.abs(a[0] - b[0]) < 0.0001 && Math.abs(a[1] - b[1]) < 0.0001;
-    }
 
-    // ── Geometry helpers ────────────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════════════════
+    //  PHASE 2 — Configure Gemeinden
+    // ════════════════════════════════════════════════════════════════════════
 
-    /**
-     * Ramer-Douglas-Peucker polygon simplification.
-     */
-    function simplifyPolygon(points, epsilon) {
-        if (points.length < 3) return points;
+    async function showConfigPhase(data) {
+        show('gk-phase-config');
+        document.getElementById('gk-config-map').innerHTML = renderSvgPreview(data);
 
-        let maxDist = 0;
-        let maxIdx = 0;
-        const first = points[0];
-        const last = points[points.length - 1];
-
-        for (let i = 1; i < points.length - 1; i++) {
-            const d = perpDist(points[i], first, last);
-            if (d > maxDist) {
-                maxDist = d;
-                maxIdx = i;
-            }
-        }
-
-        if (maxDist > epsilon) {
-            const left = simplifyPolygon(points.slice(0, maxIdx + 1), epsilon);
-            const right = simplifyPolygon(points.slice(maxIdx), epsilon);
-            return [...left.slice(0, -1), ...right];
-        }
-
-        return [first, last];
-    }
-
-    function perpDist(pt, lineStart, lineEnd) {
-        const dx = lineEnd[0] - lineStart[0];
-        const dy = lineEnd[1] - lineStart[1];
-        const len = Math.sqrt(dx * dx + dy * dy);
-        if (len === 0) return Math.sqrt((pt[0] - lineStart[0]) ** 2 + (pt[1] - lineStart[1]) ** 2);
-        return Math.abs(dy * pt[0] - dx * pt[1] + lineEnd[0] * lineStart[1] - lineEnd[1] * lineStart[0]) / len;
-    }
-
-    function polygonCentroid(pts) {
-        let cx = 0, cy = 0;
-        for (const [x, y] of pts) { cx += x; cy += y; }
-        return [Math.round(cx / pts.length * 100) / 100, Math.round(cy / pts.length * 100) / 100];
-    }
-
-    function polygonToSvgPath(pts) {
-        if (pts.length === 0) return '';
-        return 'M' + pts.map(p => p.join(',')).join('L') + 'Z';
-    }
-
-    function slugify(str) {
-        return str
-            .toLowerCase()
-            .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '');
-    }
-
-    function escHtml(s) {
-        const el = document.createElement('span');
-        el.textContent = s;
-        return el.innerHTML;
-    }
-
-    // ── Step 3: Preview + OV Mapping ──────────────────────────────────────
-
-    async function showPreview(data) {
-        document.getElementById('gk-step-loading').style.display = 'none';
-        document.getElementById('gk-step-preview').style.display = 'block';
-
-        const munis = Object.values(data.municipalities);
-        const waterCount = data.water ? Object.keys(data.water).length : 0;
-        const waterNames = data.water ? Object.keys(data.water).map(s =>
-            s.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-        ) : [];
-        document.getElementById('gk-preview-info').innerHTML = `
-            <p><strong>${escHtml(data._meta.title)}</strong> — ${munis.length} Gemeinden gefunden</p>
-            ${waterCount > 0 ? `<p>${waterCount} Gewässer: ${waterNames.map(n => escHtml(n)).join(', ')}</p>` : ''}
-        `;
-
-        // Render SVG preview
-        const mapEl = document.getElementById('gk-preview-map');
-        mapEl.innerHTML = renderSvgPreview(data);
-
-        // Fetch existing Ortsverbände and build mapping UI
         await loadExistingOVs();
-        renderMappingTable(data);
+        renderConfigTable(data);
     }
 
-    /**
-     * Fetch all existing Ortsverband zuordnung terms from WordPress.
-     */
+    function renderConfigTable(data) {
+        const el = document.getElementById('gk-config-table');
+        const entries = Object.entries(data.municipalities);
+
+        mappings = {};
+
+        const typeOpts = Object.entries(MUNI_TYPES)
+            .map(([val, t]) => `<option value="${val}">${esc(t.label)}</option>`)
+            .join('');
+
+        const ovOpts = existingOVs.map(ov =>
+            `<option value="${esc(ov.slug)}">${esc(ov.title)}</option>`
+        ).join('');
+
+        let html = '<table class="widefat gk-mapping-table"><thead><tr>' +
+            '<th>Gemeinde</th><th>Typ</th><th>Details</th><th class="gk-col-create">Anlegen</th><th></th>' +
+            '</tr></thead><tbody>';
+
+        for (const [slug, muni] of entries) {
+            const type = muni.type || 'ov';
+            const link = muni.link || '';
+            const linkedOV = existingOVs.find(ov => ov.slug === slug);
+
+            mappings[slug] = { type, ovSlug: linkedOV ? linkedOV.slug : '', link };
+
+            html += `<tr data-slug="${esc(slug)}">` +
+                `<td><strong>${esc(muni.name)}</strong></td>` +
+                `<td>` +
+                    `<select class="gk-type-select">${typeOpts}</select>` +
+                    `<p class="gk-type-desc description"></p>` +
+                `</td>` +
+                `<td class="gk-details-cell">` +
+                    `<select class="gk-ov-select"><option value="">— Neu erstellen —</option>${ovOpts}</select>` +
+                    `<input type="url" class="gk-link-input" placeholder="https://example.com" value="${esc(link)}" />` +
+                `</td>` +
+                `<td class="gk-col-create"><input type="checkbox" class="gk-create-check" /></td>` +
+                `<td class="gk-badge-cell"></td>` +
+                '</tr>';
+        }
+
+        html += '</tbody></table>';
+        el.innerHTML = html;
+
+        // Bind events and set initial state
+        el.querySelectorAll('tr[data-slug]').forEach(row => {
+            const slug = row.dataset.slug;
+            const m = mappings[slug];
+            const typeSelect = row.querySelector('.gk-type-select');
+            const ovSelect = row.querySelector('.gk-ov-select');
+            const linkInput = row.querySelector('.gk-link-input');
+
+            typeSelect.value = m.type;
+            if (m.ovSlug) ovSelect.value = m.ovSlug;
+
+            typeSelect.addEventListener('change', () => { m.type = typeSelect.value; syncRow(row, slug); });
+            ovSelect.addEventListener('change', () => { m.ovSlug = ovSelect.value; syncRow(row, slug); });
+            linkInput.addEventListener('input', () => { m.link = linkInput.value.trim(); syncRow(row, slug); });
+
+            syncRow(row, slug);
+        });
+    }
+
+    function syncRow(row, slug) {
+        const m = mappings[slug];
+        const ovSelect = row.querySelector('.gk-ov-select');
+        const linkInput = row.querySelector('.gk-link-input');
+        const createCheck = row.querySelector('.gk-create-check');
+        const badge = row.querySelector('.gk-badge-cell');
+        const descEl = row.querySelector('.gk-type-desc');
+
+        const needsWP = m.type === 'ov' || m.type === 'ortsgruppe' || m.type === 'werbung';
+        const exists = needsWP && (!!existingOVs.find(ov => ov.slug === slug) || !!m.ovSlug);
+
+        // Type description
+        descEl.textContent = MUNI_TYPES[m.type]?.desc || '';
+
+        // Details column: OV dropdown for WP types, URL input for link type
+        ovSelect.style.display = needsWP ? '' : 'none';
+        linkInput.style.display = m.type === 'link' ? '' : 'none';
+
+        // Create checkbox: only for WP types that don't already exist
+        const canCreate = needsWP && !exists;
+        createCheck.style.display = canCreate ? '' : 'none';
+        if (!canCreate) createCheck.checked = false;
+
+        // Badge
+        if (m.type === 'keine') {
+            badge.innerHTML = '<span class="gk-badge gk-badge--muted">nur Karte</span>';
+        } else if (m.type === 'link') {
+            badge.innerHTML = m.link
+                ? '<span class="gk-badge gk-badge--ok">verlinkt</span>'
+                : '<span class="gk-badge gk-badge--warn">URL fehlt</span>';
+        } else if (exists) {
+            badge.innerHTML = '<span class="gk-badge gk-badge--ok">zugeordnet</span>';
+        } else {
+            badge.innerHTML = '<span class="gk-badge gk-badge--warn">nicht angelegt</span>';
+        }
+    }
+
+    async function doSaveMappings() {
+        const btn = document.getElementById('gk-save-btn');
+        const statusEl = document.getElementById('gk-config-status');
+        btn.disabled = true;
+        statusEl.innerHTML = '<p>Speichere...</p>';
+
+        try {
+            const resp = await fetch(gkKreiskarte.ajaxUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'gk_update_kreiskarte_mappings',
+                    nonce: gkKreiskarte.nonce,
+                    mappings: JSON.stringify(mappings),
+                }),
+            });
+            const result = await resp.json();
+            if (!result.success) throw new Error(result.data || 'Speichern fehlgeschlagen');
+
+            statusEl.innerHTML = '<div class="notice notice-success inline"><p>Gespeichert.</p></div>';
+        } catch (err) {
+            statusEl.innerHTML = `<div class="notice notice-error inline"><p>${esc(err.message)}</p></div>`;
+        }
+        btn.disabled = false;
+    }
+
+    async function doCreateSelected() {
+        if (!currentData) return;
+
+        const btn = document.getElementById('gk-create-btn');
+        const statusEl = document.getElementById('gk-config-status');
+
+        // Collect checked rows
+        const toCreate = [];
+        document.querySelectorAll('#gk-config-table tr[data-slug]').forEach(row => {
+            const check = row.querySelector('.gk-create-check');
+            if (!check.checked || check.style.display === 'none') return;
+            const slug = row.dataset.slug;
+            toCreate.push({
+                slug,
+                name: currentData.municipalities[slug]?.name || slug,
+                type: mappings[slug]?.type || 'ov',
+            });
+        });
+
+        if (toCreate.length === 0) {
+            statusEl.innerHTML = '<div class="notice notice-warning inline"><p>Keine Einträge markiert. Setze Häkchen in der Spalte "Anlegen".</p></div>';
+            return;
+        }
+
+        btn.disabled = true;
+        statusEl.innerHTML = `<p>Erstelle ${toCreate.length} Einträge...</p>`;
+
+        try {
+            // Save mappings first
+            await fetch(gkKreiskarte.ajaxUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'gk_update_kreiskarte_mappings',
+                    nonce: gkKreiskarte.nonce,
+                    mappings: JSON.stringify(mappings),
+                }),
+            });
+
+            const resp = await fetch(gkKreiskarte.ajaxUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'gk_create_ortsverbaende',
+                    nonce: gkKreiskarte.nonce,
+                    municipalities: JSON.stringify(toCreate),
+                }),
+            });
+            const result = await resp.json();
+
+            if (result.success) {
+                const d = result.data;
+                let msg = `${d.created} Einträge erstellt`;
+                if (d.skipped) msg += `, ${d.skipped} bereits vorhanden`;
+                statusEl.innerHTML = `<div class="notice notice-success inline"><p>${msg}.</p></div>`;
+
+                // Refresh table to update badges
+                await loadExistingOVs();
+                renderConfigTable(currentData);
+            } else {
+                throw new Error(result.data || 'Erstellen fehlgeschlagen');
+            }
+        } catch (err) {
+            statusEl.innerHTML = `<div class="notice notice-error inline"><p>${esc(err.message)}</p></div>`;
+        }
+        btn.disabled = false;
+    }
+
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  Shared Helpers
+    // ════════════════════════════════════════════════════════════════════════
+
     async function loadExistingOVs() {
         try {
             const resp = await fetch(gkKreiskarte.ajaxUrl, {
@@ -522,310 +498,248 @@
                 }),
             });
             const result = await resp.json();
-            if (result.success) {
-                existingOVs = result.data;
-            }
+            if (result.success) existingOVs = result.data;
         } catch (e) {
             console.warn('Could not load existing OVs:', e);
             existingOVs = [];
         }
     }
 
-    /**
-     * Render the mapping table: each Gemeinde gets a type selector
-     * and (for OV type) a dropdown to pick an existing Ortsverband.
-     */
-    function renderMappingTable(data) {
-        const el = document.getElementById('gk-mapping-table');
-        const entries = Object.entries(data.municipalities);
-
-        // Reset mappings
-        ovMappings = {};
-
-        // Build the type <option> list once
-        const typeOptions = Object.entries(MUNI_TYPES)
-            .map(([val, t]) => `<option value="${val}">${escHtml(t.label)}</option>`)
-            .join('');
-
-        // Build the existing OV <option> list once
-        const ovOptions = existingOVs.map(ov => {
-            const status = ov.status !== 'publish' ? ` (${ov.status})` : '';
-            return `<option value="${escHtml(ov.slug)}">${escHtml(ov.title)}${status}</option>`;
-        }).join('');
-
-        let html = '<table class="widefat gk-mapping-table"><thead><tr>' +
-            '<th>Gemeinde</th>' +
-            '<th>Typ</th>' +
-            '<th>Zuordnung</th>' +
-            '<th></th>' +
-            '</tr></thead><tbody>';
-
-        for (const [genSlug, muni] of entries) {
-            // Try to auto-match to an existing OV
-            const autoMatch = findBestMatch(muni.name, genSlug);
-
-            // Default: if auto-matched → type "ov" + linked, otherwise → type "ov" + new
-            ovMappings[genSlug] = {
-                type: 'ov',
-                ovSlug: autoMatch ? autoMatch.slug : '',
-            };
-
-            const badge = autoMatch
-                ? '<span class="gk-match-auto">automatisch</span>'
-                : '<span class="gk-match-new">neu erstellen</span>';
-
-            html += `<tr data-gen-slug="${escHtml(genSlug)}">` +
-                `<td><strong>${escHtml(muni.name)}</strong></td>` +
-                `<td><select class="gk-type-select">${typeOptions}</select></td>` +
-                `<td><select class="gk-ov-select">` +
-                    `<option value="">— Neu erstellen —</option>` +
-                    ovOptions +
-                `</select></td>` +
-                `<td class="gk-badge-cell">${badge}</td>` +
-                `</tr>`;
-        }
-
-        html += '</tbody></table>';
-        el.innerHTML = html;
-
-        // Set auto-matched values and bind events
-        el.querySelectorAll('tr[data-gen-slug]').forEach(row => {
-            const genSlug = row.dataset.genSlug;
-            const typeSelect = row.querySelector('.gk-type-select');
-            const ovSelect = row.querySelector('.gk-ov-select');
-            const mapping = ovMappings[genSlug];
-
-            // Pre-select auto-matched OV
-            if (mapping.ovSlug) {
-                ovSelect.value = mapping.ovSlug;
+    async function fetchOverpass(query, statusEl, retries = 2) {
+        for (let attempt = 0; attempt <= retries; attempt++) {
+            if (attempt > 0) {
+                const wait = attempt * 5;
+                console.log('[Kreiskarte] Overpass: Versuch %d/%d, warte %ds...', attempt + 1, retries + 1, wait);
+                if (statusEl) statusEl.textContent = `Overpass API überlastet — neuer Versuch in ${wait}s...`;
+                await new Promise(r => setTimeout(r, wait * 1000));
+                if (statusEl) statusEl.textContent = `Lade Gemeindegrenzen (Versuch ${attempt + 1}/${retries + 1})...`;
             }
 
-            typeSelect.addEventListener('change', () => {
-                mapping.type = typeSelect.value;
-                updateRowState(row);
+            console.log('[Kreiskarte] Overpass-Anfrage (Versuch %d/%d)...', attempt + 1, retries + 1);
+            const resp = await fetch(OVERPASS, {
+                method: 'POST',
+                body: 'data=' + encodeURIComponent(query),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
+            console.log('[Kreiskarte] Overpass-Antwort: HTTP %d', resp.status);
 
-            ovSelect.addEventListener('change', () => {
-                mapping.ovSlug = ovSelect.value;
-                updateRowState(row);
-            });
+            if (!resp.ok) {
+                if (resp.status === 429 || resp.status === 504) {
+                    console.warn('[Kreiskarte] Overpass %d — Retry...', resp.status);
+                    continue;
+                }
+                throw new Error(`Overpass API Fehler ${resp.status}`);
+            }
 
-            // Initial state
-            updateRowState(row);
-        });
-    }
+            const ct = resp.headers.get('content-type') || '';
+            if (!ct.includes('json')) {
+                console.warn('[Kreiskarte] Overpass: kein JSON (%s)', ct);
+                if (attempt < retries) continue;
+                throw new Error('Overpass API hat kein JSON zurückgegeben. Bitte in 30s erneut versuchen.');
+            }
 
-    /**
-     * Update a mapping row's visual state based on current selections.
-     */
-    function updateRowState(row) {
-        const genSlug = row.dataset.genSlug;
-        const mapping = ovMappings[genSlug];
-        const ovSelect = row.querySelector('.gk-ov-select');
-        const badge = row.querySelector('.gk-badge-cell');
-
-        // Show OV dropdown only for types that link to a post
-        const needsOv = mapping.type === 'ov';
-        ovSelect.style.display = needsOv ? '' : 'none';
-
-        // Badge
-        if (mapping.type === 'keine') {
-            badge.innerHTML = '<span class="gk-match-none">nur Karte</span>';
-        } else if (mapping.type === 'ov' && mapping.ovSlug) {
-            badge.innerHTML = '<span class="gk-match-auto">zugeordnet</span>';
-        } else {
-            badge.innerHTML = '<span class="gk-match-new">neu erstellen</span>';
+            const data = await resp.json();
+            console.log('[Kreiskarte] Overpass: %d Elemente empfangen', data.elements?.length ?? 0);
+            return data;
         }
-    }
-
-    /**
-     * Try to find the best matching existing OV for a Gemeinde name.
-     * Matches on: exact slug, slug contains name, title contains name, or vice versa.
-     */
-    function findBestMatch(gemeindeName, genSlug) {
-        const nameLower = gemeindeName.toLowerCase();
-        const nameSlug = slugify(gemeindeName);
-
-        // 1. Exact slug match (ov-starnberg → ov-starnberg)
-        let match = existingOVs.find(ov => ov.slug === genSlug);
-        if (match) return match;
-
-        // 2. Slug without ov- prefix (ov-starnberg → starnberg)
-        const bareSlug = genSlug.replace(/^ov-/, '');
-        match = existingOVs.find(ov => ov.slug === bareSlug);
-        if (match) return match;
-
-        // 3. Existing slug contains the bare name slug
-        match = existingOVs.find(ov => ov.slug.includes(bareSlug) || bareSlug.includes(ov.slug));
-        if (match) return match;
-
-        // 4. Title match (case-insensitive, ignoring "Ortsverband " prefix)
-        match = existingOVs.find(ov => {
-            const ovName = ov.title.replace(/^Ortsverband\s+/i, '').toLowerCase();
-            return ovName === nameLower || nameLower.includes(ovName) || ovName.includes(nameLower);
-        });
-        if (match) return match;
-
-        return null;
+        throw new Error('Overpass API nicht erreichbar. Bitte später erneut versuchen.');
     }
 
     function renderSvgPreview(data) {
-        const viewBox = data._meta.viewBox;
-        let svg = `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">`;
-
+        const vb = data._meta?.viewBox || '0 0 400 400';
+        let svg = `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">`;
         svg += `<style>
-            .gk-preview polygon { fill:#fff; stroke:#e6007e; stroke-width:0.5; transition: fill .2s; cursor:pointer; }
-            .gk-preview polygon:hover { fill:#e6007e; }
-            .gk-preview .district { fill:#e6007e; opacity:.15; }
-            .gk-preview-water path { fill:#3CB4E4; stroke:#0981B1; stroke-width:0.3; opacity:.7; }
-            .gk-preview text { font-family:sans-serif; font-size:7px; pointer-events:none; fill:#333; }
+            .gk-gen polygon { fill:#CCE7D7; stroke:#005538; stroke-width:0.5; transition:fill .2s; cursor:pointer; }
+            .gk-gen polygon:hover { fill:#005538; }
+            .gk-gen .district { fill:#005538; opacity:.12; }
+            .gk-gen-water path { fill:#3CB4E4; stroke:#0981B1; stroke-width:0.3; opacity:.7; }
+            .gk-gen text { font-family:sans-serif; font-size:7px; pointer-events:none; fill:#333; }
         </style>`;
 
-        // District outline
-        if (data.district && data.district.fill) {
-            svg += `<path class="district" d="${data.district.fill}"/>`;
-        }
+        if (data.district?.fill) svg += `<path class="district" d="${data.district.fill}"/>`;
 
-        // Municipality polygons
-        svg += '<g class="gk-preview">';
-        for (const [slug, muni] of Object.entries(data.municipalities)) {
-            svg += `<polygon points="${muni.polygon}"><title>${escHtml(muni.name)}</title></polygon>`;
+        svg += '<g class="gk-gen">';
+        for (const muni of Object.values(data.municipalities)) {
+            svg += `<polygon points="${muni.polygon}"><title>${esc(muni.name)}</title></polygon>`;
         }
         svg += '</g>';
 
-        // Water bodies (blue)
-        if (data.water && Object.keys(data.water).length > 0) {
-            svg += '<g class="gk-preview-water">';
+        if (data.water) {
+            svg += '<g class="gk-gen-water">';
             for (const [id, path] of Object.entries(data.water)) {
-                svg += `<path d="${path}"><title>${escHtml(id)}</title></path>`;
+                svg += `<path d="${path}"><title>${esc(id)}</title></path>`;
             }
             svg += '</g>';
         }
 
-        // Labels
         for (const muni of Object.values(data.municipalities)) {
-            svg += `<text transform="${muni.label.transform}"><tspan x="0" y="0">${escHtml(muni.label.text)}</tspan></text>`;
+            if (muni.label) {
+                svg += `<text transform="${muni.label.transform}"><tspan x="0" y="0">${esc(muni.label.text)}</tspan></text>`;
+            }
         }
 
         svg += '</svg>';
         return svg;
     }
 
-    // ── Step 4: Save ────────────────────────────────────────────────────────
 
-    async function doSave() {
-        if (!generatedData) return;
+    // ── Geo Processing ──────────────────────────────────────────────────────
 
-        const statusEl = document.getElementById('gk-save-status');
-        const btn = document.getElementById('gk-save-btn');
-        btn.disabled = true;
-        statusEl.innerHTML = '<p>Speichere Kreiskarte...</p>';
+    function processOverpassData(data, kreisOsmId, displayName) {
+        const nodes = {};
+        data.elements.filter(e => e.type === 'node').forEach(n => { nodes[n.id] = [n.lat, n.lon]; });
 
-        try {
-            // Apply mappings: set types and remap slugs
-            const remappedData = applyMappings(generatedData);
+        const ways = {};
+        data.elements.filter(e => e.type === 'way').forEach(w => {
+            ways[w.id] = (w.nodes || []).map(nid => nodes[nid]).filter(Boolean);
+        });
 
-            // Save kreiskarte.json
-            const saveResp = await fetch(gkKreiskarte.ajaxUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({
-                    action: 'gk_save_kreiskarte',
-                    nonce: gkKreiskarte.nonce,
-                    kreiskarte_data: JSON.stringify(remappedData),
-                }),
-            });
-            const saveResult = await saveResp.json();
+        const allLevel8 = data.elements.filter(e =>
+            e.type === 'relation' && e.tags?.name && e.tags['admin_level'] === '8');
 
-            if (!saveResult.success) {
-                throw new Error(saveResult.data || 'Speichern fehlgeschlagen');
-            }
-
-            // Summarise
-            const counts = { ov: 0, ortsgruppe: 0, werbung: 0, keine: 0, mapped: 0 };
-            for (const m of Object.values(ovMappings)) {
-                counts[m.type]++;
-                if (m.type === 'ov' && m.ovSlug) counts.mapped++;
-            }
-            statusEl.innerHTML = '<p>✓ Kreiskarte gespeichert.</p>';
-
-            // Create posts for municipalities that need them (not "keine", not already mapped)
-            if (document.getElementById('gk-create-ovs').checked) {
-                const toCreate = Object.entries(remappedData.municipalities)
-                    .filter(([slug, m]) => {
-                        if (m.type === 'keine') return false;
-                        // Already mapped to existing OV — skip
-                        const orig = Object.entries(ovMappings)
-                            .find(([gen, val]) => {
-                                const finalSlug = (val.type === 'ov' && val.ovSlug) ? val.ovSlug : gen;
-                                return finalSlug === slug;
-                            });
-                        if (orig && orig[1].type === 'ov' && orig[1].ovSlug) return false;
-                        return true;
-                    })
-                    .map(([slug, m]) => ({ slug, name: m.name, type: m.type }));
-
-                if (toCreate.length > 0) {
-                    statusEl.innerHTML += '<p>Erstelle Einträge...</p>';
-
-                    const ovResp = await fetch(gkKreiskarte.ajaxUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: new URLSearchParams({
-                            action: 'gk_create_ortsverbaende',
-                            nonce: gkKreiskarte.nonce,
-                            municipalities: JSON.stringify(toCreate),
-                        }),
-                    });
-                    const ovResult = await ovResp.json();
-
-                    if (ovResult.success) {
-                        const d = ovResult.data;
-                        statusEl.innerHTML += `<p>✓ ${d.created} Einträge erstellt, ${d.skipped} bereits vorhanden.</p>`;
-                        if (d.errors.length > 0) {
-                            statusEl.innerHTML += `<p class="notice notice-warning">Fehler: ${d.errors.join(', ')}</p>`;
-                        }
-                    }
-                } else {
-                    statusEl.innerHTML += '<p>Alle Gemeinden bereits zugeordnet.</p>';
-                }
-            }
-
-            const summary = [];
-            if (counts.mapped) summary.push(`${counts.mapped} zugeordnet`);
-            if (counts.ov - counts.mapped > 0) summary.push(`${counts.ov - counts.mapped} neue OVs`);
-            if (counts.ortsgruppe) summary.push(`${counts.ortsgruppe} Ortsgruppen`);
-            if (counts.werbung) summary.push(`${counts.werbung} Werbeseiten`);
-            if (counts.keine) summary.push(`${counts.keine} ohne Eintrag`);
-
-            statusEl.innerHTML += `<p><strong>Fertig!</strong> ${summary.join(', ')}. ` +
-                'Verwende den Shortcode <code>[kreiskarte]</code> um die Karte einzubinden.</p>';
-
-        } catch (err) {
-            statusEl.innerHTML = `<p class="notice notice-error">Fehler: ${err.message}</p>`;
+        const waterRels = [], gemeindeRels = [];
+        for (const rel of allLevel8) {
+            const tags = rel.tags;
+            const ags = tags['de:amtlicher_gemeindeschluessel'] || '';
+            const agsLast3 = ags.length >= 3 ? parseInt(ags.slice(-3), 10) : 0;
+            const isFrei = agsLast3 >= 401 || tags.natural === 'water' ||
+                (tags['name:prefix'] || '').toLowerCase().includes('gemeindefrei');
+            (isFrei ? waterRels : gemeindeRels).push(rel);
         }
 
-        btn.disabled = false;
+        const gemeinden = gemeindeRels
+            .map(rel => ({ name: rel.tags.name, coords: extractRelCoords(rel, ways) }))
+            .filter(g => g.coords.length > 2);
+
+        const kreisRel = data.elements.find(e => e.type === 'relation' && e.id === kreisOsmId);
+        const kreisCoords = kreisRel ? extractRelCoords(kreisRel, ways) : [];
+
+        if (gemeinden.length === 0) return { municipalities: {} };
+
+        // Bounding box
+        let minLat = Infinity, maxLat = -Infinity, minLon = Infinity, maxLon = -Infinity;
+        for (const [lat, lon] of [...gemeinden.flatMap(g => g.coords), ...kreisCoords]) {
+            if (lat < minLat) minLat = lat; if (lat > maxLat) maxLat = lat;
+            if (lon < minLon) minLon = lon; if (lon > maxLon) maxLon = lon;
+        }
+
+        const latRange = maxLat - minLat, lonRange = maxLon - minLon;
+        const latCos = Math.cos((minLat + maxLat) / 2 * Math.PI / 180);
+        const aspect = latRange / (lonRange * latCos);
+        const svgW = SVG_WIDTH, svgH = svgW * aspect;
+        const uW = svgW - 2 * SVG_PADDING, uH = svgH - 2 * SVG_PADDING;
+
+        const project = ([lat, lon]) => [
+            Math.round((SVG_PADDING + ((lon - minLon) / lonRange) * uW) * 1000) / 1000,
+            Math.round((SVG_PADDING + ((maxLat - lat) / latRange) * uH) * 1000) / 1000,
+        ];
+
+        const municipalities = {};
+        for (const g of gemeinden) {
+            const slug = 'ov-' + slugify(g.name);
+            const simp = simplify(g.coords.map(project), 0.5);
+            if (simp.length < 3) continue;
+            const c = centroid(simp);
+            municipalities[slug] = {
+                name: g.name,
+                polygon: simp.map(p => p.join(' ')).join(' '),
+                arrow: `translate(${c[0] - 5} ${c[1] - 5}) scale(.287)`,
+                label: { text: g.name, transform: `translate(${c[0] - 15} ${c[1] - 15})` },
+            };
+        }
+
+        const district = {};
+        if (kreisCoords.length > 2) {
+            const p = polygonPath(simplify(kreisCoords.map(project), 0.8));
+            district.shadow = p; district.fill = p;
+        }
+
+        const water = {};
+        for (const rel of waterRels) {
+            const coords = extractRelCoords(rel, ways);
+            if (coords.length < 3) continue;
+            const s = simplify(coords.map(project), 0.4);
+            if (s.length >= 3) water[slugify(rel.tags.name)] = polygonPath(s);
+        }
+
+        return {
+            _meta: {
+                title: displayName.split(',')[0],
+                description: 'Generiert aus OpenStreetMap-Daten',
+                viewBox: `0 0 ${Math.round(svgW)} ${Math.round(svgH)}`,
+                source: 'openstreetmap',
+                generated: new Date().toISOString().split('T')[0],
+            },
+            municipalities, district, water,
+        };
     }
 
-    /**
-     * Apply the user's mappings: set type on each municipality and
-     * re-key to existing OV slug where mapped.
-     */
-    function applyMappings(data) {
-        const remapped = JSON.parse(JSON.stringify(data)); // deep clone
-        const newMunicipalities = {};
+    function extractRelCoords(rel, ways) {
+        const ids = (rel.members || [])
+            .filter(m => m.type === 'way' && (m.role === 'outer' || m.role === ''))
+            .map(m => m.ref);
+        return joinSegs(ids.map(id => ways[id]).filter(Boolean));
+    }
 
-        for (const [genSlug, muniData] of Object.entries(remapped.municipalities)) {
-            const mapping = ovMappings[genSlug] || { type: 'ov', ovSlug: '' };
-            const finalSlug = (mapping.type === 'ov' && mapping.ovSlug) ? mapping.ovSlug : genSlug;
-
-            muniData.type = mapping.type;
-            newMunicipalities[finalSlug] = muniData;
+    function joinSegs(segs) {
+        if (segs.length <= 1) return segs[0] || [];
+        const result = [...segs[0]];
+        const used = new Set([0]);
+        for (let iter = 0; iter < segs.length * 2; iter++) {
+            const last = result[result.length - 1];
+            let found = false;
+            for (let i = 0; i < segs.length; i++) {
+                if (used.has(i) || !segs[i]?.length) continue;
+                if (close(last, segs[i][0])) { result.push(...segs[i].slice(1)); used.add(i); found = true; break; }
+                if (close(last, segs[i][segs[i].length - 1])) { result.push(...[...segs[i]].reverse().slice(1)); used.add(i); found = true; break; }
+            }
+            if (!found || used.size === segs.length) break;
         }
+        return result;
+    }
 
-        remapped.municipalities = newMunicipalities;
-        return remapped;
+    function close(a, b) { return a && b && Math.abs(a[0] - b[0]) < 0.0001 && Math.abs(a[1] - b[1]) < 0.0001; }
+
+    function simplify(pts, eps) {
+        if (pts.length < 3) return pts;
+        let mx = 0, mi = 0;
+        for (let i = 1; i < pts.length - 1; i++) {
+            const d = perpDist(pts[i], pts[0], pts[pts.length - 1]);
+            if (d > mx) { mx = d; mi = i; }
+        }
+        if (mx > eps) {
+            const l = simplify(pts.slice(0, mi + 1), eps);
+            return [...l.slice(0, -1), ...simplify(pts.slice(mi), eps)];
+        }
+        return [pts[0], pts[pts.length - 1]];
+    }
+
+    function perpDist(pt, a, b) {
+        const dx = b[0] - a[0], dy = b[1] - a[1];
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (!len) return Math.sqrt((pt[0] - a[0]) ** 2 + (pt[1] - a[1]) ** 2);
+        return Math.abs(dy * pt[0] - dx * pt[1] + b[0] * a[1] - b[1] * a[0]) / len;
+    }
+
+    function centroid(pts) {
+        let cx = 0, cy = 0;
+        for (const [x, y] of pts) { cx += x; cy += y; }
+        const n = pts.length;
+        return [Math.round(cx / n * 100) / 100, Math.round(cy / n * 100) / 100];
+    }
+
+    function polygonPath(pts) { return pts.length ? 'M' + pts.map(p => p.join(',')).join('L') + 'Z' : ''; }
+
+    function slugify(s) {
+        return s.toLowerCase()
+            .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+            .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    }
+
+    function esc(s) {
+        const el = document.createElement('span');
+        el.textContent = s;
+        return el.innerHTML;
     }
 
 })();

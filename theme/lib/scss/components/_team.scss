@@ -103,6 +103,31 @@
         color: var(--color-text-muted);
         margin: 0.25rem 0 0;
     }
+
+    &__footer {
+        text-align: center;
+        margin-top: var(--space-10);
+    }
+}
+
+// ==========================================================================
+// OV Team Overview Page
+// ==========================================================================
+
+.gk-ov-team-page {
+    padding: var(--space-16) 0;
+
+    &__section {
+        margin-bottom: var(--space-12);
+
+        h2 {
+            font-family: var(--font-heading);
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            font-weight: 700;
+            margin: 0 0 var(--space-6);
+            color: var(--color-text);
+        }
+    }
 }
 
 @keyframes gk-teamFadeIn {

@@ -1,33 +1,33 @@
 // ==========================================================================
-// Kreiskarte Generator — Admin Styles
-// Compiles to: lib/css/kreiskarte-generator.css
+// Kreiskarte Admin — Styles
 // ==========================================================================
 
 .gk-kreiskarte-generator {
-    max-width: 900px;
+    max-width: 1100px;
 
     h1 { margin-bottom: 0.5em; }
 
     .description {
         font-size: 14px;
         color: #50575e;
-        max-width: 600px;
+        max-width: 700px;
+    }
+
+    hr {
+        margin: 2em 0;
+        border: 0;
+        border-top: 1px solid #c3c4c7;
     }
 }
 
-// Steps
-.gk-step {
-    margin-top: 1.5em;
+// ── Cards (visual grouping) ─────────────────────────────────────────────
 
-    h2 {
-        font-size: 1.2em;
-        margin-bottom: 0.8em;
-        padding-bottom: 0.3em;
-        border-bottom: 1px solid #c3c4c7;
-    }
+.gk-card {
+    margin: 1.5em 0;
 }
 
-// Search
+// ── Search ──────────────────────────────────────────────────────────────
+
 .gk-search-row {
     display: flex;
     gap: 8px;
@@ -40,7 +40,6 @@
     }
 }
 
-// Search results
 .gk-result-list {
     list-style: none;
     padding: 0;
@@ -65,7 +64,8 @@
     }
 }
 
-// Progress
+// ── Loading ─────────────────────────────────────────────────────────────
+
 .gk-progress {
     width: 100%;
     max-width: 500px;
@@ -84,40 +84,12 @@
     transition: width 0.4s ease;
 }
 
-// Preview
-#gk-preview-info {
-    background: #fff;
-    border: 1px solid #c3c4c7;
-    border-radius: 4px;
-    padding: 12px 16px;
+// ── Preview (Phase 1) ───────────────────────────────────────────────────
 
-    p { margin: 0 0 8px; }
-}
-
-.gk-gemeinde-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 4px 16px;
-    margin: 8px 0 0;
-    padding: 0;
-    list-style: none;
-
-    li {
-        padding: 4px 0;
-        font-size: 13px;
-        border-bottom: 1px solid #f0f0f1;
-
-        &::before {
-            content: "\2713  ";
-            color: #46962b;
-            font-weight: bold;
-        }
-    }
-}
-
-#gk-preview-map {
+#gk-preview-map,
+#gk-config-map {
     max-width: 700px;
-    margin: 20px 0;
+    margin: 0 0 20px;
     background: #f0f0f1;
     border-radius: 8px;
     padding: 20px;
@@ -129,7 +101,19 @@
     }
 }
 
-// Mapping table
+.gk-preview-summary {
+    font-size: 15px;
+    margin: 12px 0 16px;
+}
+
+.gk-preview-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+// ── Config table (Phase 2) ──────────────────────────────────────────────
+
 .gk-mapping-table {
     margin: 12px 0 24px;
 
@@ -138,68 +122,75 @@
         font-weight: 600;
     }
 
-    td { vertical-align: middle; }
+    td { vertical-align: top; padding-top: 10px; }
 
-    select {
-        width: 100%;
-        max-width: 320px;
-    }
+    select { max-width: 220px; }
 
     tr:hover { background: #f6f7f7; }
 
-    .gk-type-select { min-width: 140px; }
+    .gk-type-select { min-width: 150px; }
+
+    .gk-type-desc {
+        font-size: 12px;
+        color: #646970;
+        margin: 4px 0 0;
+        max-width: 260px;
+        line-height: 1.4;
+    }
+
+    .gk-link-input {
+        width: 220px;
+        font-size: 12px;
+    }
+
+    .gk-col-create {
+        text-align: center;
+        width: 60px;
+    }
 }
 
-// Match badges
-.gk-match-auto,
-.gk-match-manual,
-.gk-match-new {
+// Badges
+.gk-badge {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 10px;
     font-size: 11px;
     font-weight: 600;
     white-space: nowrap;
+
+    &--ok   { background: #e6ffed; color: #005538; }
+    &--warn { background: #fff3cd; color: #856404; }
+    &--muted { background: #f0f0f1; color: #50575e; }
 }
 
-.gk-match-auto   { background: #e6ffed; color: #005538; }
-.gk-match-manual { background: #e0ecff; color: #0a4b78; }
-.gk-match-new    { background: #fff3cd; color: #856404; }
-.gk-match-none   { background: #f0f0f1; color: #50575e; }
+// Config actions
+.gk-config-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
 
-// Save
-#gk-save-status {
+#gk-config-status {
     margin-top: 1em;
 
-    p {
-        padding: 6px 0;
-        font-size: 14px;
-    }
-
-    code {
-        background: #f0f0f1;
-        padding: 2px 6px;
-        border-radius: 3px;
-    }
+    .notice { margin: 0; }
 }
 
-// Checkbox row
-#gk-step-preview label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    margin-bottom: 1em;
-}
+// ── Reload section (collapsed in Phase 2) ───────────────────────────────
 
-// Back link
-.gk-back-link {
-    display: inline-block;
-    margin-top: 10px;
-    color: #0073aa;
-    cursor: pointer;
-    text-decoration: underline;
-    font-size: 13px;
+.gk-reload-section {
+    margin-top: 0;
 
-    &:hover { color: #00a0d2; }
+    summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: #50575e;
+        padding: 4px 0;
+
+        &:hover { color: #1d2327; }
+    }
+
+    .description {
+        margin: 8px 0 12px;
+    }
 }
