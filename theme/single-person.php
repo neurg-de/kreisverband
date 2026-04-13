@@ -50,12 +50,6 @@ $has_content = trim( get_the_content() ) !== '';
 
 ?>
 
-<nav class="gk-back-nav">
-    <div class="wrap">
-        <a href="javascript:history.back()">&larr; Zurück</a>
-    </div>
-</nav>
-
 <article id="post-<?php the_ID(); ?>" <?php post_class( 'gk-profile' ); ?>>
 
     <?php // ── Hero section: photo + identity ──────────────────────────────── ?>
