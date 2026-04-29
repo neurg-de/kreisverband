@@ -40,7 +40,7 @@ function gk_register_person_post_type() {
         'public'   => true,
         'menu_icon' => 'dashicons-id-alt',
         'supports' => array( 'title', 'editor', 'revisions', 'thumbnail', 'author' ),
-        'has_archive' => true,
+        'has_archive' => false,
         'rewrite'  => array( 'slug' => 'person' ),
     ) );
 }

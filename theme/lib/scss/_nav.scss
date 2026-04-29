@@ -603,7 +603,9 @@ nav.nav-main ul.nav-ov {
     }
 }
 
-body.gk-ov-context nav.nav-main > ul:not(.nav-ov) {
+// Only collapse KV-menu margin when an OV nav list is actually present;
+// otherwise search + CTA must stay right-aligned via margin-left:auto.
+body.gk-ov-context nav.nav-main:has(> ul.nav-ov) > ul:not(.nav-ov) {
     margin-left: 0;
 }
 
