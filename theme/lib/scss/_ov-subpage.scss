@@ -24,6 +24,30 @@
     }
 }
 
+// Same grid with a third child: single-OV.php also renders the OV contact
+// sidebar. Without explicit placement it would take the second column and
+// push the article out of it. Contact stacks below the navigation, the
+// article spans both rows.
+.subpage__grid--sidebar {
+    @media (min-width: 768px) {
+        > .subpage__nav {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        > .subpage__main {
+            grid-column: 2;
+            grid-row: 1 / span 2;
+        }
+
+        > .sidebar {
+            grid-column: 1;
+            grid-row: 2;
+            align-self: start;
+        }
+    }
+}
+
 
 // ==========================================================================
 // Sidebar Navigation
@@ -31,20 +55,6 @@
 
 .subpage__nav {
     display: none; // hidden on mobile — main/hamburger menu covers navigation
-
-    @media (min-width: 768px) {
-        display: block;
-        position: sticky;
-        top: calc(var(--space-8) + 60px); // below sticky nav
-        align-self: start;
-    }
-}
-
-// Same navigation on single posts/persons in OV context (single-OV.php).
-// The name says desktop: on mobile the header's hamburger menu already carries
-// it, so showing it here as well would duplicate 13 links above the article.
-.ovnavi-desktop {
-    display: none;
 
     @media (min-width: 768px) {
         display: block;
@@ -72,8 +82,7 @@
 
 // Navigation list (output by wp_list_pages — .ovnavi for OV, .subpage-nav for KV)
 .subpage__nav .ovnavi,
-.subpage__nav .subpage-nav,
-.ovnavi-desktop .ovnavi {
+.subpage__nav .subpage-nav {
     list-style: none;
     padding: 0;
     margin: 0;
