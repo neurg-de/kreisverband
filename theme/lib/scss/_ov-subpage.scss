@@ -40,6 +40,20 @@
     }
 }
 
+// Same navigation on single posts/persons in OV context (single-OV.php).
+// The name says desktop: on mobile the header's hamburger menu already carries
+// it, so showing it here as well would duplicate 13 links above the article.
+.ovnavi-desktop {
+    display: none;
+
+    @media (min-width: 768px) {
+        display: block;
+        position: sticky;
+        top: calc(var(--space-8) + 60px); // below sticky nav
+        align-self: start;
+    }
+}
+
 .subpage__nav-home {
     display: block;
     font-family: var(--font-heading);
@@ -58,7 +72,8 @@
 
 // Navigation list (output by wp_list_pages — .ovnavi for OV, .subpage-nav for KV)
 .subpage__nav .ovnavi,
-.subpage__nav .subpage-nav {
+.subpage__nav .subpage-nav,
+.ovnavi-desktop .ovnavi {
     list-style: none;
     padding: 0;
     margin: 0;

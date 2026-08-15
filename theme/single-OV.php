@@ -11,7 +11,7 @@ global $post;
 $ov_slug = gk_get_post_zuordnung_slug( $post->ID );
 ?>
 
-<section id="content" class="ov-content"><div class="inner gk-layout clearfix">
+<section id="content" class="ov-content"><div class="inner ov-layout clearfix">
 
     <nav role="navigation" class="ovnavi-desktop">
         <?php gk_ov_navi( $ov_slug ); ?>
