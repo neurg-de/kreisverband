@@ -41,6 +41,42 @@
     // sidebar styles
 }
 
+// Single post/person inside an OV context (single-OV.php).
+// Three children — OV navigation, article, OV contact sidebar — but only two
+// columns: navigation and contact stack in the narrow left column, the article
+// fills the wide one. Using .gk-layout here would put the navigation into the
+// first grid cell and push the article into the 300px sidebar column.
+.ov-layout {
+    display: grid;
+    gap: var(--space-8);
+    grid-template-columns: 1fr;
+
+    @media (min-width: 768px) {
+        grid-template-columns: 240px 1fr;
+        gap: var(--space-10);
+
+        > .ovnavi-desktop {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        > .gk-layout__main {
+            grid-column: 2;
+            grid-row: 1 / span 2;
+        }
+
+        > .sidebar {
+            grid-column: 1;
+            grid-row: 2;
+            align-self: start;
+        }
+    }
+
+    @media (min-width: 960px) {
+        grid-template-columns: 260px 1fr;
+    }
+}
+
 @media (max-width: 767px) {
     .gk-layout {
         grid-template-columns: 1fr;
