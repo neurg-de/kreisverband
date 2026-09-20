@@ -1,0 +1,31 @@
+Installing...
+Running as single site... To run multisite, use -c tests/phpunit/multisite.xml
+Not running ajax tests. To execute these, use --group ajax.
+Not running ms-files tests. To execute these, use --group ms-files.
+Not running external-http tests. To execute these, use --group external-http.
+PHPUnit 9.6.36 by Sebastian Bergmann and contributors.
+
+FF                                                                  2 / 2 (100%)
+
+Time: 00:00.085, Memory: 44.50 MB
+
+There were 2 failures:
+
+1) OrtsverbandTest::test_canonical_legacy_page_precedes_external_and_rejects_other_scope
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'http://example.org/term-0000018/'
++'https://external.example.org/'
+
+/workspace/tests/OrtsverbandTest.php:351
+
+2) OrtsverbandTest::test_actual_map_and_mobile_list_share_local_external_and_missing_targets
+Both SVG and list must provide a real link.
+Failed asserting that 0 is identical to 2.
+
+/workspace/tests/OrtsverbandTest.php:389
+
+FAILURES!
+Tests: 2, Assertions: 3, Failures: 2.

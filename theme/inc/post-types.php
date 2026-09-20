@@ -35,14 +35,17 @@ function gk_register_person_post_type() {
         'parent_item_colon'  => '',
     );
 
-    register_post_type( 'person', array(
-        'labels'   => $labels,
-        'public'   => true,
-        'menu_icon' => 'dashicons-id-alt',
-        'supports' => array( 'title', 'editor', 'revisions', 'thumbnail', 'author' ),
-        'has_archive' => false,
-        'rewrite'  => array( 'slug' => 'person' ),
-    ) );
+    register_post_type(
+        'person',
+        array(
+			'labels'      => $labels,
+			'public'      => true,
+			'menu_icon'   => 'dashicons-id-alt',
+			'supports'    => array( 'title', 'editor', 'revisions', 'thumbnail', 'author' ),
+			'has_archive' => false,
+			'rewrite'     => array( 'slug' => 'person' ),
+        )
+    );
 }
 
 
@@ -64,15 +67,19 @@ function gk_register_person_taxonomy() {
         'menu_name'         => __( 'Abteilungen', 'neurg-kreisverband' ),
     );
 
-    register_taxonomy( 'abteilung', array( 'person' ), array(
-        'hierarchical'      => true,
-        'labels'            => $labels,
-        'show_ui'           => true,
-        'show_admin_column' => true,
-        'show_in_rest'      => true,
-        'query_var'         => true,
-        'rewrite'           => array( 'slug' => 'abteilung' ),
-    ) );
+    register_taxonomy(
+        'abteilung',
+        array( 'person' ),
+        array(
+			'hierarchical'      => true,
+			'labels'            => $labels,
+			'show_ui'           => true,
+			'show_admin_column' => true,
+			'show_in_rest'      => true,
+			'query_var'         => true,
+			'rewrite'           => array( 'slug' => 'abteilung' ),
+        )
+    );
 }
 
 
@@ -98,15 +105,19 @@ function gk_register_zuordnung_taxonomy() {
         'menu_name'         => __( 'Zuordnung (KV/OV)', 'neurg-kreisverband' ),
     );
 
-    register_taxonomy( 'gk_zuordnung', array( 'post', 'page', 'person', 'gk_event', 'attachment' ), array(
-        'hierarchical'      => true,
-        'labels'            => $labels,
-        'show_ui'           => true,
-        'show_admin_column' => true,
-        'show_in_quick_edit' => true,
-        'query_var'         => true,
-        'rewrite'           => array( 'slug' => 'zuordnung' ),
-    ) );
+    register_taxonomy(
+        'gk_zuordnung',
+        array( 'post', 'page', 'person', 'gk_event', 'attachment' ),
+        array(
+			'hierarchical'       => true,
+			'labels'             => $labels,
+			'show_ui'            => true,
+			'show_admin_column'  => true,
+			'show_in_quick_edit' => true,
+			'query_var'          => true,
+			'rewrite'            => array( 'slug' => 'zuordnung' ),
+        )
+    );
 }
 
 
@@ -120,10 +131,14 @@ function gk_ensure_zuordnung_defaults() {
 
     // Create the default "Kreisverband" term if it doesn't exist.
     if ( ! term_exists( 'kreisverband', 'gk_zuordnung' ) ) {
-        wp_insert_term( 'Kreisverband', 'gk_zuordnung', array(
-            'slug'        => 'kreisverband',
-            'description' => 'Beiträge des Kreisverbands',
-        ) );
+        wp_insert_term(
+            'Kreisverband',
+            'gk_zuordnung',
+            array(
+				'slug'        => 'kreisverband',
+				'description' => 'Beiträge des Kreisverbands',
+            )
+        );
     }
 }
 
@@ -131,11 +146,21 @@ function gk_ensure_zuordnung_defaults() {
 /**
  * Enforce single zuordnung on save: exactly one term (KV or one OV).
  * Defaults to "Kreisverband" if none is set.
+ *
+ * @param int     $post_id Content ID.
+ * @param WP_Post $post Content object.
+ * @param bool    $update Whether this is an existing post update.
  */
-function gk_default_zuordnung_on_save( $post_id, $post, $update ) {
-    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
-    if ( wp_is_post_revision( $post_id ) ) return;
-    if ( ! in_array( $post->post_type, array( 'post', 'page', 'person', 'gk_event', 'attachment' ), true ) ) return;
+function gk_default_zuordnung_on_save( $post_id, $post, $update ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Preserve the public callback signature and save_post hook arguments for child themes.
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+    }
+    if ( wp_is_post_revision( $post_id ) ) {
+		return;
+    }
+    if ( ! in_array( $post->post_type, array( 'post', 'page', 'person', 'gk_event', 'attachment' ), true ) ) {
+		return;
+    }
 
     $terms = wp_get_object_terms( $post_id, 'gk_zuordnung', array( 'fields' => 'ids' ) );
 
@@ -173,9 +198,19 @@ function gk_zuordnung_meta_box() {
 }
 add_action( 'add_meta_boxes', 'gk_zuordnung_meta_box' );
 
+/**
+ * Zuordnung meta box cb.
+ *
+ * @param WP_Post $post Content object.
+ */
 function gk_zuordnung_meta_box_cb( $post ) {
-    $terms     = get_terms( array( 'taxonomy' => 'gk_zuordnung', 'hide_empty' => false ) );
-    $current   = wp_get_object_terms( $post->ID, 'gk_zuordnung', array( 'fields' => 'ids' ) );
+    $terms      = get_terms(
+        array(
+			'taxonomy'   => 'gk_zuordnung',
+			'hide_empty' => false,
+        )
+    );
+    $current    = wp_get_object_terms( $post->ID, 'gk_zuordnung', array( 'fields' => 'ids' ) );
     $current_id = ! empty( $current ) ? (int) $current[0] : 0;
 
     wp_nonce_field( 'gk_zuordnung_save', 'gk_zuordnung_nonce' );
@@ -185,7 +220,7 @@ function gk_zuordnung_meta_box_cb( $post ) {
     foreach ( $terms as $term ) {
         printf(
             '<option value="%d"%s>%s</option>',
-            $term->term_id,
+            absint( $term->term_id ),
             selected( $current_id, $term->term_id, false ),
             esc_html( $term->name )
         );
@@ -195,14 +230,27 @@ function gk_zuordnung_meta_box_cb( $post ) {
 
 /**
  * Save the single zuordnung from the dropdown.
+ *
+ * @param int $post_id Content ID.
  */
 function gk_zuordnung_meta_box_save( $post_id ) {
-    if ( ! isset( $_POST['gk_zuordnung_nonce'] ) ) return;
-    if ( ! wp_verify_nonce( $_POST['gk_zuordnung_nonce'], 'gk_zuordnung_save' ) ) return;
-    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+    if ( ! current_user_can( 'edit_post', $post_id ) ) {
+        return;
+    }
+    if ( ! isset( $_POST['gk_zuordnung_nonce'] ) ) {
+		return;
+    }
+    if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['gk_zuordnung_nonce'] ) ), 'gk_zuordnung_save' ) ) {
+		return;
+    }
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+    }
 
     $post = get_post( $post_id );
-    if ( ! in_array( $post->post_type, array( 'post', 'page', 'person', 'gk_event', 'attachment' ), true ) ) return;
+    if ( ! in_array( $post->post_type, array( 'post', 'page', 'person', 'gk_event', 'attachment' ), true ) ) {
+		return;
+    }
 
     $term_id = ! empty( $_POST['gk_zuordnung_select'] ) ? (int) $_POST['gk_zuordnung_select'] : 0;
 

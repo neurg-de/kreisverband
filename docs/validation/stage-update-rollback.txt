@@ -1,0 +1,73 @@
+Unpacking the package...
+Installing the theme...
+Removing the old version of the theme...
+Theme updated successfully.
+Success: Installed 1 of 1 themes.
+Success: Updated the constant 'WP_DEBUG' in the 'wp-config.php' file with the raw value 'true'.
+version=0.7.0
+office_role=gk_kvautor_ov
+role_upgrade=2
+ov_global_options=false
+PASS update HTTP 200: / | GRÜNE Musterkreis &#8211; BÜNDNIS 90/DIE GRÜNEN Kreisverband Musterkreis &#8211; KV Musterkreis
+PASS update HTTP 200: /ov-musterstadt/ | OV Musterstadt &#8211; KV Musterkreis
+PASS update HTTP 200: /ortsverbaende/ | Ortsverbände &#8211; KV Musterkreis
+PASS update HTTP 200: /datenschutz/ | Datenschutz &#8211; KV Musterkreis
+PASS update HTTP 200: /impressum/ | Impressum &#8211; KV Musterkreis
+PASS update HTTP 200: /termine/ | Termine &#8211; KV Musterkreis
+PASS update HTTP 200: /mach-mit-test/ | Mach mit Test &#8211; KV Musterkreis
+PASS update HTTP 200: /?p=1 | Hello world! &#8211; KV Musterkreis
+PASS update HTTP 200: /?p=22 | Maria Musterfrau &#8211; KV Musterkreis
+PASS update HTTP 200: /?p=68 | Releaseprüfung OV Termin &#8211; KV Musterkreis
+PASS: taxonomy available to office
+PASS: office publishes event in another OV
+PASS: OV admin edits another author inside own OV
+PASS: foreign OV edit rejected
+PASS: OV author draft assigned automatically
+PASS: foreign reassignment rejected
+PASS: OV author publishes own draft
+PASS: permanent deletion rejected
+PASS: published own post moves to trash
+PASS: post restored as draft
+PASS: office moves synthetic private post to KV
+PASS: former author cannot read now-foreign private content
+PASS: media REST collection contains only own OV
+PASS: administrator role overview opens
+PASS: office cannot open role administration
+PASS: office session remains valid
+All HTTP lifecycle checks passed. Synthetic content retained for manual inspection.
+ROLLBACK version=0.6.2
+ROLLBACK debug=false
+ROLLBACK role_upgrade=false
+ROLLBACK office_role=gk_kvautor_ov
+PASS rollback HTTP 200: /
+PASS rollback HTTP 200: /ov-musterstadt/
+PASS rollback HTTP 200: /termine/
+PASS rollback HTTP 200: /impressum/
+PASS rollback HTTP 200: /datenschutz/
+PASS rollback HTTP 200: /wp-login.php
+Unpacking the package...
+Installing the theme...
+Removing the old version of the theme...
+Theme updated successfully.
+Success: Installed 1 of 1 themes.
+Success: Updated the constant 'WP_DEBUG' in the 'wp-config.php' file with the raw value 'true'.
+FINAL version=0.7.0
+FINAL office_role=gk_kvautor_ov
+FINAL role_upgrade=2
+PASS: taxonomy available to office
+PASS: office publishes event in another OV
+PASS: OV admin edits another author inside own OV
+PASS: foreign OV edit rejected
+PASS: OV author draft assigned automatically
+PASS: foreign reassignment rejected
+PASS: OV author publishes own draft
+PASS: permanent deletion rejected
+PASS: published own post moves to trash
+PASS: post restored as draft
+PASS: office moves synthetic private post to KV
+PASS: former author cannot read now-foreign private content
+PASS: media REST collection contains only own OV
+PASS: administrator role overview opens
+PASS: office cannot open role administration
+PASS: office session remains valid
+All HTTP lifecycle checks passed. Synthetic content retained for manual inspection.

@@ -1,0 +1,7 @@
+PASS geometry: synthetic Overpass relation -> municipality polygon, district path and metadata
+PASS preview: valid SVG structure with escaped municipality labels
+PASS UI state: preview appears with count, back-to-search restores controls
+PASS save: mocked AJAX receives POST action, nonce and exact generated JSON
+PASS errors: failed AJAX save rejects with server-provided error
+PASS empty input: empty municipality result without geometry errors
+6 behavior scenarios passed; DOM and fetch were mocked, no external requests or live writes.

@@ -1,4 +1,6 @@
 <?php
+// phpcs:ignoreFile WordPress.Files.FileName.NotHyphenatedLowercase -- Keep existing WordPress template assignments and routes compatible.
+
 /**
  * Single post/person template within OV context.
  *
@@ -33,15 +35,22 @@ $ov_home     = $homepage_id ? get_permalink( $homepage_id ) : home_url( '/' );
     </nav>
 
     <div id="main" class="subpage__main gk-layout__main first clearfix" role="main">
-        <?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
+        <?php
+        if ( have_posts() ) :
+			while ( have_posts() ) :
+				the_post();
+				?>
 
-            <?php if ( get_post_type() === 'person' ) : ?>
-                <?php get_template_part( 'template-parts/content-single-person-OV' ); ?>
+				<?php if ( get_post_type() === 'person' ) : ?>
+					<?php get_template_part( 'template-parts/content-single-person-OV' ); ?>
             <?php else : ?>
                 <?php get_template_part( 'template-parts/content-single-post-OV' ); ?>
             <?php endif; ?>
 
-        <?php endwhile; endif; ?>
+					<?php
+        endwhile;
+endif;
+		?>
     </div>
 
     <?php get_sidebar(); ?>

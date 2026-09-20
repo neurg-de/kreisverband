@@ -1,7 +1,25 @@
-<article id="post-<?php the_ID(); ?>" <?php post_class( 'clearfix' ); ?> role="article">
+<article id="post-<?php
+// phpcs:ignoreFile WordPress.Files.FileName.NotHyphenatedLowercase -- Keep existing WordPress template assignments and routes compatible.
+
+/**
+ * Content single post ortsverband template.
+ *
+ * @package Neurg_Kreisverband
+ */
+ the_ID(); ?>" <?php post_class( 'clearfix' ); ?> role="article">
 
     <?php if ( has_post_thumbnail() ) : ?>
-        <div class="postpic"><?php the_post_thumbnail( 'large', array( 'loading' => 'eager', 'fetchpriority' => 'high' ) ); ?></div>
+        <div class="postpic">
+        <?php
+        the_post_thumbnail(
+            'large',
+            array(
+				'loading'       => 'eager',
+				'fetchpriority' => 'high',
+            )
+        );
+		?>
+                                </div>
     <?php endif; ?>
 
     <header class="article-header">

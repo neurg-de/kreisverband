@@ -11,7 +11,7 @@
 
 get_header();
 
-$term       = get_queried_object();
+$gk_term    = get_queried_object();
 $ov_context = get_query_var( 'gk_ov_context' );
 $ov_term    = $ov_context ? gk_get_ov_term( $ov_context ) : false;
 
@@ -23,18 +23,20 @@ $context_label = $ov_term ? $ov_term->name : '';
 <div class="inner">
 
     <div class="gk-section-header">
-        <h1><?php echo esc_html( $term->name ); ?></h1>
+        <h1><?php echo esc_html( $gk_term->name ); ?></h1>
         <?php if ( $context_label ) : ?>
             <p class="gk-section-header__context"><?php echo esc_html( $context_label ); ?></p>
         <?php endif; ?>
-        <?php if ( $term->description ) : ?>
-            <p><?php echo esc_html( $term->description ); ?></p>
+        <?php if ( $gk_term->description ) : ?>
+            <p><?php echo esc_html( $gk_term->description ); ?></p>
         <?php endif; ?>
     </div>
 
     <?php if ( have_posts() ) : ?>
     <div class="gk-team__grid">
-        <?php while ( have_posts() ) : the_post();
+        <?php
+        while ( have_posts() ) :
+			the_post();
             $person = array(
                 'id'        => get_the_ID(),
                 'title'     => get_the_title(),
@@ -42,12 +44,15 @@ $context_label = $ov_term ? $ov_term->name : '';
                 'amt'       => get_post_meta( get_the_ID(), 'kr8mb_pers_pos_amt', true ),
                 'thumb'     => has_post_thumbnail() ? get_the_post_thumbnail( get_the_ID(), 'medium' ) : '',
             );
-        ?>
+			?>
         <a href="<?php echo esc_url( $person['permalink'] ); ?>" class="gk-team__card">
             <div class="gk-team__photo">
-                <?php if ( $person['thumb'] ) : echo $person['thumb']; else : ?>
+                <?php
+                if ( $person['thumb'] ) :
+					echo wp_kses_post( $person['thumb'] ); else :
+						?>
                 <svg class="gk-team__placeholder" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="78" r="36" fill="currentColor" opacity=".25"/><ellipse cx="100" cy="176" rx="56" ry="46" fill="currentColor" opacity=".18"/></svg>
-                <?php endif; ?>
+									<?php endif; ?>
             </div>
             <h3 class="gk-team__name"><?php echo esc_html( $person['title'] ); ?></h3>
             <?php if ( $person['amt'] ) : ?>

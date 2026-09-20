@@ -1,0 +1,15 @@
+No syntax errors detected in theme/inc/ortsverband.php
+No syntax errors detected in theme/inc/events.php
+No syntax errors detected in theme/inc/admin.php
+No syntax errors detected in theme/inc/setup-wizard.php
+No syntax errors detected in theme/inc/cookie-consent.php
+No syntax errors detected in theme/inc/shortcodes.php
+No syntax errors detected in theme/inc/kreiskarte.php
+No syntax errors detected in theme/footer.php
+No syntax errors detected in theme/page-OV.php
+No syntax errors detected in theme/page-termine.php
+No syntax errors detected in theme/archive-gk_event.php
+No syntax errors detected in theme/single-gk_event.php
+No syntax errors detected in tests/OrtsverbandTest.php
+No syntax errors detected in tests/EventsTest.php
+node --check theme/lib/js/scripts.js: exit 0

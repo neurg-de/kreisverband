@@ -1,0 +1,8 @@
+$ docker exec kreisverband-tests vendor/bin/phpcs -s -p theme/inc/ortsverband.php theme/inc/events.php theme/inc/admin.php theme/inc/setup-wizard.php theme/inc/cookie-consent.php theme/inc/shortcodes.php theme/inc/kreiskarte.php theme/footer.php theme/page-OV.php theme/page-termine.php theme/archive-gk_event.php theme/single-gk_event.php theme/lib/js/scripts.js tests/OrtsverbandTest.php
+.............. 14 / 14 (100%)
+
+
+Time: 2.56 secs; Memory: 34MB
+
+
+Exit code: 0

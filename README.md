@@ -4,6 +4,9 @@ WordPress-Theme fuer GRUENE Kreisverband- und Ortsverband-Websites.
 
 **[neurg.de](https://neurg.de)** — Download, Dokumentation und Demo.
 
+Für die Redaktion: [Benutzerhandbuch für Flora und die Geschäftsstelle](docs/BENUTZERHANDBUCH.md).
+Release 0.7.0: [Prüfungen, Update und Rollback](docs/RELEASE-0.7.0.md).
+
 ![Screenshot](theme/screenshot.png)
 
 Inspiriert von "Joseph knows best" von Benjamin Jopen (kre8tiv.de) und der Weiterentwicklung von Andreas Gregor (andreasgregor.de). Vollstaendig neu aufgebaut von Severin Kistner (neurg.de).
@@ -42,20 +45,23 @@ WordPress: http://localhost:8080 (admin / admin) | phpMyAdmin: http://localhost:
 
 1. Work on `dev` (commit freely, messy history is fine)
 2. When ready for a release:
-   - Update version in `theme/style.css` and `theme/functions.php` (`GK_VERSION`)
+   - Update version in `theme/style.css`, `theme/functions.php` (`GK_VERSION`), `theme/readme.txt` and `package.json`
    - Squash-merge `dev` into `main`: `git checkout main && git merge --squash dev`
    - Commit with release message, tag: `git tag vX.Y.Z`
    - Push: `git push origin main --tags`
-   - GitHub Actions builds the release zip automatically
+   - GitHub Actions publishes the release ZIP and `SHA256SUMS` automatically
 3. After merging, update `dev`: `git checkout dev && git merge main`
 
 ### Release Checklist
 
 ```bash
 # 1. On dev: bump version
-#    Edit theme/style.css (Version:) and theme/functions.php (GK_VERSION)
+#    Edit style.css (Version:), functions.php (GK_VERSION), readme.txt and package.json
 
 # 2. Build and verify
+make test
+make phpcs
+make js-check
 make zip              # Validates versions match, structure, no dev files
 
 # 3. Squash-merge to main

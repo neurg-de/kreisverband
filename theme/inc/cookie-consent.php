@@ -13,18 +13,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
+/**
+ * Cookie consent banner.
+ */
 function gk_cookie_consent_banner() {
-    if ( is_admin() ) return;
+    if ( is_admin() ) {
+		return;
+    }
 
-    $privacy_url = '';
-    if ( function_exists( 'gk_get_kv_info' ) ) {
-        $page_id = gk_get_kv_info( 'datenschutz_page' );
-        if ( $page_id ) $privacy_url = get_permalink( $page_id );
+    $page_id = gk_get_zuordnung_legal_page( gk_legal_context_slug(), 'datenschutz' );
+    if ( ! $page_id ) {
+        $page_id = gk_public_page_id( get_option( 'wp_page_for_privacy_policy' ) );
     }
-    if ( ! $privacy_url ) {
-        $page_id = get_option( 'wp_page_for_privacy_policy' );
-        if ( $page_id ) $privacy_url = get_permalink( $page_id );
-    }
+    $privacy_url = $page_id ? get_permalink( $page_id ) : '';
     ?>
     <div id="gk-cookie-consent" class="gk-cookie-consent" role="dialog" aria-label="Cookie-Hinweis">
         <div class="gk-cookie-inner">
@@ -82,11 +83,16 @@ add_action( 'wp_footer', 'gk_cookie_consent_banner', 100 );
  * [cookie_einstellungen] — Renders a link to revoke cookie consent and re-show the banner.
  *
  * Intended for the footer or privacy page.
+ *
+ * @param array $atts Atts.
  */
 function gk_shortcode_cookie_einstellungen( $atts ) {
-    $atts = shortcode_atts( array(
-        'text' => 'Cookie-Einstellungen',
-    ), $atts );
+    $atts = shortcode_atts(
+        array(
+			'text' => 'Cookie-Einstellungen',
+        ),
+        $atts
+    );
 
     return '<a href="#" class="gk-cookie-revoke" onclick="document.cookie=\'gk_cookie_consent=; path=/; max-age=0\'; location.reload(); return false;">'
         . esc_html( $atts['text'] )

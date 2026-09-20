@@ -53,12 +53,12 @@ function gk_get_ov_terms( $args = array() ) {
 /**
  * Get OV term by slug.
  *
- * @param string $slug
+ * @param string $slug Value used by this helper.
  * @return WP_Term|false
  */
 function gk_get_ov_term( $slug ) {
     $term = get_term_by( 'slug', $slug, 'gk_zuordnung' );
-    if ( ! $term || $term->slug === 'kreisverband' ) {
+    if ( ! $term || 'kreisverband' === $term->slug ) {
         return false;
     }
     return $term;
@@ -67,7 +67,7 @@ function gk_get_ov_term( $slug ) {
 /**
  * Get the zuordnung slug for a given post.
  *
- * @param int|null $post_id
+ * @param int|null $post_id Value used by this helper.
  * @return string The zuordnung slug, or empty string.
  */
 function gk_get_post_zuordnung_slug( $post_id = null ) {
@@ -75,7 +75,17 @@ function gk_get_post_zuordnung_slug( $post_id = null ) {
         $post_id = get_the_ID();
     }
     $terms = wp_get_post_terms( $post_id, 'gk_zuordnung', array( 'fields' => 'slugs' ) );
-    if ( is_wp_error( $terms ) || empty( $terms ) ) {
+    if ( is_wp_error( $terms ) ) {
+        return '';
+    }
+    if ( empty( $terms ) ) {
+        $page = get_post( $post_id );
+        if ( $page && 'page' === $page->post_type && 'page-OV.php' === get_page_template_slug( $post_id ) ) {
+            $term = gk_get_ov_term( $page->post_name );
+            if ( $term && gk_get_ov_public_homepage_id( $term->term_id ) === (int) $post_id ) {
+                return $term->slug;
+            }
+        }
         return '';
     }
     return $terms[0];
@@ -84,33 +94,35 @@ function gk_get_post_zuordnung_slug( $post_id = null ) {
 /**
  * Check if a post belongs to an Ortsverband (not Kreisverband).
  *
- * @param int|null $post_id
+ * @param int|null $post_id Value used by this helper.
  * @return bool
  */
 function gk_post_is_ov( $post_id = null ) {
     $slug = gk_get_post_zuordnung_slug( $post_id );
-    return $slug !== '' && $slug !== 'kreisverband';
+    return '' !== $slug && 'kreisverband' !== $slug;
 }
 
 /**
  * Get all contact data for an OV term.
  *
- * @param int $term_id
+ * @param int $term_id Value used by this helper.
  * @return array Associative array of contact fields.
  */
 function gk_get_ov_contact( $term_id ) {
-    $fields = array( 'www', 'email', 'facebook', 'twitter', 'tiktok', 'threads', 'mastodon', 'insta', 'telefon', 'anschrift' );
+    $fields  = array( 'www', 'email', 'facebook', 'twitter', 'tiktok', 'threads', 'mastodon', 'insta', 'telefon', 'anschrift' );
     $contact = array();
     foreach ( $fields as $field ) {
         $contact[ $field ] = get_term_meta( $term_id, '_gk_contact_' . $field, true );
     }
+    $contact['email'] = gk_validate_public_email( $contact['email'] );
+    $contact['www']   = gk_public_website_url( $contact['www'] );
     return $contact;
 }
 
 /**
  * Get the homepage page ID for an OV term.
  *
- * @param int $term_id
+ * @param int $term_id Value used by this helper.
  * @return int Page ID or 0.
  */
 function gk_get_ov_homepage_id( $term_id ) {
@@ -127,31 +139,158 @@ function gk_get_ov_homepage_id( $term_id ) {
  * @return int Page ID or 0.
  */
 function gk_get_zuordnung_legal_page( $zuordnung_slug, $type ) {
+    if ( ! in_array( $type, array( 'impressum', 'datenschutz' ), true ) ) {
+        return 0;
+    }
     $term = get_term_by( 'slug', $zuordnung_slug, 'gk_zuordnung' );
     if ( $term && ! is_wp_error( $term ) ) {
-        $page_id = (int) get_term_meta( $term->term_id, '_gk_' . $type . '_page', true );
-        if ( $page_id && get_post_status( $page_id ) === 'publish' ) {
+        $page_id = gk_public_page_id( get_term_meta( $term->term_id, '_gk_' . $type . '_page', true ) );
+        if ( $page_id ) {
             return $page_id;
         }
     }
-    // Fall back to KV-level setting.
-    return (int) gk_get_kv_info( $type . '_page' );
+    return gk_public_page_id( gk_get_kv_info( $type . '_page' ) );
+}
+
+/**
+ * Resolve the legal context from the queried page or explicit OV route.
+ */
+function gk_legal_context_slug() {
+    $slug = get_query_var( 'gk_ov_context' );
+    if ( ! $slug && is_singular() ) {
+        $slug = gk_get_post_zuordnung_slug( get_queried_object_id() );
+        if ( ! $slug ) {
+            foreach ( get_post_ancestors( get_queried_object_id() ) as $ancestor ) {
+                $slug = gk_get_post_zuordnung_slug( $ancestor );
+                if ( $slug ) {
+                    break;
+                }
+            }
+        }
+    }
+    return is_string( $slug ) && $slug ? sanitize_title( $slug ) : 'kreisverband';
+}
+
+/**
+ * Only published, unprotected pages can be public navigation targets.
+ *
+ * @param mixed $value Value.
+ */
+function gk_public_page_id( $value ) {
+    $id   = is_scalar( $value ) ? absint( $value ) : 0;
+    $page = $id ? get_post( $id ) : null;
+    return $page && 'page' === $page->post_type && 'publish' === $page->post_status && '' === $page->post_password ? (int) $page->ID : 0;
+}
+
+/**
+ * Validate a public contact address without repairing malformed input.
+ *
+ * @param mixed $value Value.
+ */
+function gk_validate_public_email( $value ) {
+    $email = is_string( $value ) ? trim( $value ) : '';
+    return is_email( $email ) ? $email : '';
+}
+
+/**
+ * External OV links permit only absolute HTTP(S) website URLs.
+ *
+ * @param mixed $value Value.
+ */
+function gk_public_website_url( $value ) {
+    if ( ! is_string( $value ) ) {
+        return '';
+    }
+    $url = esc_url_raw( trim( $value ), array( 'http', 'https' ) );
+    return wp_parse_url( $url, PHP_URL_HOST ) ? $url : '';
+}
+
+/**
+ * Validate public contact metadata on all WordPress write paths.
+ */
+function gk_register_public_contact_meta() {
+    register_term_meta(
+        'gk_zuordnung',
+        '_gk_contact_email',
+        array(
+			'type'              => 'string',
+			'single'            => true,
+			'sanitize_callback' => 'gk_validate_public_email',
+        )
+    );
+    register_term_meta(
+        'gk_zuordnung',
+        '_gk_contact_www',
+        array(
+			'type'              => 'string',
+			'single'            => true,
+			'sanitize_callback' => 'gk_public_website_url',
+        )
+    );
+}
+add_action( 'init', 'gk_register_public_contact_meta' );
+
+/**
+ * Resolve the public homepage, preserving stored legacy homepage IDs.
+ *
+ * @param int $term_id Term id.
+ */
+function gk_get_ov_url( $term_id ) {
+    $page_id = gk_get_ov_public_homepage_id( $term_id );
+    if ( $page_id ) {
+        return get_permalink( $page_id );
+    }
+    return 'werbung' === gk_get_ov_type( $term_id ) ? '' : gk_public_website_url( get_term_meta( $term_id, '_gk_contact_www', true ) );
+}
+
+/**
+ * Resolve an explicit homepage or a published legacy page at the OV slug.
+ *
+ * Stored settings remain untouched; legacy pages must belong to this OV, or
+ * use its homepage template with no conflicting assignment.
+ *
+ * @param int $term_id OV term ID.
+ * @return int Public page ID, or zero.
+ */
+function gk_get_ov_public_homepage_id( $term_id ) {
+    $page_id = gk_public_page_id( gk_get_ov_homepage_id( $term_id ) );
+    if ( $page_id ) {
+        return $page_id;
+    }
+    $term = get_term( $term_id, 'gk_zuordnung' );
+    if ( ! $term || is_wp_error( $term ) || 'kreisverband' === $term->slug ) {
+        return 0;
+    }
+    $page = get_page_by_path( $term->slug, OBJECT, 'page' );
+    if ( ! $page || ! gk_public_page_id( $page->ID ) ) {
+        return 0;
+    }
+    $assigned = wp_get_object_terms( $page->ID, 'gk_zuordnung', array( 'fields' => 'ids' ) );
+    if ( is_wp_error( $assigned ) ) {
+        return 0;
+    }
+    if ( array( (int) $term_id ) === array_map( 'intval', $assigned ) ||
+        ( empty( $assigned ) && 'page-OV.php' === get_page_template_slug( $page->ID ) ) ) {
+        return (int) $page->ID;
+    }
+    return 0;
 }
 
 /**
  * Get OV type for a term.
  *
- * @param int $term_id
+ * @param int $term_id Value used by this helper.
  * @return string 'ov', 'ortsgruppe', or 'werbung'.
  */
 function gk_get_ov_type( $term_id ) {
-    return get_term_meta( $term_id, '_gk_ov_type', true ) ?: 'ov';
+    $type = get_term_meta( $term_id, '_gk_ov_type', true );
+    return ! $type || 'full' === $type ? 'ov' : $type;
 }
 
 /**
  * Get the header text for an OV term.
  *
- * @param int $term_id
+ * @param int $term_id Value used by this helper.
  * @return string Header text, or term name as fallback.
  */
 function gk_get_ov_header( $term_id ) {
@@ -166,29 +305,29 @@ function gk_get_ov_header( $term_id ) {
 /**
  * Get all OV homepage settings as an array.
  *
- * @param int $term_id
+ * @param int $term_id Value used by this helper.
  * @return array
  */
 function gk_get_ov_homepage_options( $term_id ) {
     static $cache = array();
     if ( ! isset( $cache[ $term_id ] ) ) {
-        $cache[ $term_id ] = get_term_meta( $term_id, '_gk_ov_homepage', true ) ?: array();
+        $cache[ $term_id ] = get_term_meta( $term_id, '_gk_ov_homepage', true );
     }
-    return $cache[ $term_id ];
+    return $cache[ $term_id ] ? $cache[ $term_id ] : array();
 }
 
 /**
  * Get a single OV homepage setting.
  *
- * @param int    $term_id
- * @param string $key
- * @param mixed  $default
+ * @param int    $term_id Value used by this helper.
+ * @param string $key Value used by this helper.
+ * @param mixed  $default Value used by this helper.
  * @return mixed
  */
-function gk_get_ov_homepage_option( $term_id, $key, $default = '' ) {
+function gk_get_ov_homepage_option( $term_id, $key, $default = '' ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound -- Keep the public parameter name compatible with existing named arguments.
     $options = gk_get_ov_homepage_options( $term_id );
     $value   = $options[ $key ] ?? '';
-    return $value !== '' ? $value : $default;
+    return '' !== $value ? $value : $default;
 }
 
 
@@ -223,10 +362,13 @@ function gk_context_social_bar() {
     ?>
     <nav class="gk-social-bar" aria-label="Soziale Netzwerke">
         <ul>
-        <?php foreach ( $links as $platform => $url ) :
+        <?php
+        foreach ( $links as $platform => $url ) :
             $def = $platforms[ $platform ] ?? null;
-            if ( ! $def ) continue;
-        ?>
+            if ( ! $def ) {
+				continue;
+            }
+			?>
             <li><a href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener" title="<?php echo esc_attr( $def['label'] ); ?>"><i class="<?php echo esc_attr( $def['icon'] ); ?>" aria-hidden="true"></i><span class="screen-reader-text"><?php echo esc_html( $def['label'] ); ?></span></a></li>
         <?php endforeach; ?>
         </ul>
@@ -239,6 +381,8 @@ function gk_context_social_bar() {
 
 /**
  * Register gk_ov_context query var for OV-scoped abteilung archives.
+ *
+ * @param array $vars Vars.
  */
 function gk_register_ov_context_query_var( $vars ) {
     $vars[] = 'gk_ov_context';
@@ -262,7 +406,7 @@ function gk_abteilung_ov_rewrite_rules() {
         'index.php?abteilung=$matches[2]&gk_ov_context=$matches[1]',
         'top'
     );
-    // OV team overview: {ov-slug}/team/
+    // OV team overview: {ov-slug}/team/.
     add_rewrite_rule(
         '^([^/]+)/team/?$',
         'index.php?gk_ov_team=1&gk_ov_context=$matches[1]',
@@ -276,6 +420,8 @@ add_action( 'init', 'gk_abteilung_ov_rewrite_rules' );
  *
  * - /abteilung/{slug}              → persons with gk_zuordnung=kreisverband
  * - /{ov-slug}/abteilung/{slug}    → persons with gk_zuordnung={ov-slug}
+ *
+ * @param WP_Query $query Query.
  */
 function gk_abteilung_scope_by_zuordnung( $query ) {
     if ( is_admin() || ! $query->is_main_query() || ! $query->is_tax( 'abteilung' ) ) {
@@ -292,7 +438,7 @@ function gk_abteilung_scope_by_zuordnung( $query ) {
         return;
     }
 
-    $tax_query = $query->get( 'tax_query' ) ?: array();
+    $tax_query   = (array) $query->get( 'tax_query' );
     $tax_query[] = array(
         'taxonomy' => 'gk_zuordnung',
         'field'    => 'slug',
@@ -320,7 +466,7 @@ function gk_abteilung_url( $abteilung, $zuordnung_slug = 'kreisverband' ) {
         return '';
     }
 
-    if ( ! $zuordnung_slug || $zuordnung_slug === 'kreisverband' ) {
+    if ( ! $zuordnung_slug || 'kreisverband' === $zuordnung_slug ) {
         return get_term_link( $abteilung );
     }
 
@@ -336,40 +482,52 @@ function gk_abteilung_url( $abteilung, $zuordnung_slug = 'kreisverband' ) {
  * @param string $ov_slug The OV zuordnung term slug.
  */
 function gk_ov_navi( $ov_slug ) {
-    if ( empty( $ov_slug ) || $ov_slug === 'kreisverband' ) {
+    if ( empty( $ov_slug ) || 'kreisverband' === $ov_slug ) {
         return;
     }
 
     // Get all page IDs with this zuordnung.
-    $pages = get_posts( array(
-        'post_type'      => 'page',
-        'post_status'    => 'publish',
-        'posts_per_page' => -1,
-        'fields'         => 'ids',
-        'tax_query'      => array( array(
-            'taxonomy' => 'gk_zuordnung',
-            'field'    => 'slug',
-            'terms'    => $ov_slug,
-        ) ),
-    ) );
+    $pages = get_posts(
+        array(
+			'post_type'      => 'page',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Required taxonomy/date constraints preserve the configured content scope; WordPress caches these queries.
+			'tax_query'      => array(
+				array(
+					'taxonomy' => 'gk_zuordnung',
+					'field'    => 'slug',
+					'terms'    => $ov_slug,
+				),
+			),
+        )
+    );
 
     if ( empty( $pages ) ) {
         return;
     }
 
     echo '<ul class="ovnavi">' . "\n";
-    wp_list_pages( array(
-        'include'  => implode( ',', $pages ),
-        'title_li' => '',
-    ) );
+    wp_list_pages(
+        array(
+			'include'  => implode( ',', $pages ),
+			'title_li' => '',
+        )
+    );
     echo "</ul>\n";
 }
 
-// Backwards compatibility
-function OVnavi( $author_id ) {
+// Backwards compatibility.
+/**
+ * Ovnavi.
+ *
+ * @param int $author_id Author id.
+ */
+function OVnavi( $author_id ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid -- Retain public legacy API.
     // Legacy calls pass author_id — try to resolve to zuordnung slug.
     $ov_slug = '';
-    $user = get_user_by( 'id', $author_id );
+    $user    = get_user_by( 'id', $author_id );
     if ( $user ) {
         $ov_slug = $user->user_login;
     }
@@ -381,10 +539,14 @@ function OVnavi( $author_id ) {
 
 /**
  * Route event posts by OV to the OV event template.
+ *
+ * @param string $template Template.
  */
 function gk_ov_event_template( $template ) {
     global $post;
-    if ( ! is_singular( 'event' ) || ! $post ) return $template;
+    if ( ! is_singular( 'event' ) || ! $post ) {
+		return $template;
+    }
 
     if ( gk_post_is_ov( $post->ID ) ) {
         $ov_template = locate_template( 'single-event-OV.php' );
@@ -404,28 +566,18 @@ add_filter( 'template_include', 'gk_ov_event_template' );
  * Disabled: person posts now always use single-person.php (full-width profile).
  * OV context is shown via badges in the profile header instead of sidebar nav.
  */
-// function gk_ov_person_template( $template ) {
-//     global $post;
-//     if ( ! is_singular( 'person' ) || ! $post ) return $template;
-//
-//     if ( gk_post_is_ov( $post->ID ) ) {
-//         $ov_template = locate_template( 'single-OV.php' );
-//         if ( $ov_template ) {
-//             add_filter( 'body_class', 'gk_ov_body_class' );
-//             return $ov_template;
-//         }
-//     }
-//     return $template;
-// }
-// add_filter( 'single_template', 'gk_ov_person_template' );
 
 
 /**
  * Route regular posts by OV to the OV single template.
+ *
+ * @param string $template Template.
  */
 function gk_ov_single_template( $template ) {
     global $post;
-    if ( ! is_singular( 'post' ) || ! $post ) return $template;
+    if ( ! is_singular( 'post' ) || ! $post ) {
+		return $template;
+    }
 
     if ( gk_post_is_ov( $post->ID ) ) {
         $ov_template = locate_template( 'single-OV.php' );
@@ -441,16 +593,24 @@ add_filter( 'single_template', 'gk_ov_single_template' );
 
 /**
  * Route child pages of OV top-level pages to the OV subpage template.
+ *
+ * @param string $template Template.
  */
 function gk_ov_child_template( $template ) {
     global $post;
-    if ( ! $post || ! $post->post_parent ) return $template;
+    if ( ! $post || ! $post->post_parent ) {
+		return $template;
+    }
 
     $ancestors = get_post_ancestors( $post->ID );
-    if ( empty( $ancestors ) ) return $template;
+    if ( empty( $ancestors ) ) {
+		return $template;
+    }
 
     $top_parent = get_post( end( $ancestors ) );
-    if ( ! $top_parent ) return $template;
+    if ( ! $top_parent ) {
+		return $template;
+    }
 
     if ( gk_post_is_ov( $top_parent->ID ) ) {
         $ov_template = locate_template( 'page-OVsubpages.php' );
@@ -466,6 +626,8 @@ add_filter( 'template_include', 'gk_ov_child_template' );
 
 /**
  * Route {ov-slug}/team/ to the OV team template.
+ *
+ * @param string $template Template.
  */
 function gk_ov_team_template( $template ) {
     if ( ! get_query_var( 'gk_ov_team' ) ) {
@@ -504,6 +666,8 @@ function gk_ov_team_url( $ov_slug ) {
 
 /**
  * Add OV body class for styling.
+ *
+ * @param array $classes Classes.
  */
 function gk_ov_body_class( $classes ) {
     $classes[] = 'page-template-page-OVsubpages';
@@ -515,11 +679,16 @@ function gk_ov_body_class( $classes ) {
 
 /**
  * [ortsverband_liste] — Render a list of all OVs from zuordnung terms.
+ *
+ * @param array $atts Atts.
  */
 function gk_shortcode_ortsverband_liste( $atts ) {
-    $atts = shortcode_atts( array(
-        'mode' => '', // filter by type: 'ov', 'ortsgruppe', 'werbung'
-    ), $atts );
+    $atts = shortcode_atts(
+        array(
+			'mode' => '', // filter by type: 'ov', 'ortsgruppe', 'werbung'.
+        ),
+        $atts
+    );
 
     $ov_terms = gk_get_ov_terms();
     if ( empty( $ov_terms ) ) {
@@ -529,25 +698,26 @@ function gk_shortcode_ortsverband_liste( $atts ) {
     ob_start();
     ?>
     <ul class="ov-liste">
-    <?php foreach ( $ov_terms as $term ) :
+    <?php
+    foreach ( $ov_terms as $term ) :
         $type = gk_get_ov_type( $term->term_id );
-        if ( ! empty( $atts['mode'] ) && $type !== $atts['mode'] ) continue;
+        $mode = 'full' === $atts['mode'] ? 'ov' : $atts['mode'];
+        if ( ! empty( $mode ) && $type !== $mode ) {
+			continue;
+        }
 
-        $homepage_id = gk_get_ov_homepage_id( $term->term_id );
-        $link = $homepage_id ? get_permalink( $homepage_id ) : '';
-    ?>
+        $link = gk_get_ov_url( $term->term_id );
+		?>
         <li class="ov-liste-item ov-mode-<?php echo esc_attr( $type ); ?>">
-        <?php if ( $type === 'full' || ( $link && $type !== 'werbung' ) ) : ?>
+        <?php if ( $link ) : ?>
             <a href="<?php echo esc_url( $link ); ?>">
                 <?php echo esc_html( $term->name ); ?>
             </a>
-        <?php elseif ( $type === 'werbung' ) : ?>
+        <?php else : ?>
             <span class="ov-placeholder">
                 <?php echo esc_html( $term->name ); ?>
-                <em><?php echo esc_html( apply_filters( 'gk_ov_placeholder_text', 'Im Aufbau' ) ); ?></em>
+                <em><?php echo esc_html( apply_filters( 'gk_ov_placeholder_text', __( 'Im Aufbau', 'neurg-kreisverband' ) ) ); ?></em>
             </span>
-        <?php else : ?>
-            <?php echo esc_html( $term->name ); ?>
         <?php endif; ?>
         </li>
     <?php endforeach; ?>
@@ -563,6 +733,8 @@ add_shortcode( 'ortsverband_liste', 'gk_shortcode_ortsverband_liste' );
 /**
  * Exclude OV posts from the main blog feed.
  * Only show posts with gk_zuordnung=kreisverband on the home page.
+ *
+ * @param WP_Query $query Query.
  */
 function gk_exclude_ov_from_home( $query ) {
     if ( ! $query->is_main_query() || ! $query->is_home() || is_admin() ) {
@@ -576,7 +748,7 @@ function gk_exclude_ov_from_home( $query ) {
 
     $kv_term = get_term_by( 'slug', 'kreisverband', 'gk_zuordnung' );
     if ( $kv_term ) {
-        $tax_query = $query->get( 'tax_query' ) ?: array();
+        $tax_query   = (array) $query->get( 'tax_query' );
         $tax_query[] = array(
             'taxonomy' => 'gk_zuordnung',
             'field'    => 'slug',
@@ -595,11 +767,14 @@ add_action( 'pre_get_posts', 'gk_exclude_ov_from_home' );
  */
 function gk_kv_query_args() {
     return array(
-        'tax_query' => array( array(
-            'taxonomy' => 'gk_zuordnung',
-            'field'    => 'slug',
-            'terms'    => 'kreisverband',
-        ) ),
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Required taxonomy/date constraints preserve the configured content scope; WordPress caches these queries.
+        'tax_query' => array(
+			array(
+				'taxonomy' => 'gk_zuordnung',
+				'field'    => 'slug',
+				'terms'    => 'kreisverband',
+			),
+		),
     );
 }
 
@@ -611,11 +786,14 @@ function gk_kv_query_args() {
  */
 function gk_ov_query_args( $ov_slug ) {
     return array(
-        'tax_query' => array( array(
-            'taxonomy' => 'gk_zuordnung',
-            'field'    => 'slug',
-            'terms'    => sanitize_title( $ov_slug ),
-        ) ),
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Required taxonomy/date constraints preserve the configured content scope; WordPress caches these queries.
+        'tax_query' => array(
+			array(
+				'taxonomy' => 'gk_zuordnung',
+				'field'    => 'slug',
+				'terms'    => sanitize_title( $ov_slug ),
+			),
+		),
     );
 }
 
@@ -638,25 +816,31 @@ function gk_migrate_zuordnung() {
         return array( 'error' => 'Could not create Kreisverband term.' );
     }
 
-    // Discover OV users: users with login starting with "ov-"
-    $ov_users = get_users( array(
-        'search'         => 'ov-*',
-        'search_columns' => array( 'user_login' ),
-        'fields'         => array( 'ID', 'user_login', 'display_name' ),
-    ) );
+    // Discover OV users: users with login starting with "ov-".
+    $ov_users = get_users(
+        array(
+			'search'         => 'ov-*',
+			'search_columns' => array( 'user_login' ),
+			'fields'         => array( 'ID', 'user_login', 'display_name' ),
+        )
+    );
 
-    // Build a map: user_id -> term for OV users
+    // Build a map: user_id -> term for OV users.
     $ov_user_term_map = array();
     foreach ( $ov_users as $user ) {
-        $term_name = $user->display_name ?: $user->user_login;
+        $term_name = ( $user->display_name ? $user->display_name : $user->user_login );
         $term_slug = sanitize_title( $user->user_login );
 
         $existing = get_term_by( 'slug', $term_slug, 'gk_zuordnung' );
         if ( ! $existing ) {
-            $result = wp_insert_term( $term_name, 'gk_zuordnung', array(
-                'slug'        => $term_slug,
-                'description' => 'Beitraege von ' . $term_name,
-            ) );
+            $result = wp_insert_term(
+                $term_name,
+                'gk_zuordnung',
+                array(
+					'slug'        => $term_slug,
+					'description' => 'Beitraege von ' . $term_name,
+                )
+            );
             if ( ! is_wp_error( $result ) ) {
                 $ov_user_term_map[ (int) $user->ID ] = (int) $result['term_id'];
             }
@@ -666,22 +850,25 @@ function gk_migrate_zuordnung() {
     }
 
     // Process all content types.
-    $post_types = array( 'post', 'page', 'person', 'gk_event', 'attachment' );
-    $migrated   = 0;
-    $skipped    = 0;
+    $post_types = array( 'post', 'page', 'person', 'gk_event' );
+    // Media assignment requires the separate preview and rollback workflow.
+    $migrated = 0;
+    $skipped  = 0;
 
     foreach ( $post_types as $pt ) {
-        $posts = get_posts( array(
-            'post_type'      => $pt,
-            'post_status'    => 'any',
-            'posts_per_page' => -1,
-            'fields'         => 'ids',
-        ) );
+        $posts = get_posts(
+            array(
+				'post_type'      => $pt,
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+            )
+        );
 
         foreach ( $posts as $post_id ) {
             $existing_terms = wp_get_object_terms( $post_id, 'gk_zuordnung', array( 'fields' => 'ids' ) );
             if ( ! is_wp_error( $existing_terms ) && ! empty( $existing_terms ) ) {
-                $skipped++;
+                ++$skipped;
                 continue;
             }
 
@@ -693,7 +880,7 @@ function gk_migrate_zuordnung() {
             } else {
                 wp_set_object_terms( $post_id, array( (int) $kv_term->term_id ), 'gk_zuordnung' );
             }
-            $migrated++;
+            ++$migrated;
         }
     }
 
@@ -718,7 +905,7 @@ function gk_zuordnung_migration_notice() {
         return;
     }
 
-    if ( isset( $_GET['gk_run_zuordnung_migration'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'gk_zuordnung_migrate' ) ) {
+    if ( isset( $_GET['gk_run_zuordnung_migration'], $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'gk_zuordnung_migrate' ) ) {
         $result = gk_migrate_zuordnung();
         echo '<div class="notice notice-success is-dismissible"><p>';
         echo '<strong>Zuordnung-Migration abgeschlossen:</strong> ';
@@ -753,7 +940,7 @@ function gk_nav_menu_migration_notice() {
         return;
     }
 
-    if ( isset( $_GET['gk_run_nav_menu_migration'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'gk_nav_menu_migrate' ) ) {
+    if ( isset( $_GET['gk_run_nav_menu_migration'], $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'gk_nav_menu_migrate' ) ) {
         $result = gk_migrate_create_nav_menus();
         update_option( 'gk_nav_menus_migrated', true );
         echo '<div class="notice notice-success is-dismissible"><p>';
@@ -785,10 +972,12 @@ add_action( 'admin_notices', 'gk_nav_menu_migration_notice' );
  * Run via WP-CLI: wp eval 'gk_migrate_create_nav_menus();'
  */
 function gk_migrate_create_nav_menus() {
-    $terms = get_terms( array(
-        'taxonomy'   => 'gk_zuordnung',
-        'hide_empty' => false,
-    ) );
+    $terms = get_terms(
+        array(
+			'taxonomy'   => 'gk_zuordnung',
+			'hide_empty' => false,
+        )
+    );
 
     if ( is_wp_error( $terms ) ) {
         return array( 'error' => 'Could not load zuordnung terms.' );
@@ -804,41 +993,54 @@ function gk_migrate_create_nav_menus() {
 
         // Skip if the location already has a menu.
         if ( ! empty( $locations[ $location ] ) ) {
-            $skipped++;
+            ++$skipped;
             continue;
         }
 
         // Get all published pages for this zuordnung.
-        $pages = get_posts( array(
-            'post_type'      => 'page',
-            'post_status'    => 'publish',
-            'posts_per_page' => -1,
-            'orderby'        => 'menu_order',
-            'order'          => 'ASC',
-            'tax_query'      => array( array(
-                'taxonomy' => 'gk_zuordnung',
-                'field'    => 'term_id',
-                'terms'    => $term->term_id,
-            ) ),
-        ) );
+        $pages = get_posts(
+            array(
+				'post_type'      => 'page',
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'orderby'        => 'menu_order',
+				'order'          => 'ASC',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Required taxonomy/date constraints preserve the configured content scope; WordPress caches these queries.
+				'tax_query'      => array(
+					array(
+						'taxonomy' => 'gk_zuordnung',
+						'field'    => 'term_id',
+						'terms'    => $term->term_id,
+					),
+				),
+            )
+        );
 
-        if ( empty( $pages ) ) continue;
+        if ( empty( $pages ) ) {
+			continue;
+        }
 
         // Collect page IDs (without the homepage).
         $page_ids  = array();
         $by_parent = array();
 
         foreach ( $pages as $page ) {
-            if ( $page->ID === $homepage_id ) continue;
+            if ( $page->ID === $homepage_id ) {
+				continue;
+            }
             $page_ids[] = $page->ID;
         }
 
-        if ( empty( $page_ids ) ) continue;
+        if ( empty( $page_ids ) ) {
+			continue;
+        }
 
         // Group pages by effective parent.
         // If a page's parent is the homepage or outside this zuordnung, treat it as top-level (parent = 0).
         foreach ( $pages as $page ) {
-            if ( $page->ID === $homepage_id ) continue;
+            if ( $page->ID === $homepage_id ) {
+				continue;
+            }
 
             $parent = $page->post_parent;
             if ( $parent === $homepage_id || ( $parent && ! in_array( $parent, $page_ids, true ) ) ) {
@@ -848,53 +1050,64 @@ function gk_migrate_create_nav_menus() {
         }
 
         $top_level = $by_parent[0] ?? array();
-        if ( empty( $top_level ) ) continue;
+        if ( empty( $top_level ) ) {
+			continue;
+        }
 
         // Don't overwrite an existing menu with the same name.
         $menu_name     = $term->name;
         $existing_menu = wp_get_nav_menu_object( $menu_name );
         if ( $existing_menu ) {
             $locations[ $location ] = $existing_menu->term_id;
-            $skipped++;
+            ++$skipped;
             continue;
         }
 
         // Create the nav menu and add pages recursively.
         $menu_id = wp_create_nav_menu( $menu_name );
-        if ( is_wp_error( $menu_id ) ) continue;
+        if ( is_wp_error( $menu_id ) ) {
+			continue;
+        }
 
         $position = 0;
         gk_add_pages_to_nav_menu( $menu_id, $top_level, $by_parent, 0, $position );
 
         $locations[ $location ] = $menu_id;
-        $created++;
+        ++$created;
     }
 
     set_theme_mod( 'nav_menu_locations', $locations );
 
-    return array( 'created' => $created, 'skipped' => $skipped );
+    return array(
+		'created' => $created,
+		'skipped' => $skipped,
+	);
 }
 
 /**
  * Recursively add pages as items to a nav menu, preserving hierarchy.
  *
- * @param int        $menu_id        Nav menu term ID.
- * @param WP_Post[]  $pages          Pages to add at this level.
- * @param array      $by_parent      Map of parent_id => child pages.
- * @param int        $parent_item_id Parent menu item ID (0 for top-level).
- * @param int        $position       Running position counter (by reference).
+ * @param int       $menu_id        Nav menu term ID.
+ * @param WP_Post[] $pages          Pages to add at this level.
+ * @param array     $by_parent      Map of parent_id => child pages.
+ * @param int       $parent_item_id Parent menu item ID (0 for top-level).
+ * @param int       $position       Running position counter (by reference).
  */
 function gk_add_pages_to_nav_menu( $menu_id, $pages, &$by_parent, $parent_item_id, &$position ) {
     foreach ( $pages as $page ) {
-        $position++;
-        $item_id = wp_update_nav_menu_item( $menu_id, 0, array(
-            'menu-item-object-id'  => $page->ID,
-            'menu-item-object'     => 'page',
-            'menu-item-type'       => 'post_type',
-            'menu-item-parent-id'  => $parent_item_id,
-            'menu-item-status'     => 'publish',
-            'menu-item-position'   => $position,
-        ) );
+        ++$position;
+        $item_id = wp_update_nav_menu_item(
+            $menu_id,
+            0,
+            array(
+				'menu-item-object-id' => $page->ID,
+				'menu-item-object'    => 'page',
+				'menu-item-type'      => 'post_type',
+				'menu-item-parent-id' => $parent_item_id,
+				'menu-item-status'    => 'publish',
+				'menu-item-position'  => $position,
+            )
+        );
 
         if ( ! is_wp_error( $item_id ) && ! empty( $by_parent[ $page->ID ] ) ) {
             gk_add_pages_to_nav_menu( $menu_id, $by_parent[ $page->ID ], $by_parent, $item_id, $position );
@@ -907,6 +1120,8 @@ function gk_add_pages_to_nav_menu( $menu_id, $pages, &$by_parent, $parent_item_i
 
 /**
  * Limit non-admin users to only see their own media uploads.
+ *
+ * @param WP_Query $query Query.
  */
 function gk_limit_media_library( $query ) {
     $user_id = get_current_user_id();

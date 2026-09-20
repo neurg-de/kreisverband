@@ -1,4 +1,11 @@
-<?php get_header(); ?>
+<?php
+/**
+ * Search template.
+ *
+ * @package Neurg_Kreisverband
+ */
+
+get_header(); ?>
 
 <section id="content"><div class="inner gk-layout clearfix">
     <div class="archive-title gk-layout__full">
@@ -8,7 +15,10 @@
     <div id="main" class="gk-layout__main first clearfix" role="main">
         <div class="list-article">
             <?php if ( have_posts() ) : ?>
-                <?php while ( have_posts() ) : the_post(); ?>
+                <?php
+                while ( have_posts() ) :
+					the_post();
+					?>
                     <?php get_template_part( 'template-parts/content-list', get_post_type() ); ?>
                 <?php endwhile; ?>
         </div>

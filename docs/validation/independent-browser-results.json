@@ -1,0 +1,667 @@
+[
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-woerthsee",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-woerthsee/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-inning",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-inning/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-herrsching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-herrsching/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-andechs",
+    "status": "pass",
+    "destination": "http://localhost:8083/external-ov/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-seefeld",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-gilching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gilching/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-krailling",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-krailling/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-tutzing",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-tutzing/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-feldafing",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-poecking",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-poecking/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-starnberg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-starnberg/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-berg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-berg/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-gauting",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gauting/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-pointer",
+    "slug": "ov-wessling",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-woerthsee",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-woerthsee/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-inning",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-inning/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-herrsching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-herrsching/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-andechs",
+    "status": "pass",
+    "destination": "http://localhost:8083/external-ov/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-seefeld",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-gilching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gilching/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-krailling",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-krailling/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-tutzing",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-tutzing/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-feldafing",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-poecking",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-poecking/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-starnberg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-starnberg/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-berg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-berg/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-gauting",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gauting/",
+    "newTab": false
+  },
+  {
+    "mode": "desktop-map-keyboard",
+    "slug": "ov-wessling",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-woerthsee",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-woerthsee/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-inning",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-inning/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-herrsching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-herrsching/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-andechs",
+    "status": "pass",
+    "destination": "http://localhost:8083/external-ov/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-seefeld",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-gilching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gilching/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-krailling",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-krailling/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-tutzing",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-tutzing/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-feldafing",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-poecking",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-poecking/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-starnberg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-starnberg/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-berg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-berg/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-gauting",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gauting/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-pointer",
+    "slug": "ov-wessling",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-woerthsee",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-woerthsee/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-inning",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-inning/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-herrsching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-herrsching/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-andechs",
+    "status": "pass",
+    "destination": "http://localhost:8083/external-ov/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-seefeld",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-gilching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gilching/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-krailling",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-krailling/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-tutzing",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-tutzing/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-feldafing",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-poecking",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-poecking/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-starnberg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-starnberg/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-berg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-berg/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-gauting",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gauting/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-list-keyboard",
+    "slug": "ov-wessling",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-woerthsee",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-woerthsee/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-inning",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-inning/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-herrsching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-herrsching/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-andechs",
+    "status": "pass",
+    "destination": "http://localhost:8083/external-ov/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-seefeld",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-gilching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gilching/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-krailling",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-krailling/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-tutzing",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-tutzing/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-feldafing",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-poecking",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-poecking/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-starnberg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-starnberg/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-berg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-berg/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-gauting",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gauting/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-pointer",
+    "slug": "ov-wessling",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-woerthsee",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-woerthsee/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-inning",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-inning/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-herrsching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-herrsching/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-andechs",
+    "status": "pass",
+    "destination": "http://localhost:8083/external-ov/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-seefeld",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-gilching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gilching/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-krailling",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-krailling/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-tutzing",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-tutzing/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-feldafing",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-poecking",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-poecking/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-starnberg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-starnberg/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-berg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-berg/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-gauting",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gauting/",
+    "newTab": false
+  },
+  {
+    "mode": "mobile-map-keyboard",
+    "slug": "ov-wessling",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-woerthsee",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-woerthsee/",
+    "newTab": false
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-inning",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-inning/",
+    "newTab": false
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-herrsching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-herrsching/",
+    "newTab": false
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-andechs",
+    "status": "pass",
+    "destination": "http://localhost:8083/external-ov/",
+    "newTab": false
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-seefeld",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-gilching",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gilching/",
+    "newTab": false
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-krailling",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-krailling/",
+    "newTab": false
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-tutzing",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-tutzing/",
+    "newTab": false
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-feldafing",
+    "status": "pass",
+    "check": "no actionable target"
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-poecking",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-poecking/",
+    "newTab": false
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-starnberg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-starnberg/",
+    "newTab": false
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-berg",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-berg/",
+    "newTab": false
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-gauting",
+    "status": "pass",
+    "destination": "http://localhost:8082/ov-gauting/",
+    "newTab": false
+  },
+  {
+    "mode": "shortcode-list-keyboard",
+    "slug": "ov-wessling",
+    "status": "pass",
+    "check": "no actionable target"
+  }
+]

@@ -1,0 +1,267 @@
+Installing...
+Running as single site... To run multisite, use -c tests/phpunit/multisite.xml
+Not running ajax tests. To execute these, use --group ajax.
+Not running ms-files tests. To execute these, use --group ms-files.
+Not running external-http tests. To execute these, use --group external-http.
+PHPUnit 9.6.36 by Sebastian Bergmann and contributors.
+
+FF                                                                  2 / 2 (100%)
+
+Time: 00:00.094, Memory: 44.50 MB
+
+There were 2 failures:
+
+1) OrtsverbandTest::test_ov_homepage_media_selection_respects_scope_and_legacy_references
+Failed asserting that 4 is identical to 0.
+
+/workspace/tests/OrtsverbandTest.php:549
+
+2) OrtsverbandTest::test_ov_edit_form_loads_shared_media_picker
+Failed asserting that '    <div class="wrap">\n
+        <h1>Term 0000022</h1>\n
+\n
+        \n
+        <form method="post" action="">\n
+            <input type="hidden" id="gk_ov_save_nonce" name="gk_ov_save_nonce" value="[REDACTED TEST NONCE]" /><input type="hidden" name="_wp_http_referer" value="" />            <input type="hidden" name="term_id" value="4" />\n
+                            <input type="hidden" name="ov_name" value="Term 0000022" />\n
+            \n
+            \n
+            <h2>Header</h2>\n
+            <table class="form-table">\n
+                <tr>\n
+                    <th><label for="ov_header">Header-Text</label></th>\n
+                    <td>\n
+                        <input type="text" name="ov_header" id="ov_header" value="" class="regular-text" />\n
+                        <p class="description">Anzeigename im Header der Website (z.B. &bdquo;Ortsverband Gr&uuml;ne Starnberg&ldquo;). Wenn leer, wird der Name verwendet.</p>\n
+                    </td>\n
+                </tr>\n
+            </table>\n
+\n
+                        <h2>Startseite</h2>\n
+            <table class="form-table">\n
+                <tr>\n
+                    <th><label for="ov_landing_mode">Hero-Modus</label></th>\n
+                    <td>\n
+                        <select name="ov_hp[landing_mode]" id="ov_landing_mode">\n
+                                                            <option value="standard"  selected='selected'>Standard (Bild + Titel)</option>\n
+                                                            <option value="election" >Wahl (Countdown)</option>\n
+                                                            <option value="candidate" >Kandidat:in (Portrait)</option>\n
+                                                            <option value="news" >Aktueller Beitrag</option>\n
+                                                            <option value="fundraising" >Spendenkampagne</option>\n
+                                                            <option value="minimal" >Minimal (nur Titel)</option>\n
+                                                    </select>\n
+                    </td>\n
+                </tr>\n
+            </table>\n
+\n
+            <!-- Standard fields -->\n
+            <div class="gk-mode-fields" data-mode="standard election news fundraising">\n
+                <table class="form-table">\n
+                    <tr>\n
+                        <th><label for="ov_hero_title">Hero-Titel</label></th>\n
+                        <td>\n
+                            <input type="text" name="ov_hp[hero_title]" id="ov_hero_title" value="" class="regular-text" />\n
+                            <p class="description">Wenn leer, wird der Seitentitel verwendet.</p>\n
+                        </td>\n
+                    </tr>\n
+                    <tr>\n
+                        <th><label for="ov_hero_subtitle">Untertitel</label></th>\n
+                        <td><input type="text" name="ov_hp[hero_subtitle]" id="ov_hero_subtitle" value="" class="large-text" /></td>\n
+                    </tr>\n
+                    <tr>\n
+                        <th>Hero-Bild</th>\n
+                        <td>\n
+                            <div class="gk-media-preview" data-target="ov_hero_image">\n
+                                                            </div>\n
+                            <input type="hidden" name="ov_hp[hero_image]" id="ov_hero_image" value="" class="gk-media-value" />\n
+                            <button type="button" class="button gk-media-pick" data-target="ov_hero_image">Bild w&auml;hlen</button>\n
+                                                    </td>\n
+                    </tr>\n
+                    <tr>\n
+                        <th><label for="ov_cta_label">CTA-Button</label></th>\n
+                        <td>\n
+                            <input type="text" name="ov_hp[cta_label]" id="ov_cta_label" value="" placeholder="Button-Text" style="width:200px" />\n
+                            <input type="url" name="ov_hp[cta_url]" value="" placeholder="https://..." class="regular-text" />\n
+                        </td>\n
+                    </tr>\n
+                </table>\n
+            </div>\n
+\n
+            <!-- Election fields -->\n
+            <div class="gk-mode-fields" data-mode="election">\n
+                <table class="form-table">\n
+                    <tr>\n
+                        <th><label>Wahl-Name</label></th>\n
+                        <td><input type="text" name="ov_hp[election_name]" value="" class="regular-text" placeholder="z.B. Kommunalwahl 2026" /></td>\n
+                    </tr>\n
+                    <tr>\n
+                        <th><label>Wahltag</label></th>\n
+                        <td><input type="date" name="ov_hp[election_date]" value="" /></td>\n
+                    </tr>\n
+                    <tr>\n
+                        <th><label>Slogan</label></th>\n
+                        <td><input type="text" name="ov_hp[election_slogan]" value="" class="large-text" /></td>\n
+                    </tr>\n
+                </table>\n
+            </div>\n
+\n
+            <!-- Candidate fields -->\n
+            <div class="gk-mode-fields" data-mode="candidate">\n
+                <table class="form-table">\n
+                    <tr>\n
+                        <th><label>Name</label></th>\n
+                        <td><input type="text" name="ov_hp[candidate_name]" value="" class="regular-text" /></td>\n
+                    </tr>\n
+                    <tr>\n
+                        <th><label>Position</label></th>\n
+                        <td><input type="text" name="ov_hp[candidate_role]" value="" class="regular-text" /></td>\n
+                    </tr>\n
+                    <tr>\n
+                        <th><label>Zitat</label></th>\n
+                        <td><input type="text" name="ov_hp[candidate_quote]" value="" class="large-text" /></td>\n
+                    </tr>\n
+                    <tr>\n
+                        <th>Portrait</th>\n
+                        <td>\n
+                            <div class="gk-media-preview" data-target="ov_candidate_image">\n
+                                                            </div>\n
+                            <input type="hidden" name="ov_hp[candidate_image]" id="ov_candidate_image" value="" class="gk-media-value" />\n
+                            <button type="button" class="button gk-media-pick" data-target="ov_candidate_image">Bild w&auml;hlen</button>\n
+                                                    </td>\n
+                    </tr>\n
+                    <tr>\n
+                        <th><label>CTA-Button</label></th>\n
+                        <td>\n
+                            <input type="text" name="ov_hp[candidate_cta_label]" value="" placeholder="Button-Text" style="width:200px" />\n
+                            <input type="url" name="ov_hp[candidate_cta_url]" value="" placeholder="https://..." class="regular-text" />\n
+                        </td>\n
+                    </tr>\n
+                </table>\n
+            </div>\n
+\n
+            <!-- Fundraising fields -->\n
+            <div class="gk-mode-fields" data-mode="fundraising">\n
+                <table class="form-table">\n
+                    <tr>\n
+                        <th><label>Spendenziel (&euro;)</label></th>\n
+                        <td><input type="number" name="ov_hp[fundraising_goal]" value="" style="width:120px" /></td>\n
+                    </tr>\n
+                    <tr>\n
+                        <th><label>Aktueller Stand (&euro;)</label></th>\n
+                        <td><input type="number" name="ov_hp[fundraising_current]" value="" style="width:120px" /></td>\n
+                    </tr>\n
+                </table>\n
+            </div>\n
+\n
+            <!-- Section toggles -->\n
+            <table class="form-table">\n
+                <tr>\n
+                    <th>Bereiche</th>\n
+                    <td>\n
+                        <label style="display:block;margin:4px 0;">\n
+                            <input type="checkbox" name="ov_hp[show_team]" value="1"  checked='checked' />\n
+                            Team anzeigen\n
+                        </label>\n
+                        <label style="display:block;margin:4px 0;">\n
+                            <input type="checkbox" name="ov_hp[show_aktuelles]" value="1"  checked='checked' />\n
+                            Aktuelles anzeigen\n
+                        </label>\n
+                        <label style="display:block;margin:4px 0;">\n
+                            <input type="checkbox" name="ov_hp[show_termine]" value="1"  checked='checked' />\n
+                            Termine anzeigen\n
+                        </label>\n
+                        <label style="display:block;margin:4px 0;">\n
+                            <input type="checkbox" name="ov_hp[show_contact]" value="1"  checked='checked' />\n
+                            Kontaktdaten anzeigen\n
+                        </label>\n
+                        <label style="display:block;margin:4px 0;">\n
+                            <input type="checkbox" name="ov_hp[show_engage]" value="1"  checked='checked' />\n
+                            Engagement-CTAs anzeigen\n
+                        </label>\n
+                    </td>\n
+                </tr>\n
+            </table>\n
+\n
+            <script>\n
+            jQuery(function($) {\n
+                var $mode = $('#ov_landing_mode');\n
+                function toggleModeFields() {\n
+                    var val = $mode.val();\n
+                    $('.gk-mode-fields').each(function() {\n
+                        var modes = $(this).data('mode').split(' ');\n
+                        $(this).toggle(modes.indexOf(val) !== -1);\n
+                    });\n
+                }\n
+                $mode.on('change', toggleModeFields);\n
+                toggleModeFields();\n
+            });\n
+            </script>\n
+            \n
+            <h2>Kontaktdaten</h2>\n
+            <table class="form-table">\n
+                <tr>\n
+                    <th><label for="ov_contact_www">Website</label></th>\n
+                    <td><input type="url" name="ov_contact_www" id="ov_contact_www" value="" class="regular-text" /></td>\n
+                </tr>\n
+                <tr>\n
+                    <th><label for="ov_contact_email">Öffentliche Kontakt-E-Mail</label></th>\n
+                    <td><input type="email" name="ov_contact_email" id="ov_contact_email" value="" class="regular-text" aria-describedby="ov_contact_email_help" /><p id="ov_contact_email_help" class="description">Diese Adresse wird öffentlich angezeigt. Keine Zugangsdaten eintragen; hier wird kein Postfach angelegt.</p></td>\n
+                </tr>\n
+                <tr>\n
+                    <th><label for="ov_contact_telefon">Telefon</label></th>\n
+                    <td><input type="text" name="ov_contact_telefon" id="ov_contact_telefon" value="" class="regular-text" /></td>\n
+                </tr>\n
+                <tr>\n
+                    <th><label for="ov_contact_anschrift">Anschrift</label></th>\n
+                    <td><textarea name="ov_contact_anschrift" id="ov_contact_anschrift" rows="3" cols="50"></textarea></td>\n
+                </tr>\n
+                <tr>\n
+                    <th><label for="ov_contact_insta">Instagram</label></th>\n
+                    <td><input type="text" name="ov_contact_insta" id="ov_contact_insta" value="" class="regular-text" /><br><span class="description">URL oder Username</span></td>\n
+                </tr>\n
+                <tr>\n
+                    <th><label for="ov_contact_facebook">Facebook</label></th>\n
+                    <td><input type="text" name="ov_contact_facebook" id="ov_contact_facebook" value="" class="regular-text" /><br><span class="description">URL oder Username</span></td>\n
+                </tr>\n
+                <tr>\n
+                    <th><label for="ov_contact_twitter">X</label></th>\n
+                    <td><input type="text" name="ov_contact_twitter" id="ov_contact_twitter" value="" class="regular-text" /><br><span class="description">URL oder Username</span></td>\n
+                </tr>\n
+                <tr>\n
+                    <th><label for="ov_contact_tiktok">TikTok</label></th>\n
+                    <td><input type="text" name="ov_contact_tiktok" id="ov_contact_tiktok" value="" class="regular-text" /><br><span class="description">URL oder Username</span></td>\n
+                </tr>\n
+                <tr>\n
+                    <th><label for="ov_contact_threads">Threads</label></th>\n
+                    <td><input type="text" name="ov_contact_threads" id="ov_contact_threads" value="" class="regular-text" /><br><span class="description">URL oder Username</span></td>\n
+                </tr>\n
+                <tr>\n
+                    <th><label for="ov_contact_mastodon">Mastodon</label></th>\n
+                    <td><input type="text" name="ov_contact_mastodon" id="ov_contact_mastodon" value="" class="regular-text" /><br><span class="description">URL oder @user@instanz</span></td>\n
+                </tr>\n
+            </table>\n
+\n
+                        <h2>Impressum &amp; Datenschutz</h2>\n
+            <table class="form-table">\n
+                <tr>\n
+                    <th><label for="ov_impressum_page">Impressum</label></th>\n
+                    <td>\n
+                                                <p class="description">Veröffentlichte eigene Impressum-Seite wählen oder bewusst „KV-Impressum verwenden“ auswählen. Nicht veröffentlichte Seiten fallen auf die KV-Seite zurück.</p>\n
+                    </td>\n
+                </tr>\n
+                <tr>\n
+                    <th><label for="ov_datenschutz_page">Datenschutz</label></th>\n
+                    <td>\n
+                                                <p class="description">Veröffentlichte eigene Datenschutz-Seite wählen oder bewusst „KV-Datenschutz verwenden“ auswählen. Nicht veröffentlichte Seiten fallen auf die KV-Seite zurück.</p>\n
+                    </td>\n
+                </tr>\n
+            </table>\n
+            \n
+            <p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="Speichern"  /></p>        </form>\n
+    </div>\n
+    ' contains "wp.media".
+
+/workspace/tests/OrtsverbandTest.php:583
+
+FAILURES!
+Tests: 2, Assertions: 4, Failures: 2.

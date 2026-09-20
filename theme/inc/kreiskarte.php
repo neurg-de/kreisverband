@@ -21,11 +21,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Parse SVG polygon points string into array of [x, y] pairs.
+ *
+ * @param string $points_str Points str.
  */
 function gk_parse_polygon_points( $points_str ) {
-    $nums   = preg_split( '/\s+/', trim( $points_str ) );
-    $coords = array();
-    for ( $i = 0; $i < count( $nums ) - 1; $i += 2 ) {
+    $nums      = preg_split( '/\s+/', trim( $points_str ) );
+    $coords    = array();
+    $num_count = count( $nums );
+    for ( $i = 0; $i < $num_count - 1; $i += 2 ) {
         $coords[] = array( (float) $nums[ $i ], (float) $nums[ $i + 1 ] );
     }
     return $coords;
@@ -34,6 +37,10 @@ function gk_parse_polygon_points( $points_str ) {
 /**
  * Signed distance from a point to a polygon boundary.
  * Positive = inside, negative = outside.
+ *
+ * @param float $px Px.
+ * @param float $py Py.
+ * @param array $polygon Polygon.
  */
 function gk_point_to_polygon_dist( $px, $py, $polygon ) {
     $inside   = false;
@@ -47,7 +54,7 @@ function gk_point_to_polygon_dist( $px, $py, $polygon ) {
         $by = $polygon[ $j ][1];
 
         if ( ( $ay > $py ) !== ( $by > $py ) &&
-             $px < ( $bx - $ax ) * ( $py - $ay ) / ( $by - $ay ) + $ax ) {
+            $px < ( $bx - $ax ) * ( $py - $ay ) / ( $by - $ay ) + $ax ) {
             $inside = ! $inside;
         }
 
@@ -69,6 +76,8 @@ function gk_point_to_polygon_dist( $px, $py, $polygon ) {
 
 /**
  * Compute the centroid of a polygon (area-weighted).
+ *
+ * @param array $polygon Polygon.
  */
 function gk_polygon_centroid( $polygon ) {
     $area = 0;
@@ -77,19 +86,22 @@ function gk_polygon_centroid( $polygon ) {
     $n    = count( $polygon );
 
     for ( $i = 0, $j = $n - 1; $i < $n; $j = $i++ ) {
-        $a  = $polygon[ $i ];
-        $b  = $polygon[ $j ];
-        $f  = $a[0] * $b[1] - $b[0] * $a[1];
-        $cx += ( $a[0] + $b[0] ) * $f;
-        $cy += ( $a[1] + $b[1] ) * $f;
+        $a     = $polygon[ $i ];
+        $b     = $polygon[ $j ];
+        $f     = $a[0] * $b[1] - $b[0] * $a[1];
+        $cx   += ( $a[0] + $b[0] ) * $f;
+        $cy   += ( $a[1] + $b[1] ) * $f;
         $area += $f;
     }
 
     $area *= 3;
     if ( abs( $area ) < 1e-10 ) {
         // Degenerate polygon: return average of points.
-        $sx = $sy = 0;
-        foreach ( $polygon as $p ) { $sx += $p[0]; $sy += $p[1]; }
+        $sx = 0;
+        $sy = 0;
+        foreach ( $polygon as $p ) {
+			$sx += $p[0];
+			$sy += $p[1]; }
         return array( $sx / $n, $sy / $n );
     }
 
@@ -107,8 +119,10 @@ function gk_polygon_centroid( $polygon ) {
  * @return array [ x, y, distance ]
  */
 function gk_polylabel( $polygon, $precision = 1.0 ) {
-    $min_x = $min_y = PHP_FLOAT_MAX;
-    $max_x = $max_y = -PHP_FLOAT_MAX;
+    $min_x = PHP_FLOAT_MAX;
+    $min_y = PHP_FLOAT_MAX;
+    $max_x = -PHP_FLOAT_MAX;
+    $max_y = -PHP_FLOAT_MAX;
 
     foreach ( $polygon as $p ) {
         $min_x = min( $min_x, $p[0] );
@@ -117,8 +131,8 @@ function gk_polylabel( $polygon, $precision = 1.0 ) {
         $max_y = max( $max_y, $p[1] );
     }
 
-    $width  = $max_x - $min_x;
-    $height = $max_y - $min_y;
+    $width     = $max_x - $min_x;
+    $height    = $max_y - $min_y;
     $cell_size = max( $width, $height );
 
     if ( $cell_size < $precision ) {
@@ -130,6 +144,7 @@ function gk_polylabel( $polygon, $precision = 1.0 ) {
     // Priority queue: max-heap by maximum possible distance.
     $queue = new SplPriorityQueue();
 
+    // phpcs:ignore Generic.CodeAnalysis.JumbledIncrementer.Found -- Both independent grid dimensions use the same immutable cell width; neither loop modifies cell_size.
     for ( $x = $min_x; $x < $max_x; $x += $cell_size ) {
         for ( $y = $min_y; $y < $max_y; $y += $cell_size ) {
             $cx = $x + $h;
@@ -146,7 +161,7 @@ function gk_polylabel( $polygon, $precision = 1.0 ) {
     $best_d   = gk_point_to_polygon_dist( $best_x, $best_y, $polygon );
 
     while ( ! $queue->isEmpty() ) {
-        $cell = $queue->extract();
+        $cell                      = $queue->extract();
         list( $cx, $cy, $ch, $cd ) = $cell;
 
         if ( $cd > $best_d ) {
@@ -177,10 +192,12 @@ function gk_polylabel( $polygon, $precision = 1.0 ) {
 
 /**
  * Get polylabel results for all municipalities, cached per request.
+ *
+ * @param array $data Data.
  */
 function gk_get_municipality_labels( $data ) {
     static $cache = null;
-    if ( $cache !== null ) {
+    if ( null !== $cache ) {
         return $cache;
     }
 
@@ -202,18 +219,19 @@ function gk_get_municipality_labels( $data ) {
         }
 
         // Word-wrap: split long names at the space nearest the midpoint.
-        $lines = array( $name );
-        $needs_wrap = ( $size === 'sm' && mb_strlen( $name ) > 8 )
-                   || ( $size === 'md' && mb_strlen( $name ) > 14 )
-                   || mb_strlen( $name ) > 18;
+        $lines      = array( $name );
+        $needs_wrap = ( 'sm' === $size && mb_strlen( $name ) > 8 )
+                    || ( 'md' === $size && mb_strlen( $name ) > 14 )
+                    || mb_strlen( $name ) > 18;
 
-        if ( $needs_wrap && strpos( $name, ' ' ) !== false ) {
-            $mid    = mb_strlen( $name ) / 2;
-            $words  = explode( ' ', $name );
-            $best   = PHP_INT_MAX;
-            $best_i = 0;
-            $pos    = 0;
-            for ( $i = 0; $i < count( $words ) - 1; $i++ ) {
+        if ( $needs_wrap && false !== strpos( $name, ' ' ) ) {
+            $mid        = mb_strlen( $name ) / 2;
+            $words      = explode( ' ', $name );
+            $best       = PHP_INT_MAX;
+            $best_i     = 0;
+            $pos        = 0;
+            $word_count = count( $words );
+            for ( $i = 0; $i < $word_count - 1; $i++ ) {
                 $pos += mb_strlen( $words[ $i ] ) + 1;
                 $diff = abs( $pos - $mid );
                 if ( $diff < $best ) {
@@ -253,10 +271,11 @@ function gk_has_kreiskarte_data() {
  */
 function gk_get_kreiskarte_data() {
     static $data = null;
-    if ( $data === null ) {
+    if ( null === $data ) {
         if ( ! gk_has_kreiskarte_data() ) {
             return null;
         }
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reads a checked local theme JSON file, never a remote URL; an HTTP request would be inappropriate.
         $json = file_get_contents( GK_DIR . '/lib/data/kreiskarte.json' );
         $data = json_decode( $json, true );
     }
@@ -269,17 +288,12 @@ function gk_get_kreiskarte_data() {
  * Returns array of slug => object{ term, homepage_id, homepage_url, type }
  */
 function gk_get_ov_terms_by_slug() {
-    static $terms = null;
-    if ( $terms !== null ) {
-        return $terms;
-    }
-
     $terms    = array();
     $ov_terms = gk_get_ov_terms();
 
     foreach ( $ov_terms as $term ) {
-        $homepage_id  = gk_get_ov_homepage_id( $term->term_id );
-        $homepage_url = $homepage_id ? get_permalink( $homepage_id ) : '';
+        $homepage_id  = gk_get_ov_public_homepage_id( $term->term_id );
+        $homepage_url = gk_get_ov_url( $term->term_id );
 
         $terms[ $term->slug ] = (object) array(
             'term'         => $term,
@@ -293,19 +307,62 @@ function gk_get_ov_terms_by_slug() {
     return $terms;
 }
 
+/**
+ * Use the same target for municipality polygons and responsive list entries.
+ *
+ * @param string $slug Municipality's configured OV slug.
+ * @param array  $municipality Map configuration for the municipality.
+ * @param array  $ov_data Current OV terms and resolved public homepages.
+ * @return string Safe URL, or empty for an area still in preparation.
+ */
+function gk_get_municipality_url( $slug, $municipality, $ov_data ) {
+    $type = $municipality['type'] ?? 'ov';
+    $ov   = $ov_data[ $slug ] ?? null;
+    // Current published OV pages/contact targets take precedence over old map flags.
+    if ( $ov && $ov->homepage_url ) {
+        return $ov->homepage_url;
+    }
+    if ( in_array( $type, array( 'keine', 'werbung' ), true ) || ( $ov && 'werbung' === $ov->type ) ) {
+        return '';
+    }
+    return 'link' === $type ? gk_public_website_url( $municipality['link'] ?? '' ) : '';
+}
+
+/**
+ * Describe the resolved target instead of stale map-only status flags.
+ *
+ * @param string $url Resolved public URL.
+ * @param string $type Current OV type.
+ * @return string Display type for map colors and list badges.
+ */
+function gk_municipality_link_type( $url, $type ) {
+    if ( ! $url ) {
+        return 'werbung';
+    }
+    if ( ! str_starts_with( $url, trailingslashit( home_url() ) ) ) {
+        return 'link';
+    }
+    return 'ortsgruppe' === $type ? 'ortsgruppe' : 'ov';
+}
+
 // Backwards compatibility alias.
+/**
+ * Get ov posts by slug.
+ */
 function gk_get_ov_posts_by_slug() {
     return gk_get_ov_terms_by_slug();
 }
 
 /**
  * Render a simple list of all Ortsverbände (fallback when no map data exists).
+ *
+ * @param array $args Args.
  */
 function gk_render_ov_list( $args = array() ) {
     $defaults = array(
         'class' => 'kreiskarte-list',
     );
-    $args = wp_parse_args( $args, $defaults );
+    $args     = wp_parse_args( $args, $defaults );
 
     $ov_data = gk_get_ov_terms_by_slug();
 
@@ -314,28 +371,33 @@ function gk_render_ov_list( $args = array() ) {
     }
 
     // Sort alphabetically by name.
-    uasort( $ov_data, function ( $a, $b ) {
-        return strcasecmp( $a->name, $b->name );
-    } );
+    uasort(
+        $ov_data,
+        function ( $a, $b ) {
+			return strcasecmp( $a->name, $b->name );
+		}
+    );
 
     ob_start();
     ?>
     <div class="<?php echo esc_attr( $args['class'] ); ?>">
         <ul class="ov-list">
-            <?php foreach ( $ov_data as $slug => $ov ) :
+            <?php
+            foreach ( $ov_data as $slug => $ov ) :
                 $link  = $ov->homepage_url;
                 $thumb = $ov->homepage_id ? get_the_post_thumbnail( $ov->homepage_id, 'thumbnail' ) : '';
-            ?>
+				?>
             <li class="ov-list-item">
                 <?php if ( $link ) : ?>
                 <a href="<?php echo esc_url( $link ); ?>">
                     <?php if ( $thumb ) : ?>
-                        <span class="ov-list-thumb"><?php echo $thumb; ?></span>
+                        <span class="ov-list-thumb"><?php echo wp_kses_post( $thumb ); ?></span>
                     <?php endif; ?>
                     <span class="ov-list-name"><?php echo esc_html( $ov->name ); ?></span>
                 </a>
                 <?php else : ?>
                     <span class="ov-list-name"><?php echo esc_html( $ov->name ); ?></span>
+                    <em><?php esc_html_e( 'Im Aufbau', 'neurg-kreisverband' ); ?></em>
                 <?php endif; ?>
             </li>
             <?php endforeach; ?>
@@ -352,13 +414,15 @@ function gk_render_ov_list( $args = array() ) {
  * Municipalities without a zuordnung term or homepage are shown but not clickable.
  *
  * Falls back to a simple list if no map data is available.
+ *
+ * @param array $args Args.
  */
 function gk_render_kreiskarte( $args = array() ) {
     $defaults = array(
         'class'     => 'kreiskarte',
         'max_width' => '700px',
     );
-    $args = wp_parse_args( $args, $defaults );
+    $args     = wp_parse_args( $args, $defaults );
 
     $data = gk_get_kreiskarte_data();
 
@@ -367,16 +431,16 @@ function gk_render_kreiskarte( $args = array() ) {
         return gk_render_ov_list( $args );
     }
 
-    $ov_data   = gk_get_ov_terms_by_slug();
-    $viewBox   = $data['_meta']['viewBox'];
-    $labels    = gk_get_municipality_labels( $data );
+    $ov_data  = gk_get_ov_terms_by_slug();
+    $view_box = $data['_meta']['viewBox'];
+    $labels   = gk_get_municipality_labels( $data );
 
     ob_start();
     ?>
     <div class="<?php echo esc_attr( $args['class'] ); ?>" style="max-width: <?php echo esc_attr( $args['max_width'] ); ?>; margin: 0 auto;">
         <svg id="kreiskarte-svg" xmlns="http://www.w3.org/2000/svg"
-             version="1.1" viewBox="<?php echo esc_attr( $viewBox ); ?>" role="img"
-             aria-labelledby="kreiskarte-title kreiskarte-desc">
+            version="1.1" viewBox="<?php echo esc_attr( $view_box ); ?>" role="group"
+            aria-labelledby="kreiskarte-title kreiskarte-desc">
             <title id="kreiskarte-title"><?php echo esc_html( $data['_meta']['title'] ?? 'Kreiskarte' ); ?> – Gemeindekarte</title>
             <desc id="kreiskarte-desc">Interaktive Karte der Ortsverbände (<?php echo count( $data['municipalities'] ); ?> Gemeinden).</desc>
 
@@ -514,32 +578,22 @@ function gk_render_kreiskarte( $args = array() ) {
 
             <!-- Municipality polygons -->
             <g id="kreiskarte-municipalities">
-                <?php foreach ( $data['municipalities'] as $slug => $muni ) :
-                    $type     = $muni['type'] ?? 'ov';
+                <?php
+                foreach ( $data['municipalities'] as $slug => $muni ) :
+                    $type = $muni['type'] ?? 'ov';
 
-                    if ( $type === 'keine' ) : ?>
-                    <g class="ov-inactive" aria-label="<?php echo esc_attr( $muni['name'] ); ?>">
-                        <polygon points="<?php echo esc_attr( $muni['polygon'] ); ?>"/>
-                        <title><?php echo esc_html( $muni['name'] ); ?></title>
-                    </g>
-                    <?php continue; endif;
-
-                    // Resolve link: 'link' type uses stored URL, WP types resolve from term/page.
-                    if ( $type === 'link' ) {
-                        $link = ! empty( $muni['link'] ) ? $muni['link'] : '';
-                    } else {
-                        $ov_entry = isset( $ov_data[ $slug ] ) ? $ov_data[ $slug ] : null;
-                        $link     = $ov_entry && $ov_entry->homepage_url ? $ov_entry->homepage_url : '';
-                    }
+                    $link       = gk_get_municipality_url( $slug, $muni, $ov_data );
+                    $type       = gk_municipality_link_type( $link, $ov_data[ $slug ]->type ?? $type );
                     $type_class = 'ov-' . sanitize_html_class( $type );
-                ?>
+					?>
                     <?php if ( $link ) : ?>
-                    <a href="<?php echo esc_url( $link ); ?>" class="<?php echo $type_class; ?>" aria-label="<?php echo esc_attr( $muni['name'] ); ?>" data-ov-name="<?php echo esc_attr( $muni['name'] ); ?>" data-ov-url="<?php echo esc_url( $link ); ?>" data-ov-slug="<?php echo esc_attr( $slug ); ?>" tabindex="0"<?php if ( $type === 'link' ) echo ' target="_blank" rel="noopener noreferrer"'; ?>>
+                    <a href="<?php echo esc_url( $link ); ?>" class="<?php echo esc_attr( $type_class ); ?>" aria-label="<?php echo esc_attr( $muni['name'] ); ?>" data-ov-name="<?php echo esc_attr( $muni['name'] ); ?>" data-ov-url="<?php echo esc_url( $link ); ?>" data-ov-slug="<?php echo esc_attr( $slug ); ?>" tabindex="0"
+                    >
                     <?php else : ?>
-                    <g class="ov-inactive <?php echo $type_class; ?>" aria-label="<?php echo esc_attr( $muni['name'] ); ?>">
+                    <g class="ov-inactive <?php echo esc_attr( $type_class ); ?>" data-ov-slug="<?php echo esc_attr( $slug ); ?>" aria-label="<?php echo esc_attr( $muni['name'] . ' – ' . __( 'Im Aufbau', 'neurg-kreisverband' ) ); ?>">
                     <?php endif; ?>
                         <polygon points="<?php echo esc_attr( $muni['polygon'] ); ?>"/>
-                        <title><?php echo esc_html( $muni['name'] ); ?></title>
+                        <title><?php echo esc_html( $muni['name'] . ( $link ? '' : ' – ' . __( 'Im Aufbau', 'neurg-kreisverband' ) ) ); ?></title>
                     <?php if ( $link ) : ?>
                     </a>
                     <?php else : ?>
@@ -557,22 +611,25 @@ function gk_render_kreiskarte( $args = array() ) {
 
             <!-- Labels: auto-centered via polylabel algorithm -->
             <g id="kreiskarte-labels">
-                <?php foreach ( $data['municipalities'] as $slug => $muni ) :
+                <?php
+                foreach ( $data['municipalities'] as $slug => $muni ) :
                     $label = $labels[ $slug ] ?? null;
-                    if ( ! $label ) continue;
+                    if ( ! $label ) {
+						continue;
+                    }
                     $line_count = count( $label['lines'] );
                     // Shift multi-line labels up by half the total height.
                     $dy_start = $line_count > 1 ? -0.6 : 0;
-                ?>
+					?>
                 <text class="kk-label--<?php echo esc_attr( $label['size'] ); ?>"
-                      x="<?php echo esc_attr( $label['x'] ); ?>"
-                      y="<?php echo esc_attr( $label['y'] ); ?>"
-                      data-slug="<?php echo esc_attr( $slug ); ?>"
-                      style="--kk-r: <?php echo esc_attr( $label['radius'] ); ?>">
-                    <?php if ( $line_count === 1 ) : ?>
+                        x="<?php echo esc_attr( $label['x'] ); ?>"
+                        y="<?php echo esc_attr( $label['y'] ); ?>"
+                        data-slug="<?php echo esc_attr( $slug ); ?>"
+                        style="--kk-r: <?php echo esc_attr( $label['radius'] ); ?>">
+                    <?php if ( 1 === $line_count ) : ?>
                     <tspan><?php echo esc_html( $label['lines'][0] ); ?></tspan>
                     <?php else : ?>
-                    <tspan x="<?php echo esc_attr( $label['x'] ); ?>" dy="<?php echo $dy_start; ?>em"><?php echo esc_html( $label['lines'][0] ); ?></tspan>
+                    <tspan x="<?php echo esc_attr( $label['x'] ); ?>" dy="<?php echo esc_attr( $dy_start ); ?>em"><?php echo esc_html( $label['lines'][0] ); ?></tspan>
                     <tspan x="<?php echo esc_attr( $label['x'] ); ?>" dy="1.2em"><?php echo esc_html( $label['lines'][1] ); ?></tspan>
                     <?php endif; ?>
                 </text>
@@ -592,13 +649,15 @@ function gk_render_kreiskarte( $args = array() ) {
  * Mobile:  Searchable list by default, with a toggle to show the map.
  *          Tapping a region on the mobile map opens a bottom sheet
  *          instead of navigating directly (compensates for imprecise taps).
+ *
+ * @param array $args Args.
  */
 function gk_render_kreiskarte_responsive( $args = array() ) {
     $defaults = array(
         'class'     => 'kreiskarte-responsive',
         'max_width' => '700px',
     );
-    $args = wp_parse_args( $args, $defaults );
+    $args     = wp_parse_args( $args, $defaults );
 
     $data    = gk_get_kreiskarte_data();
     $ov_data = gk_get_ov_terms_by_slug();
@@ -609,14 +668,8 @@ function gk_render_kreiskarte_responsive( $args = array() ) {
     if ( $has_map ) {
         foreach ( $data['municipalities'] as $slug => $muni ) {
             $type = $muni['type'] ?? 'ov';
-            if ( $type === 'keine' ) continue;
-
-            if ( $type === 'link' ) {
-                $link = ! empty( $muni['link'] ) ? $muni['link'] : '';
-            } else {
-                $ov_entry = $ov_data[ $slug ] ?? null;
-                $link     = $ov_entry ? $ov_entry->homepage_url : '';
-            }
+            $link = gk_get_municipality_url( $slug, $muni, $ov_data );
+            $type = gk_municipality_link_type( $link, $ov_data[ $slug ]->type ?? $type );
 
             $ov_items[] = array(
                 'slug' => $slug,
@@ -625,19 +678,25 @@ function gk_render_kreiskarte_responsive( $args = array() ) {
                 'link' => $link,
             );
         }
-        usort( $ov_items, function ( $a, $b ) {
-            return strcasecmp( $a['name'], $b['name'] );
-        } );
+        usort(
+            $ov_items,
+            function ( $a, $b ) {
+				return strcasecmp( $a['name'], $b['name'] );
+			}
+        );
     } elseif ( ! empty( $ov_data ) ) {
         // No map data — build from terms.
-        uasort( $ov_data, function ( $a, $b ) {
-            return strcasecmp( $a->name, $b->name );
-        } );
+        uasort(
+            $ov_data,
+            function ( $a, $b ) {
+				return strcasecmp( $a->name, $b->name );
+			}
+        );
         foreach ( $ov_data as $slug => $ov ) {
             $ov_items[] = array(
                 'slug' => $slug,
                 'name' => $ov->name,
-                'type' => $ov->type,
+                'type' => gk_municipality_link_type( $ov->homepage_url, $ov->type ),
                 'link' => $ov->homepage_url,
             );
         }
@@ -651,9 +710,9 @@ function gk_render_kreiskarte_responsive( $args = array() ) {
         <div class="gk-ov-toolbar">
             <div class="gk-ov-search-wrap">
                 <input type="text"
-                       class="gk-ov-search"
-                       placeholder="Ortsverband suchen&hellip;"
-                       aria-label="Ortsverband suchen" />
+                        class="gk-ov-search"
+                        placeholder="Ortsverband suchen&hellip;"
+                        aria-label="Ortsverband suchen" />
                 <span class="gk-ov-search-icon" aria-hidden="true">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </span>
@@ -673,19 +732,32 @@ function gk_render_kreiskarte_responsive( $args = array() ) {
         </div>
 
         <!-- LIST VIEW (default on mobile) -->
-        <div class="gk-ov-list-view" role="list">
-            <?php foreach ( $ov_items as $item ) :
+        <div class="gk-ov-list-view" role="navigation" aria-label="<?php esc_attr_e( 'Ortsverbände', 'neurg-kreisverband' ); ?>">
+            <?php
+            foreach ( $ov_items as $item ) :
                 $type_label = '';
-                if ( $item['type'] === 'ortsgruppe' ) $type_label = 'Ortsgruppe';
-                if ( $item['type'] === 'werbung' )    $type_label = 'Im Aufbau';
-                if ( $item['type'] === 'link' )       $type_label = 'Extern';
-            ?>
-            <a href="<?php echo $item['link'] ? esc_url( $item['link'] ) : '#'; ?>"
-               class="gk-ov-chip <?php echo ! $item['link'] ? 'gk-ov-chip--inactive' : ''; ?>"
-               role="listitem"
-               data-ov-name="<?php echo esc_attr( $item['name'] ); ?>"
-               <?php echo ! $item['link'] ? 'aria-disabled="true"' : ''; ?>
-               <?php if ( $item['type'] === 'link' && $item['link'] ) echo 'target="_blank" rel="noopener noreferrer"'; ?>>
+                if ( 'ortsgruppe' === $item['type'] ) {
+					$type_label = 'Ortsgruppe';
+                }
+                if ( 'werbung' === $item['type'] ) {
+					$type_label = 'Im Aufbau';
+                }
+                if ( 'link' === $item['type'] ) {
+					$type_label = 'Extern';
+                }
+                if ( ! $item['link'] ) {
+                    $type_label = __( 'Im Aufbau', 'neurg-kreisverband' );
+                }
+				?>
+				<?php if ( $item['link'] ) : ?>
+            <a href="<?php echo esc_url( $item['link'] ); ?>" class="gk-ov-chip"
+                data-ov-slug="<?php echo esc_attr( $item['slug'] ); ?>"
+                data-ov-name="<?php echo esc_attr( $item['name'] ); ?>">
+            <?php else : ?>
+            <div class="gk-ov-chip gk-ov-chip--inactive"
+                data-ov-slug="<?php echo esc_attr( $item['slug'] ); ?>"
+                data-ov-name="<?php echo esc_attr( $item['name'] ); ?>">
+            <?php endif; ?>
                 <span class="gk-ov-chip__arrow" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12H3M21 12l-7-7M21 12l-7 7"/></svg>
                 </span>
@@ -693,7 +765,14 @@ function gk_render_kreiskarte_responsive( $args = array() ) {
                 <?php if ( $type_label ) : ?>
                     <span class="gk-ov-chip__badge"><?php echo esc_html( $type_label ); ?></span>
                 <?php endif; ?>
-            </a>
+				<?php
+                if ( $item['link'] ) :
+					?>
+                    </a>
+                    <?php
+else :
+	?>
+                    </div><?php endif; ?>
             <?php endforeach; ?>
             <p class="gk-ov-no-results" hidden>Kein Ortsverband gefunden.</p>
         </div>
@@ -701,19 +780,25 @@ function gk_render_kreiskarte_responsive( $args = array() ) {
         <?php if ( $has_map ) : ?>
         <!-- MAP VIEW (default on desktop, toggled on mobile) -->
         <div class="gk-ov-map-view">
-            <?php echo gk_render_kreiskarte( array(
-                'max_width' => $args['max_width'],
-                'class'     => 'kreiskarte gk-ov-map-svg',
-            ) ); ?>
+            <?php
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- gk_render_kreiskarte() escapes dynamic SVG attributes and labels; HTML post filters would remove the required SVG markup.
+            echo gk_render_kreiskarte(
+                array(
+					'max_width' => $args['max_width'],
+					'class'     => 'kreiskarte gk-ov-map-svg',
+                )
+            );
+            ?>
         </div>
 
         <!-- BOTTOM SHEET (mobile only, for imprecise map taps) -->
-        <div class="gk-ov-sheet" hidden aria-modal="false">
+			<?php $sheet_title_id = wp_unique_id( 'gk-ov-sheet-title-' ); ?>
+        <div class="gk-ov-sheet" hidden role="dialog" aria-modal="true" aria-labelledby="<?php echo esc_attr( $sheet_title_id ); ?>">
             <div class="gk-ov-sheet__backdrop"></div>
             <div class="gk-ov-sheet__panel">
                 <div class="gk-ov-sheet__handle" aria-hidden="true"><span></span></div>
-                <h3 class="gk-ov-sheet__title"></h3>
-                <a href="#" class="gk-ov-sheet__cta gk-btn gk-btn--primary">Zur Seite &rarr;</a>
+                <h3 id="<?php echo esc_attr( $sheet_title_id ); ?>" class="gk-ov-sheet__title"></h3>
+                <a class="gk-ov-sheet__cta gk-btn gk-btn--primary">Zur Seite &rarr;</a>
                 <button type="button" class="gk-ov-sheet__close">Abbrechen</button>
             </div>
         </div>
@@ -727,12 +812,18 @@ function gk_render_kreiskarte_responsive( $args = array() ) {
 
 /**
  * Shortcode: [kreiskarte]
+ *
+ * @param array $atts Atts.
  */
 function gk_shortcode_kreiskarte( $atts ) {
-    $atts = shortcode_atts( array(
-        'class'     => 'kreiskarte',
-        'max_width' => '700px',
-    ), $atts, 'kreiskarte' );
+    $atts = shortcode_atts(
+        array(
+			'class'     => 'kreiskarte',
+			'max_width' => '700px',
+        ),
+        $atts,
+        'kreiskarte'
+    );
 
     return gk_render_kreiskarte( $atts );
 }

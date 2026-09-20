@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- Preserve the existing theme include path used by child themes; this module also registers its widgets.
 /**
  * The Taurus Integration
  *
@@ -37,7 +37,7 @@ function gk_taurus_get_lang() {
  * @param mixed  $default Default value.
  * @return mixed
  */
-function gk_taurus_option( $key, $default = '' ) {
+function gk_taurus_option( $key, $default = '' ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound -- Preserve the public parameter name for PHP named-argument callers.
     return get_theme_mod( 'gk_taurus_' . $key, $default );
 }
 
@@ -48,7 +48,7 @@ function gk_taurus_option( $key, $default = '' ) {
  */
 function gk_taurus_badge_lang() {
     $setting = gk_taurus_option( 'badge_lang', 'auto' );
-    if ( $setting === 'auto' ) {
+    if ( 'auto' === $setting ) {
         return gk_taurus_get_lang();
     }
     return $setting;
@@ -61,61 +61,86 @@ add_action( 'customize_register', 'gk_taurus_customizer' );
 
 /**
  * Register The Taurus section and controls in the Customizer.
+ *
+ * @param WP_Customize_Manager $wp_customize Customizer manager.
  */
 function gk_taurus_customizer( $wp_customize ) {
 
-    // Section
-    $wp_customize->add_section( 'gk_taurus', array(
-        'title'    => 'The Taurus',
-        'priority' => 190,
-    ) );
+    // Section.
+    $wp_customize->add_section(
+        'gk_taurus',
+        array(
+			'title'    => 'The Taurus',
+			'priority' => 190,
+        )
+    );
 
     // ── Profile slug ───────────────────────────────────────────────────────────
-    $wp_customize->add_setting( 'gk_taurus_slug', array(
-        'default'           => '',
-        'sanitize_callback' => 'sanitize_title',
-        'transport'         => 'postMessage',
-    ) );
-    $wp_customize->add_control( 'gk_taurus_slug', array(
-        'label'       => __( 'Profil-Slug', 'neurg-kreisverband' ),
-        'description' => __( 'Ihr Organisations-Slug auf thetaurus.com (z.B. gruene-kv-freiburg)', 'neurg-kreisverband' ),
-        'section'     => 'gk_taurus',
-        'type'        => 'text',
-    ) );
+    $wp_customize->add_setting(
+        'gk_taurus_slug',
+        array(
+			'default'           => '',
+			'sanitize_callback' => 'sanitize_title',
+			'transport'         => 'postMessage',
+        )
+    );
+    $wp_customize->add_control(
+        'gk_taurus_slug',
+        array(
+			'label'       => __( 'Profil-Slug', 'neurg-kreisverband' ),
+			'description' => __( 'Ihr Organisations-Slug auf thetaurus.com (z.B. gruene-kv-freiburg)', 'neurg-kreisverband' ),
+			'section'     => 'gk_taurus',
+			'type'        => 'text',
+        )
+    );
 
     // ── Show The Taurus in footer ─────────────────────────────────────────────
-    $wp_customize->add_setting( 'gk_taurus_show_footer', array(
-        'default'           => true,
-        'sanitize_callback' => 'wp_validate_boolean',
-        'transport'         => 'postMessage',
-    ) );
-    $wp_customize->add_control( 'gk_taurus_show_footer', array(
-        'label'       => __( 'The Taurus im Footer anzeigen', 'neurg-kreisverband' ),
-        'description' => __( 'Zeigt das Compliance-Badge (mit Profil-Slug) oder den Sponsor-Hinweis (ohne Slug) im Footer an.', 'neurg-kreisverband' ),
-        'section'     => 'gk_taurus',
-        'type'        => 'checkbox',
-    ) );
+    $wp_customize->add_setting(
+        'gk_taurus_show_footer',
+        array(
+			'default'           => true,
+			'sanitize_callback' => 'wp_validate_boolean',
+			'transport'         => 'postMessage',
+        )
+    );
+    $wp_customize->add_control(
+        'gk_taurus_show_footer',
+        array(
+			'label'       => __( 'The Taurus im Footer anzeigen', 'neurg-kreisverband' ),
+			'description' => __( 'Zeigt das Compliance-Badge (mit Profil-Slug) oder den Sponsor-Hinweis (ohne Slug) im Footer an.', 'neurg-kreisverband' ),
+			'section'     => 'gk_taurus',
+			'type'        => 'checkbox',
+        )
+    );
 
     // ── Badge language ─────────────────────────────────────────────────────────
-    $wp_customize->add_setting( 'gk_taurus_badge_lang', array(
-        'default'           => 'auto',
-        'sanitize_callback' => 'gk_taurus_sanitize_lang',
-        'transport'         => 'postMessage',
-    ) );
-    $wp_customize->add_control( 'gk_taurus_badge_lang', array(
-        'label'   => __( 'Badge-Sprache', 'neurg-kreisverband' ),
-        'section' => 'gk_taurus',
-        'type'    => 'radio',
-        'choices' => array(
-            'auto' => __( 'Automatisch (Website-Sprache)', 'neurg-kreisverband' ),
-            'de'   => 'Deutsch',
-            'en'   => 'English',
-        ),
-    ) );
+    $wp_customize->add_setting(
+        'gk_taurus_badge_lang',
+        array(
+			'default'           => 'auto',
+			'sanitize_callback' => 'gk_taurus_sanitize_lang',
+			'transport'         => 'postMessage',
+        )
+    );
+    $wp_customize->add_control(
+        'gk_taurus_badge_lang',
+        array(
+			'label'   => __( 'Badge-Sprache', 'neurg-kreisverband' ),
+			'section' => 'gk_taurus',
+			'type'    => 'radio',
+			'choices' => array(
+				'auto' => __( 'Automatisch (Website-Sprache)', 'neurg-kreisverband' ),
+				'de'   => 'Deutsch',
+				'en'   => 'English',
+			),
+        )
+    );
 }
 
 /**
  * Sanitize badge language option.
+ *
+ * @param string $value Submitted setting value.
  */
 function gk_taurus_sanitize_lang( $value ) {
     return in_array( $value, array( 'auto', 'de', 'en' ), true ) ? $value : 'auto';
@@ -141,8 +166,8 @@ function gk_taurus_render_footer_badge() {
     $lang        = gk_taurus_badge_lang();
     $badge_url   = 'https://thetaurus.com/profile/org/' . rawurlencode( $slug ) . '/badge?lang=' . $lang;
     $profile_url = 'https://thetaurus.com/' . rawurlencode( $slug ) . '?utm_source=neurg&utm_medium=widget&utm_campaign=badge';
-    $alt         = ( $lang === 'de' ) ? 'Compliance-Status auf The Taurus' : 'Compliance status on The Taurus';
-    $title       = ( $lang === 'de' ) ? 'Compliance-Profil auf The Taurus ansehen' : 'View compliance profile on The Taurus';
+    $alt         = ( 'de' === $lang ) ? 'Compliance-Status auf The Taurus' : 'Compliance status on The Taurus';
+    $title       = ( 'de' === $lang ) ? 'Compliance-Profil auf The Taurus ansehen' : 'View compliance profile on The Taurus';
 
     printf(
         '<div class="neurg-taurus-badge"><a href="%s" target="_blank" rel="noopener" title="%s"><img src="%s" alt="%s" loading="lazy" width="200" height="46" /></a></div>',
@@ -174,6 +199,9 @@ function gk_taurus_render_sponsor_credit() {
 
 add_action( 'wp_dashboard_setup', 'gk_taurus_dashboard_widget' );
 
+/**
+ * Taurus dashboard widget.
+ */
 function gk_taurus_dashboard_widget() {
     // Only show when no slug is configured yet — once connected, the card disappears.
     if ( gk_taurus_option( 'slug', '' ) ) {
@@ -187,6 +215,9 @@ function gk_taurus_dashboard_widget() {
     );
 }
 
+/**
+ * Taurus dashboard widget cb.
+ */
 function gk_taurus_dashboard_widget_cb() {
     $customize_url = admin_url( 'customize.php?autofocus[section]=gk_taurus' );
     ?>
@@ -215,7 +246,7 @@ function gk_taurus_dashboard_widget_cb() {
         </ol>
         <div class="gk-taurus-card-actions">
             <a href="https://thetaurus.com/de/register?promo=NEURG&utm_source=neurg&utm_medium=admin&utm_campaign=dashboard"
-               class="button button-primary" target="_blank" rel="noopener">
+                class="button button-primary" target="_blank" rel="noopener">
                 Kostenlos registrieren
             </a>
             <a href="<?php echo esc_url( $customize_url ); ?>" class="button">
@@ -234,6 +265,9 @@ function gk_taurus_dashboard_widget_cb() {
 
 add_action( 'widgets_init', 'gk_taurus_register_widget' );
 
+/**
+ * Taurus register widget.
+ */
 function gk_taurus_register_widget() {
     register_widget( 'GK_Taurus_Badge_Widget' );
 }
@@ -241,8 +275,14 @@ function gk_taurus_register_widget() {
 /**
  * The Taurus Compliance Badge Widget
  */
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- This compatibility module registers the existing widget, block and theme integration together.
+/** GK Taurus Badge Widget widget. */
 class GK_Taurus_Badge_Widget extends WP_Widget {
+    // phpcs:enable Universal.Files.SeparateFunctionsFromOO.Mixed
 
+    /**
+     * Register the widget and its display settings.
+     */
     public function __construct() {
         parent::__construct(
             'gk_taurus_badge',
@@ -253,21 +293,28 @@ class GK_Taurus_Badge_Widget extends WP_Widget {
         );
     }
 
+    /**
+     * Render the widget using saved settings.
+     *
+     * @param array $args Registered widget wrapper arguments.
+     * @param array $instance Saved widget settings.
+     */
     public function widget( $args, $instance ) {
         $slug = ! empty( $instance['slug'] ) ? $instance['slug'] : gk_taurus_option( 'slug', '' );
         $lang = ! empty( $instance['lang'] ) ? $instance['lang'] : 'auto';
 
-        if ( $lang === 'auto' ) {
+        if ( 'auto' === $lang ) {
             $lang = gk_taurus_get_lang();
         }
 
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Markup wrappers are trusted HTML registered by WordPress sidebar code, not user content.
         echo $args['before_widget'];
 
         if ( $slug ) {
             $badge_url   = 'https://thetaurus.com/profile/org/' . rawurlencode( $slug ) . '/badge?lang=' . $lang;
             $profile_url = 'https://thetaurus.com/' . rawurlencode( $slug ) . '?utm_source=neurg&utm_medium=widget&utm_campaign=badge';
-            $alt         = ( $lang === 'de' ) ? 'Compliance-Status auf The Taurus' : 'Compliance status on The Taurus';
-            $title       = ( $lang === 'de' ) ? 'Compliance-Profil auf The Taurus ansehen' : 'View compliance profile on The Taurus';
+            $alt         = ( 'de' === $lang ) ? 'Compliance-Status auf The Taurus' : 'Compliance status on The Taurus';
+            $title       = ( 'de' === $lang ) ? 'Compliance-Profil auf The Taurus ansehen' : 'View compliance profile on The Taurus';
 
             printf(
                 '<div class="neurg-taurus-badge"><a href="%s" target="_blank" rel="noopener" title="%s"><img src="%s" alt="%s" loading="lazy" width="200" height="46" /></a></div>',
@@ -277,7 +324,7 @@ class GK_Taurus_Badge_Widget extends WP_Widget {
                 esc_attr( $alt )
             );
         } else {
-            if ( $lang === 'de' ) {
+            if ( 'de' === $lang ) {
                 $cta_text   = 'Compliance für politische Werbung sicherstellen';
                 $btn_text   = 'Kostenlos starten';
                 $note_text  = 'Promo-Code NEURG für kostenlosen Zugang';
@@ -298,9 +345,15 @@ class GK_Taurus_Badge_Widget extends WP_Widget {
             );
         }
 
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Markup wrappers are trusted HTML registered by WordPress sidebar code, not user content.
         echo $args['after_widget'];
     }
 
+    /**
+     * Render the widget settings form.
+     *
+     * @param array $instance Saved widget settings.
+     */
     public function form( $instance ) {
         $slug = ! empty( $instance['slug'] ) ? $instance['slug'] : '';
         $lang = ! empty( $instance['lang'] ) ? $instance['lang'] : 'auto';
@@ -310,9 +363,9 @@ class GK_Taurus_Badge_Widget extends WP_Widget {
                 <?php esc_html_e( 'Profil-Slug:', 'neurg-kreisverband' ); ?>
             </label>
             <input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'slug' ) ); ?>"
-                   name="<?php echo esc_attr( $this->get_field_name( 'slug' ) ); ?>"
-                   type="text" value="<?php echo esc_attr( $slug ); ?>"
-                   placeholder="gruene-kv-freiburg" />
+                    name="<?php echo esc_attr( $this->get_field_name( 'slug' ) ); ?>"
+                    type="text" value="<?php echo esc_attr( $slug ); ?>"
+                    placeholder="gruene-kv-freiburg" />
             <small><?php esc_html_e( 'Leer lassen, um den Slug aus dem Customizer zu verwenden.', 'neurg-kreisverband' ); ?></small>
         </p>
         <p>
@@ -332,6 +385,12 @@ class GK_Taurus_Badge_Widget extends WP_Widget {
         <?php
     }
 
+    /**
+     * Sanitize submitted widget settings.
+     *
+     * @param array $new_instance Submitted widget settings.
+     * @param array $old_instance Previously saved widget settings.
+     */
     public function update( $new_instance, $old_instance ) {
         $instance         = array();
         $instance['slug'] = sanitize_title( $new_instance['slug'] ?? '' );
@@ -347,31 +406,40 @@ class GK_Taurus_Badge_Widget extends WP_Widget {
 
 add_action( 'init', 'gk_taurus_register_block' );
 
+/**
+ * Taurus register block.
+ */
 function gk_taurus_register_block() {
     if ( ! function_exists( 'register_block_type' ) ) {
         return;
     }
 
-    register_block_type( 'neurg/taurus-badge', array(
-        'api_version'     => 3,
-        'editor_script'   => 'neurg-taurus-badge-editor',
-        'render_callback' => 'gk_taurus_block_render',
-        'attributes'      => array(
-            'slug' => array(
-                'type'    => 'string',
-                'default' => '',
-            ),
-            'lang' => array(
-                'type'    => 'string',
-                'default' => 'auto',
-            ),
-        ),
-        'category'        => 'widgets',
-    ) );
+    register_block_type(
+        'neurg/taurus-badge',
+        array(
+			'api_version'     => 3,
+			'editor_script'   => 'neurg-taurus-badge-editor',
+			'render_callback' => 'gk_taurus_block_render',
+			'attributes'      => array(
+				'slug' => array(
+					'type'    => 'string',
+					'default' => '',
+				),
+				'lang' => array(
+					'type'    => 'string',
+					'default' => 'auto',
+				),
+			),
+			'category'        => 'widgets',
+        )
+    );
 }
 
 add_action( 'enqueue_block_editor_assets', 'gk_taurus_block_editor_assets' );
 
+/**
+ * Taurus block editor assets.
+ */
 function gk_taurus_block_editor_assets() {
     wp_register_script(
         'neurg-taurus-badge-editor',
@@ -384,12 +452,14 @@ function gk_taurus_block_editor_assets() {
 
 /**
  * Render callback for the Gutenberg block.
+ *
+ * @param array $attributes Block attributes.
  */
 function gk_taurus_block_render( $attributes ) {
     $slug = ! empty( $attributes['slug'] ) ? $attributes['slug'] : gk_taurus_option( 'slug', '' );
     $lang = ! empty( $attributes['lang'] ) ? $attributes['lang'] : 'auto';
 
-    if ( $lang === 'auto' ) {
+    if ( 'auto' === $lang ) {
         $lang = gk_taurus_get_lang();
     }
 
@@ -398,8 +468,8 @@ function gk_taurus_block_render( $attributes ) {
     if ( $slug ) {
         $badge_url   = 'https://thetaurus.com/profile/org/' . rawurlencode( $slug ) . '/badge?lang=' . $lang;
         $profile_url = 'https://thetaurus.com/' . rawurlencode( $slug ) . '?utm_source=neurg&utm_medium=widget&utm_campaign=badge';
-        $alt         = ( $lang === 'de' ) ? 'Compliance-Status auf The Taurus' : 'Compliance status on The Taurus';
-        $title       = ( $lang === 'de' ) ? 'Compliance-Profil auf The Taurus ansehen' : 'View compliance profile on The Taurus';
+        $alt         = ( 'de' === $lang ) ? 'Compliance-Status auf The Taurus' : 'Compliance status on The Taurus';
+        $title       = ( 'de' === $lang ) ? 'Compliance-Profil auf The Taurus ansehen' : 'View compliance profile on The Taurus';
 
         printf(
             '<div class="neurg-taurus-badge"><a href="%s" target="_blank" rel="noopener" title="%s"><img src="%s" alt="%s" loading="lazy" width="200" height="46" /></a></div>',
@@ -409,7 +479,7 @@ function gk_taurus_block_render( $attributes ) {
             esc_attr( $alt )
         );
     } else {
-        if ( $lang === 'de' ) {
+        if ( 'de' === $lang ) {
             $cta_text   = 'Compliance für politische Werbung sicherstellen';
             $btn_text   = 'Kostenlos starten';
             $note_text  = 'Promo-Code NEURG für kostenlosen Zugang';

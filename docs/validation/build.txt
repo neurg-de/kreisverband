@@ -1,0 +1,13 @@
+$ make zip
+Building neurg-kreisverband-0.7.0.zip ...
+  Compiling SCSS...
+
+  ✓ Version:   0.7.0
+  ✓ Structure:  neurg-kreisverband/ (wrapper directory present)
+  ✓ Files:      172
+  ✓ Size:       632K
+  ✓ Output:     neurg-kreisverband-0.7.0.zip
+
+Ready to upload to WordPress.
+
+Exit code: 0

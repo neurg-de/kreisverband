@@ -25,7 +25,7 @@ WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress}
 
 download() {
     if [ "$(which curl)" ]; then
-        curl -sL "$1" -o "$2"
+        curl -fsSL --retry 3 "$1" -o "$2"
     elif [ "$(which wget)" ]; then
         wget -nv -O "$2" "$1"
     fi
@@ -71,7 +71,10 @@ install_test_suite() {
 
     if [ ! -d "$WP_TESTS_DIR" ]; then
         mkdir -p "$WP_TESTS_DIR"
-        if [ "$(which svn)" ]; then
+        if [ -d "vendor/wp-phpunit/wp-phpunit/includes" ]; then
+            cp -R vendor/wp-phpunit/wp-phpunit/includes "$WP_TESTS_DIR/includes"
+            cp -R vendor/wp-phpunit/wp-phpunit/data "$WP_TESTS_DIR/data"
+        elif [ "$(which svn)" ]; then
             svn co --quiet "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/" "$WP_TESTS_DIR/includes"
             svn co --quiet "https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/" "$WP_TESTS_DIR/data"
         else

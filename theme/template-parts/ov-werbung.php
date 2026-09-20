@@ -9,13 +9,13 @@
  * @package Neurg_Kreisverband
  */
 
-$gemeinde     = $args['gemeinde'] ?? '';
-$hero_img_id  = $args['hero_img_id'] ?? 0;
-$hero_title   = $args['hero_title'] ?? '';
-$hero_subtitle= $args['hero_subtitle'] ?? '';
-$email        = $args['email'] ?? '';
-$contact      = $args['contact'] ?? array();
-$ov_header    = $args['ov_header'] ?? '';
+$gemeinde      = $args['gemeinde'] ?? '';
+$hero_img_id   = $args['hero_img_id'] ?? 0;
+$hero_title    = $args['hero_title'] ?? '';
+$hero_subtitle = $args['hero_subtitle'] ?? '';
+$email         = $args['email'] ?? '';
+$contact       = $args['contact'] ?? array();
+$ov_header     = $args['ov_header'] ?? '';
 
 if ( ! $hero_title ) {
     $hero_title = 'Gr&uuml;ne Politik f&uuml;r ' . esc_html( $gemeinde );
@@ -37,8 +37,8 @@ if ( ! $hero_subtitle ) {
     <div class="gk-hero__overlay"></div>
     <div class="gk-hero__content inner">
         <span class="gk-hero__kicker">B&Uuml;NDNIS 90/DIE GR&Uuml;NEN</span>
-        <h1 class="gk-hero__title"><?php echo $hero_title; ?></h1>
-        <p class="gk-hero__subtitle"><?php echo $hero_subtitle; ?></p>
+        <h1 class="gk-hero__title"><?php echo esc_html( $hero_title ); ?></h1>
+        <p class="gk-hero__subtitle"><?php echo esc_html( $hero_subtitle ); ?></p>
         <div class="gk-hero__actions">
             <?php if ( $email ) : ?>
                 <a href="mailto:<?php echo esc_attr( $email ); ?>?subject=<?php echo rawurlencode( 'Interesse an Grüner Politik in ' . $gemeinde ); ?>" class="gk-btn gk-btn--primary">
@@ -113,8 +113,10 @@ if ( ! $hero_subtitle ) {
 <!-- Page Content (optional) -->
 <?php
 rewind_posts();
-while ( have_posts() ) : the_post();
-    if ( trim( get_the_content() ) ) : ?>
+while ( have_posts() ) :
+	the_post();
+    if ( trim( get_the_content() ) ) :
+		?>
 <section class="ov-wb-content">
     <div class="inner">
         <div class="ov-wb-content__body entry-content">
@@ -122,8 +124,10 @@ while ( have_posts() ) : the_post();
         </div>
     </div>
 </section>
-    <?php endif;
-endwhile; ?>
+		<?php
+    endif;
+endwhile;
+?>
 
 <!-- Final CTA -->
 <section class="ov-wb-cta">

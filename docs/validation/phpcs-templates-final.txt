@@ -1,0 +1,2 @@
+Command: docker exec kreisverband-tests vendor/bin/phpcs --standard=phpcs.xml.dist [all root-owned theme templates]
+Exit code: 0

@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase -- Existing template filename is required for WordPress routing and saved page templates.
 /**
  * Event Archive Template — Upcoming events list
  *
@@ -13,28 +13,30 @@ get_header(); ?>
         <header class="page-header" id="termine">
             <h1 class="page-title">Termine</h1>
             <p class="event-ical-feed">
-                <a href="<?php echo esc_url( home_url( '/termine/ical/' ) ); ?>" title="Alle Termine als iCal abonnieren">
+                <a href="<?php echo esc_url( gk_event_ical_url() ); ?>" title="Angezeigte Termine als iCal abonnieren">
                     <span class="fa fa-calendar" aria-hidden="true"></span> iCal-Feed abonnieren
                 </a>
             </p>
         </header>
 
         <?php
-        $zuordnung_terms = get_terms( array(
-            'taxonomy'   => 'gk_zuordnung',
-            'hide_empty' => true,
-            'orderby'    => 'name',
-        ) );
-        $current_zuordnung = isset( $_GET['zuordnung'] ) ? sanitize_text_field( $_GET['zuordnung'] ) : '';
+        $zuordnung_terms   = get_terms(
+            array(
+				'taxonomy'   => 'gk_zuordnung',
+				'hide_empty' => true,
+				'orderby'    => 'name',
+            )
+        );
+        $current_zuordnung = gk_event_scope();
         ?>
         <?php if ( ! is_wp_error( $zuordnung_terms ) && count( $zuordnung_terms ) > 1 ) : ?>
         <form class="termine-filter" method="get" action="<?php echo esc_url( home_url( '/termine/' ) ); ?>">
             <label for="zuordnung">Zuordnung:</label>
             <select name="zuordnung" id="zuordnung" onchange="this.form.submit()">
                 <option value="">Alle</option>
-                <?php foreach ( $zuordnung_terms as $term ) : ?>
-                    <option value="<?php echo esc_attr( $term->slug ); ?>" <?php selected( $current_zuordnung, $term->slug ); ?>>
-                        <?php echo esc_html( $term->name ); ?>
+                <?php foreach ( $zuordnung_terms as $area_term ) : ?>
+                    <option value="<?php echo esc_attr( $area_term->slug ); ?>" <?php selected( $current_zuordnung, $area_term->slug ); ?>>
+                        <?php echo esc_html( $area_term->name ); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -45,13 +47,15 @@ get_header(); ?>
         <?php if ( have_posts() ) : ?>
 
             <div class="gk-event-list">
-            <?php while ( have_posts() ) : the_post();
+            <?php
+            while ( have_posts() ) :
+				the_post();
                 $start_date = get_post_meta( get_the_ID(), 'gk_event_start_date', true );
                 $start_time = get_post_meta( get_the_ID(), 'gk_event_start_time', true );
                 $all_day    = get_post_meta( get_the_ID(), 'gk_event_all_day', true );
                 $end_time   = get_post_meta( get_the_ID(), 'gk_event_end_time', true );
                 $location   = get_post_meta( get_the_ID(), 'gk_event_location', true );
-            ?>
+				?>
                 <article class="gk-event-item clearfix">
                     <div class="gk-event-item__date">
                         <span class="gk-date__day"><?php echo esc_html( date_i18n( 'd', strtotime( $start_date ) ) ); ?></span>
@@ -63,15 +67,18 @@ get_header(); ?>
                         <?php
                         $zuordnung = wp_get_post_terms( get_the_ID(), 'gk_zuordnung', array( 'fields' => 'names' ) );
                         if ( ! is_wp_error( $zuordnung ) && ! empty( $zuordnung ) ) :
-                        ?>
+							?>
                             <span class="gk-badge"><?php echo esc_html( $zuordnung[0] ); ?></span>
                         <?php endif; ?>
                         <p class="gk-event-item__meta">
-                            <?php if ( $all_day === '1' ) : ?>
+                            <?php if ( '1' === $all_day ) : ?>
                                 Ganztägig
                             <?php elseif ( $start_time ) : ?>
                                 <?php echo esc_html( $start_time ); ?> Uhr
-                                <?php if ( $end_time ) echo '&ndash; ' . esc_html( $end_time ) . ' Uhr'; ?>
+                                <?php
+                                if ( $end_time ) {
+									echo '&ndash; ' . esc_html( $end_time ) . ' Uhr';}
+								?>
                             <?php endif; ?>
                             <?php if ( $location ) : ?>
                                 <span class="gk-event-item__location">&bull; <?php echo esc_html( $location ); ?></span>
@@ -85,10 +92,14 @@ get_header(); ?>
             <?php endwhile; ?>
             </div>
 
-            <?php the_posts_pagination( array(
-                'prev_text' => '&laquo;',
-                'next_text' => '&raquo;',
-            ) ); ?>
+            <?php
+            the_posts_pagination(
+                array(
+					'prev_text' => '&laquo;',
+					'next_text' => '&raquo;',
+                )
+            );
+            ?>
 
         <?php else : ?>
             <p class="keine-termine">Aktuell keine kommenden Termine.</p>

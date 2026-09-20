@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "Inactive mobile list target click leaves URL unchanged",
+    "Mobile dialog initial focus and bidirectional Tab trap",
+    "Escape closes dialog and restores polygon focus",
+    "OV-admin real Bild wählen click opens visible WordPress media modal",
+    "OV media modal closes normally without saving or changing content"
+  ],
+  "passed": 5
+}

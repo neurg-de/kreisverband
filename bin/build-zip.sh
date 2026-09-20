@@ -19,6 +19,13 @@ if [[ "$VERSION" != "$FUNCTIONS_VERSION" ]]; then
     exit 1
 fi
 
+README_VERSION=$(sed -n 's/^Stable tag: *//p' "$THEME_DIR/readme.txt" | tr -d '[:space:]')
+PACKAGE_VERSION=$(node -p 'require("./package.json").version')
+if [[ "$VERSION" != "$README_VERSION" || "$VERSION" != "$PACKAGE_VERSION" ]]; then
+    echo "ERROR: Version mismatch in readme.txt or package.json" >&2
+    exit 1
+fi
+
 ZIP_NAME="${THEME_SLUG}-${VERSION}.zip"
 
 echo "Building $ZIP_NAME ..."
@@ -94,7 +101,7 @@ rm -f "$ZIP_NAME"
 
 ZIP_LISTING=$(zipinfo -1 "$ZIP_NAME")
 
-FIRST_ENTRY=$(echo "$ZIP_LISTING" | head -1)
+FIRST_ENTRY=${ZIP_LISTING%%$'\n'*}
 if [[ "$FIRST_ENTRY" != "${THEME_SLUG}/" ]]; then
     echo "ERROR: Zip root is '$FIRST_ENTRY', expected '${THEME_SLUG}/'" >&2
     rm -f "$ZIP_NAME"

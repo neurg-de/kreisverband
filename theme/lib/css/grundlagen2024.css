@@ -1,7 +1,7 @@
 /* ==========================================================================
-   Neurg Kreisverband – Grundlagendesign 2024
-   Following the official Grüne Design System: design.gruene.de
-   ========================================================================== */
+    Neurg Kreisverband – Grundlagendesign 2024
+    Following the official Grüne Design System: design.gruene.de
+    ========================================================================== */
 
 /* ── Web Fonts ─────────────────────────────────────────────────────────────── */
 
@@ -24,7 +24,7 @@
 @font-face {
     font-family: 'GrueneType';
     src: url('https://www.gruene.de/fonts/GrueneTypeNeue-Regular.woff2') format('woff2'),
-         url('https://www.gruene.de/fonts/GrueneTypeNeue-Regular.woff') format('woff');
+        url('https://www.gruene.de/fonts/GrueneTypeNeue-Regular.woff') format('woff');
     font-weight: 100 900;
     font-style: normal;
     font-display: swap;
@@ -34,7 +34,7 @@
 /* ── Design Tokens ─────────────────────────────────────────────────────────── */
 
 :root {
-    /* Primary ("Klee") */
+    /* Primary palette: Klee. */
     --klee-50:  #E5F3EB;
     --klee-100: #CCE7D7;
     --klee-200: #B2DCC4;
@@ -47,7 +47,7 @@
     --klee-900: #003717;
     --klee-950: #002911;
 
-    /* Secondary ("Tanne") */
+    /* Secondary palette: Tanne. */
     --tanne-50:  #D5EEE6;
     --tanne-100: #BEDDD2;
     --tanne-200: #A6CCBF;
@@ -59,7 +59,7 @@
     --tanne-800: #003221;
     --tanne-900: #002216;
 
-    /* Neutral ("Sand") */
+    /* Neutral palette: Sand. */
     --sand-50:  #FDFCFA;
     --sand-100: #FAF8F4;
     --sand-200: #F7F4ED;
@@ -67,7 +67,7 @@
     --sand-400: #EFE8DB;
     --sand-500: #E8DFCD;
 
-    /* Sun ("Sonne") */
+    /* Sun palette: Sonne. */
     --sonne-100: #FFFCE6;
     --sonne-200: #FFFACC;
     --sonne-300: #FFF8B3;
@@ -143,7 +143,7 @@
     --shadow-lg:  0 8px 24px rgba(0, 34, 22, 0.12);
 
     /* Navigation bar – single source of truth for all header bars
-       (.header-mobile, #nav-desktop, #nav-flyin) */
+        (.header-mobile, #nav-desktop, #nav-flyin) */
     --nav-bar-bg:           var(--color-surface);
     --nav-bar-border:       3px solid var(--color-primary);
     --nav-bar-padding-x:    var(--space-4);
@@ -238,9 +238,9 @@ small { font-size: 0.875em; }
 
 /* ── Links ─────────────────────────────────────────────────────────────────── */
 /* Styles extracted from the official Grüne Design System (design.gruene.de)
-   and verified against the live gruene.de implementation (2024).
-   Variants: "On light" (default) and "On dark" (handled via dark-mode tokens).
-   States: default, hover, active/pressed, visited, focus-visible.              */
+    and verified against the live gruene.de implementation (2024).
+    Variants: "On light" (default) and "On dark" (handled via dark-mode tokens).
+    States: default, hover, active/pressed, visited, focus-visible.              */
 
 /* Mark-highlight custom properties (yellow skewed background on hover) */
 :root {
@@ -316,9 +316,9 @@ nav a:hover,
 }
 
 /* Dark-mode link adjustments (on-dark variant from design system).
-   Token overrides (--color-link, --color-link-hover) are already
-   set in the dark-mode :root block above; these rules handle the
-   decoration differences the design system specifies for dark bg. */
+    Token overrides (--color-link, --color-link-hover) are already
+    set in the dark-mode :root block above; these rules handle the
+    decoration differences the design system specifies for dark bg. */
 @media (prefers-color-scheme: dark) {
     a:hover,
     a:active {
@@ -329,9 +329,9 @@ nav a:hover,
 
 /* ── Buttons ───────────────────────────────────────────────────────────────── */
 /* Styles extracted from the official Grüne Design System (design.gruene.de)
-   and verified against the live gruene.de implementation (2024).
-   Variants: primary, secondary (outline), ghost; Sizes: M (default), S (small).
-   Hover uses Sonne-600 yellow (#FFF17A) with dark text — a key brand pattern. */
+    and verified against the live gruene.de implementation (2024).
+    Variants: primary, secondary (outline), ghost; Sizes: M (default), S (small).
+    Hover uses Sonne-600 yellow (#FFF17A) with dark text — a key brand pattern. */
 
 /* --- Base button reset (shared by all variants & sizes) --- */
 

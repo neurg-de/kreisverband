@@ -41,111 +41,124 @@ function gk_register_roles() {
 
     // ── KV Level ────────────────────────────────────────────────────────────
 
-    // KV-Autor: creates KV-level content (own posts, pages, persons) — no OV access
-    add_role( 'gk_kvautor', 'KV-Autor', array(
-        'read'                   => true,
-        'upload_files'           => true,
+    // KV-Autor: creates KV-level content (own posts, pages, persons) — no OV access.
+    add_role(
+        'gk_kvautor',
+        'KV-Autor',
+        array(
+			'read'                   => true,
+			'upload_files'           => true,
 
-        // Posts (own only)
-        'edit_posts'             => true,
-        'edit_published_posts'   => true,
-        'publish_posts'          => true,
-        'delete_posts'           => true,
-        'delete_published_posts' => true,
+			// Posts (own only).
+			'edit_posts'             => true,
+			'edit_published_posts'   => true,
+			'publish_posts'          => true,
+			'delete_posts'           => true,
+			'delete_published_posts' => true,
 
-        // Pages (own only)
-        'edit_pages'             => true,
-        'edit_published_pages'   => true,
-        'publish_pages'          => true,
-        'delete_pages'           => true,
-        'delete_published_pages' => true,
+			// Pages (own only).
+			'edit_pages'             => true,
+			'edit_published_pages'   => true,
+			'publish_pages'          => true,
+			'delete_pages'           => true,
+			'delete_published_pages' => true,
 
-        // Person CPT (own only)
-        'edit_persons'           => true,
-        'publish_persons'        => true,
-        'delete_persons'         => true,
-    ) );
+			// Person CPT (own only).
+			'edit_persons'           => true,
+			'publish_persons'        => true,
+			'delete_persons'         => true,
+        )
+    );
 
-    // KV-Autor mit OV-Zugang: like KV-Autor but can also see/edit OV content
-    add_role( 'gk_kvautor_ov', 'KV-Autor (mit OV-Zugang)', array(
-        'read'                   => true,
-        'upload_files'           => true,
+    // KV-Autor mit OV-Zugang: like KV-Autor but can also see/edit OV content.
+    add_role(
+        'gk_kvautor_ov',
+        'KV-Autor (mit OV-Zugang)',
+        array(
+			'read'                   => true,
+			'upload_files'           => true,
 
-        // Posts (incl. others = OV content)
-        'edit_posts'             => true,
-        'edit_others_posts'      => true,
-        'edit_published_posts'   => true,
-        'publish_posts'          => true,
-        'delete_posts'           => true,
-        'delete_published_posts' => true,
+			// Posts (incl. others = OV content).
+			'edit_posts'             => true,
+			'edit_others_posts'      => true,
+			'edit_published_posts'   => true,
+			'publish_posts'          => true,
+			'delete_posts'           => true,
+			'delete_published_posts' => true,
 
-        // Pages (incl. others = OV pages)
-        'edit_pages'             => true,
-        'edit_others_pages'      => true,
-        'edit_published_pages'   => true,
-        'publish_pages'          => true,
-        'delete_pages'           => true,
-        'delete_published_pages' => true,
+			// Pages (incl. others = OV pages).
+			'edit_pages'             => true,
+			'edit_others_pages'      => true,
+			'edit_published_pages'   => true,
+			'publish_pages'          => true,
+			'delete_pages'           => true,
+			'delete_published_pages' => true,
 
-        // Person CPT (incl. others = OV persons)
-        'edit_persons'           => true,
-        'edit_others_persons'    => true,
-        'publish_persons'        => true,
-        'delete_persons'         => true,
+			// Person CPT (incl. others = OV persons).
+			'edit_persons'           => true,
+			'edit_others_persons'    => true,
+			'publish_persons'        => true,
+			'delete_persons'         => true,
 
-        // OV access
-        'gk_manage_ov'           => true,
-    ) );
+			// OV access.
+			'gk_manage_ov'           => true,
+        )
+    );
 
     // ── OV Level ────────────────────────────────────────────────────────────
 
-    // OV-Admin: can manage all content types but scoped to own authorship
-    add_role( 'gk_ovadmin', 'OV-Admin', array(
-        'read'                   => true,
-        'upload_files'           => true,
+    // OV-Admin: can manage all content types but scoped to own authorship.
+    add_role(
+        'gk_ovadmin',
+        'OV-Admin',
+        array(
+			'read'                   => true,
+			'upload_files'           => true,
 
-        // Posts
-        'edit_posts'             => true,
-        'edit_published_posts'   => true,
-        'publish_posts'          => true,
-        'delete_posts'           => true,
-        'delete_published_posts' => true,
+			// Posts.
+			'edit_posts'             => true,
+			'edit_published_posts'   => true,
+			'publish_posts'          => true,
+			'delete_posts'           => true,
+			'delete_published_posts' => true,
 
-        // Pages
-        'edit_pages'             => true,
-        'edit_published_pages'   => true,
-        'publish_pages'          => true,
-        'delete_pages'           => true,
-        'delete_published_pages' => true,
+			// Pages.
+			'edit_pages'             => true,
+			'edit_published_pages'   => true,
+			'publish_pages'          => true,
+			'delete_pages'           => true,
+			'delete_published_pages' => true,
 
-        // Person CPT
-        'edit_persons'           => true,
-        'publish_persons'        => true,
-        'delete_persons'         => true,
+			// Person CPT.
+			'edit_persons'           => true,
+			'publish_persons'        => true,
+			'delete_persons'         => true,
 
-        // Menus (requires edit_theme_options for nav-menus.php)
-        'edit_theme_options'     => true,
+			// OV-specific.
+			'gk_manage_ov'           => true,
+        )
+    );
 
-        // OV-specific
-        'gk_manage_ov'           => true,
-    ) );
+    // OV-Autor: can create and edit own content.
+    add_role(
+        'gk_ovautor',
+        'OV-Autor',
+        array(
+			'read'                 => true,
+			'upload_files'         => true,
 
-    // OV-Autor: can create and edit own content
-    add_role( 'gk_ovautor', 'OV-Autor', array(
-        'read'                   => true,
-        'upload_files'           => true,
+			// Posts (own only).
+			'edit_posts'           => true,
+			'edit_published_posts' => true,
+			'publish_posts'        => true,
+			'delete_posts'         => true,
 
-        // Posts (own only)
-        'edit_posts'             => true,
-        'edit_published_posts'   => true,
-        'publish_posts'          => true,
-        'delete_posts'           => true,
-
-        // Person CPT (own only)
-        'edit_persons'           => true,
-        'publish_persons'        => true,
-        'delete_persons'         => true,
-    ) );
+			// Person CPT (own only).
+			'edit_persons'         => true,
+			'publish_persons'      => true,
+			'delete_persons'       => true,
+        )
+    );
 }
 add_action( 'after_switch_theme', 'gk_register_roles' );
 
@@ -159,7 +172,7 @@ function gk_remove_roles() {
     remove_role( 'gk_ovadmin' );
     remove_role( 'gk_ovautor' );
 }
-add_action( 'switch_theme', 'gk_remove_roles' );
+// Keep role definitions on theme switches so rollback does not strand existing users.
 
 
 // ── Grant KV-level roles access to all content ─────────────────────────────
@@ -167,21 +180,23 @@ add_action( 'switch_theme', 'gk_remove_roles' );
 /**
  * Ensure Kreisadmin and KV-Autor (mit OV) see all posts in admin lists,
  * not just their own.
+ *
+ * @param WP_Query $query Content query.
  */
 function gk_kv_sees_all_content( $query ) {
     if ( ! is_admin() || ! $query->is_main_query() ) {
         return;
     }
 
-    $user = wp_get_current_user();
+    $user              = wp_get_current_user();
     $full_access_roles = array( 'administrator', 'gk_kvautor_ov' );
 
     if ( ! array_intersect( $full_access_roles, (array) $user->roles ) ) {
         return;
     }
 
-    // Remove accidental author restrictions so these roles see all content
-    if ( $query->get( 'author' ) == $user->ID ) {
+    // Remove accidental author restrictions so these roles see all content.
+    if ( (int) $query->get( 'author' ) === $user->ID ) {
         $query->set( 'author', '' );
     }
 }
@@ -200,13 +215,13 @@ function gk_simplify_admin_menu() {
     $user  = wp_get_current_user();
     $roles = (array) $user->roles;
 
-    // Verband settings page: admin + OV-Admin
+    // Verband settings page: admin + OV-Admin.
     $verband_roles = array( 'administrator', 'gk_ovadmin' );
     if ( ! array_intersect( $verband_roles, $roles ) ) {
         remove_menu_page( 'gk-settings' );
     }
 
-    // OV roles: simplified admin
+    // OV roles: simplified admin.
     $ov_roles = array( 'gk_ovadmin', 'gk_ovautor' );
     if ( array_intersect( $ov_roles, $roles ) ) {
         remove_menu_page( 'tools.php' );
@@ -214,7 +229,7 @@ function gk_simplify_admin_menu() {
         return;
     }
 
-    // KV-Autor (both variants): hide tools
+    // KV-Autor (both variants): hide tools.
     $kv_autor_roles = array( 'gk_kvautor', 'gk_kvautor_ov' );
     if ( array_intersect( $kv_autor_roles, $roles ) ) {
         remove_menu_page( 'tools.php' );
@@ -255,10 +270,12 @@ function gk_ov_dashboard_widget() {
     if ( array_intersect( $ov_roles, $roles ) ) {
         wp_add_dashboard_widget( 'gk_ov_welcome', 'Dein Ortsverband', 'gk_ov_welcome_widget_cb' );
     }
-
 }
 add_action( 'wp_dashboard_setup', 'gk_ov_dashboard_widget' );
 
+/**
+ * Ov welcome widget cb.
+ */
 function gk_ov_welcome_widget_cb() {
     $user = wp_get_current_user();
     // OV users have login matching their zuordnung slug (e.g. "ov-gauting").
@@ -273,3 +290,8 @@ function gk_ov_welcome_widget_cb() {
         echo '<p>Willkommen, ' . esc_html( $user->display_name ) . '!</p>';
     }
 }
+
+// Security and media boundaries also apply to REST and direct object access.
+require_once __DIR__ . '/role-security.php';
+require_once __DIR__ . '/role-overview.php';
+require_once __DIR__ . '/media-scope.php';

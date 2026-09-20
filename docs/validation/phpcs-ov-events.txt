@@ -1,0 +1,24 @@
+
+PHP CODE SNIFFER REPORT SUMMARY
+----------------------------------------------------------------------
+FILE                                                  ERRORS  WARNINGS
+----------------------------------------------------------------------
+/workspace/theme/archive-gk_event.php                 17      1
+/workspace/theme/footer.php                           8       0
+/workspace/theme/page-OV.php                          163     36
+/workspace/theme/page-termine.php                     20      5
+/workspace/theme/single-gk_event.php                  13      5
+/workspace/theme/inc/admin.php                        244     54
+/workspace/theme/inc/cookie-consent.php               6       0
+/workspace/theme/inc/events.php                       135     54
+/workspace/theme/inc/kreiskarte.php                   80      38
+/workspace/theme/inc/ortsverband.php                  140     27
+/workspace/theme/inc/setup-wizard.php                 57      41
+/workspace/theme/inc/shortcodes.php                   125     28
+----------------------------------------------------------------------
+A TOTAL OF 1008 ERRORS AND 289 WARNINGS WERE FOUND IN 12 FILES
+----------------------------------------------------------------------
+PHPCBF CAN FIX 850 OF THESE SNIFF VIOLATIONS AUTOMATICALLY
+----------------------------------------------------------------------
+
+Time: 1.13 secs; Memory: 32MB

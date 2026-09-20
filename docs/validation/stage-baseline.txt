@@ -1,0 +1,5 @@
+Theme neurg-kreisverband details:
+    Name: Neurg Kreisverband
+    Status: Active
+    Version: 0.6.2
+    Author: Severin Kistner

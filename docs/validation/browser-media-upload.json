@@ -1,0 +1,11 @@
+{
+  "id": "f93298ef-3d20-4579-82e2-039ba6030996",
+  "ok": true,
+  "result": {
+    "result": "{\"attachment\":70,\"scope\":[9],\"featured_media\":70}",
+    "origin": "http://localhost:8082/wp-admin/post.php?post=68&action=edit"
+  },
+  "_meta": {
+    "runtimeId": "343e7f17-1ecd-4d80-b513-e05bc9ca9b68"
+  }
+}
