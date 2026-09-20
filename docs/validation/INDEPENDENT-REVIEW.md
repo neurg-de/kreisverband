@@ -1,6 +1,6 @@
 # Independent release review — 0.7.0
 
-Reviewer dispatch: `task_d3a0ba7c4e19` / `ctx_7dd75b2b5d9a`. Reviewed against `origin/dev` and `/Users/m1/Documents/ORCA_KREISVERBAND_TASK.md`, including the handbook, tests and release workflows. All five reproduced implementation findings have been fixed and independently reverified, including the final coordinator freeze comparison. No implementation edits, commits, production changes or external mail were made.
+Reviewer dispatch: `task_d3a0ba7c4e19` / `ctx_7dd75b2b5d9a`. Reviewed against `origin/dev` and the release requirements, including the handbook, tests and release workflows. All five reproduced implementation findings have been fixed and independently reverified, including the final coordinator freeze comparison. No implementation edits, commits, production changes or external mail were made.
 
 ## Release decision
 

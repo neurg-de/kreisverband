@@ -4,7 +4,7 @@ WordPress-Theme fuer GRUENE Kreisverband- und Ortsverband-Websites.
 
 **[neurg.de](https://neurg.de)** — Download, Dokumentation und Demo.
 
-Für die Redaktion: [Benutzerhandbuch für Flora und die Geschäftsstelle](docs/BENUTZERHANDBUCH.md).
+Für die Redaktion: [Benutzerhandbuch für Redaktion und Administration](docs/BENUTZERHANDBUCH.md).
 Release 0.7.0: [Prüfungen, Update und Rollback](docs/RELEASE-0.7.0.md).
 
 ![Screenshot](theme/screenshot.png)

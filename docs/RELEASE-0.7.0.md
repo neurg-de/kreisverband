@@ -5,7 +5,7 @@ Geprüfter Stand vom 20.09.2026. Ausgangspunkt: `ac3507de322a92b1e324421df77da4f
 `dev` → Squash-Commit auf `main` → Tag `v0.7.0` → GitHub Actions.
 
 Die GitHub-Veröffentlichung stellt das installierbare Theme-ZIP und `SHA256SUMS`
-bereit. Die Installation auf **gruene-starnberg.de erfolgt manuell**.
+bereit. Die Installation erfolgt separat auf der jeweiligen WordPress-Website.
 Es wurde keine Live-Installation verändert und keine Nachricht an Dritte versendet.
 
 ## Änderungen
@@ -28,7 +28,8 @@ Es wurde keine Live-Installation verändert und keine Nachricht an Dritte versen
 - Termine und iCal werden nach Zuständigkeit abgegrenzt. Kalenderexporte
   berücksichtigen Zeitzone, ganztägige Termine, Textescaping und Zeilenfaltung.
 - `[newsletter_anfrage]` und die Seitenvorlage „Mach mit“ senden eine bewusst
-  bestätigte Interessensbekundung an `info@gruene-starnberg.de`. Kein automatisches
+  bestätigte Interessensbekundung an die in dieser Version fest im Theme definierte
+  Empfängeradresse. Diese Adresse ist vor dem Einsatz installationsbezogen zu prüfen. Kein automatisches
   Abonnement, keine Speicherung des Nachrichteninhalts im Theme. Formularbindung,
   Nonce, Honeypot, begrenzte Versandrate und serverseitige Validierung schützen
   den Versand; ein Mailfehler wird nicht als Erfolg ausgegeben.
@@ -140,7 +141,7 @@ und alle Verknüpfungen gegen die OV-Daten prüfen.
    nicht das automatisch angebotene Quellcodearchiv.
 2. Vollständige Dateien, Datenbank und angepasste Kartendateien sichern; Ort,
    Zeitpunkt, Wiederherstellungszugang und Wartungsfenster festhalten.
-3. Eine aktuelle geschützte Staging-Kopie von gruene-starnberg.de mit diesen
+3. Eine aktuelle geschützte Staging-Kopie der zu aktualisierenden Website mit diesen
    Daten erstellen, ausgehende E-Mails abfangen, ZIP als reguläres Theme-Update
    einspielen und die folgenden Prüfungen durchführen. Die hier dokumentierte
    synthetische lokale Staging-Prüfung ersetzt diesen Test der tatsächlichen
@@ -162,13 +163,11 @@ und alle Verknüpfungen gegen die OV-Daten prüfen.
    Cache leeren, alte Version und Erreichbarkeit prüfen. Keine weiteren
    redaktionellen Änderungen während einer Rücknahme zulassen.
 
-Die öffentlichen Live-Adressen wurden nur lesend zur Einordnung von Floras
-Fehlerbericht geprüft. Dabei war mindestens eine funktionierende direkte OV-Seite
-über den Einstieg nicht erreichbar; außerdem existiert eine konfigurierte
-`example.com`-Platzhalteradresse. Diese Adresse muss die Administration durch die
-fachlich richtige OV-Website ersetzen. Die Software kann das gewünschte externe
-Ziel nicht erraten. **Kein Live-Smoke-Test nach Update durchgeführt**, da das
-Live-Update gemäß Auftrag manuell erfolgt.
+Installationsbezogene Befunde und Update-Protokolle werden separat geführt.
+Dieser öffentliche Bericht dokumentiert Tests mit synthetischen Daten und
+bestätigt kein Update einer konkreten produktiven Website. Hinterlegte externe
+Ziele sind vor jeder Freigabe fachlich zu prüfen; Platzhalter dürfen nicht als
+verifizierte OV-Websites übernommen werden.
 
 Newsletter-Verteilereintrag, Einrichtung/Übergabe von Postfächern, rechtliche
 Freigabe der Pflichtseitentexte und Korrektur örtlicher Inhalte bleiben Aufgaben
