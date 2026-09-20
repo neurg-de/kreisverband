@@ -1,4 +1,10 @@
 <?php
+/**
+ * Content person team template.
+ *
+ * @package Neurg_Kreisverband
+ */
+
 $amt      = get_post_meta( get_the_ID(), 'kr8mb_pers_pos_amt', true );
 $email    = get_post_meta( get_the_ID(), 'kr8mb_pers_contact_email', true );
 $telefon  = get_post_meta( get_the_ID(), 'kr8mb_pers_contact_telefon', true );
@@ -14,9 +20,21 @@ $shortbio = get_post_meta( get_the_ID(), 'kr8mb_pers_excerpt', true );
     </header>
 
     <section class="entry-content">
-        <?php if ( $amt ) : ?><p class="funktion"><?php echo esc_html( $amt ); ?></p><?php endif; ?>
-        <?php if ( $shortbio ) : ?><p class="short"><?php echo esc_html( $shortbio ); ?></p><?php endif; ?>
-        <?php if ( $email ) : ?><p><a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a></p><?php endif; ?>
-        <?php if ( $telefon ) : ?><p><a href="tel:<?php echo esc_attr( $telefon ); ?>"><?php echo esc_html( $telefon ); ?></a></p><?php endif; ?>
+        <?php
+        if ( $amt ) :
+			?>
+            <p class="funktion"><?php echo esc_html( $amt ); ?></p><?php endif; ?>
+        <?php
+        if ( $shortbio ) :
+			?>
+            <p class="short"><?php echo esc_html( $shortbio ); ?></p><?php endif; ?>
+        <?php
+        if ( $email ) :
+			?>
+            <p><a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a></p><?php endif; ?>
+        <?php
+        if ( $telefon ) :
+			?>
+            <p><a href="tel:<?php echo esc_attr( $telefon ); ?>"><?php echo esc_html( $telefon ); ?></a></p><?php endif; ?>
     </section>
 </article>

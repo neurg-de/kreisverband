@@ -1,0 +1,24 @@
+Installing...
+Running as single site... To run multisite, use -c tests/phpunit/multisite.xml
+Not running ajax tests. To execute these, use --group ajax.
+Not running ms-files tests. To execute these, use --group ms-files.
+Not running external-http tests. To execute these, use --group external-http.
+PHPUnit 9.6.36 by Sebastian Bergmann and contributors.
+
+E                                                                   1 / 1 (100%)
+
+Time: 00:00.044, Memory: 44.50 MB
+
+There was 1 error:
+
+1) ShortcodesTest::test_legacy_person_shortcode_honors_abteilung_and_slug_alias
+Undefined array key "slug"
+
+/workspace/theme/inc/shortcodes.php:66
+/workspace/theme/inc/shortcodes.php:103
+/tmp/wordpress/wp-includes/shortcodes.php:434
+/tmp/wordpress/wp-includes/shortcodes.php:273
+/workspace/tests/ShortcodesTest.php:19
+
+ERRORS!
+Tests: 1, Assertions: 0, Errors: 1.

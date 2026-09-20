@@ -35,6 +35,7 @@ function gk_zuordnung_submenu( $menu_slug, $capability ) {
     global $submenu;
 
     if ( isset( $submenu[ $menu_slug ] ) ) {
+        // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress admin-menu API exposes submenu through this global for intentional menu customization.
         $submenu[ $menu_slug ] = array();
     }
 
@@ -51,28 +52,45 @@ function gk_zuordnung_submenu( $menu_slug, $capability ) {
     if ( $is_kv ) {
         $kv_term = get_term_by( 'slug', 'kreisverband', 'gk_zuordnung' );
         if ( $kv_term ) {
-            add_submenu_page( $menu_slug, 'Kreisverband', 'Kreisverband', $capability,
-                $menu_slug . $sep . 'gk_zuordnung=' . $kv_term->slug );
+            add_submenu_page(
+                $menu_slug,
+                'Kreisverband',
+                'Kreisverband',
+                $capability,
+                $menu_slug . $sep . 'gk_zuordnung=' . $kv_term->slug
+            );
         }
 
-        $ov_terms = get_terms( array(
-            'taxonomy'   => 'gk_zuordnung',
-            'hide_empty' => false,
-            'exclude'    => $kv_term ? array( $kv_term->term_id ) : array(),
-            'orderby'    => 'name',
-        ) );
+        $ov_terms = get_terms(
+            array(
+				'taxonomy'   => 'gk_zuordnung',
+				'hide_empty' => false,
+				'exclude'    => $kv_term ? array( $kv_term->term_id ) : array(),
+				'orderby'    => 'name',
+            )
+        );
 
         if ( ! is_wp_error( $ov_terms ) ) {
             foreach ( $ov_terms as $term ) {
-                add_submenu_page( $menu_slug, $term->name, $term->name, $capability,
-                    $menu_slug . $sep . 'gk_zuordnung=' . $term->slug );
+                add_submenu_page(
+                    $menu_slug,
+                    $term->name,
+                    $term->name,
+                    $capability,
+                    $menu_slug . $sep . 'gk_zuordnung=' . $term->slug
+                );
             }
         }
     } elseif ( $is_ov ) {
         $term = get_term_by( 'slug', $user->user_login, 'gk_zuordnung' );
         if ( $term ) {
-            add_submenu_page( $menu_slug, $term->name, $term->name, 'read',
-                $menu_slug . $sep . 'gk_zuordnung=' . $term->slug );
+            add_submenu_page(
+                $menu_slug,
+                $term->name,
+                $term->name,
+                'read',
+                $menu_slug . $sep . 'gk_zuordnung=' . $term->slug
+            );
         }
     }
 }
@@ -81,12 +99,11 @@ function gk_zuordnung_submenu( $menu_slug, $capability ) {
  * Apply zuordnung submenus to Posts, Pages, Personen, Termine, and Media.
  */
 function gk_register_zuordnung_submenus() {
-    gk_zuordnung_submenu( 'edit.php',                       'edit_posts' );
-    gk_zuordnung_submenu( 'edit.php?post_type=page',        'edit_pages' );
-    gk_zuordnung_submenu( 'edit.php?post_type=person',      'edit_posts' );
-    gk_zuordnung_submenu( 'edit.php?post_type=gk_event',    'edit_posts' );
-    gk_zuordnung_submenu( 'upload.php',                     'upload_files' );
-
+    gk_zuordnung_submenu( 'edit.php', 'edit_posts' );
+    gk_zuordnung_submenu( 'edit.php?post_type=page', 'edit_pages' );
+    gk_zuordnung_submenu( 'edit.php?post_type=person', 'edit_posts' );
+    gk_zuordnung_submenu( 'edit.php?post_type=gk_event', 'edit_posts' );
+    gk_zuordnung_submenu( 'upload.php', 'upload_files' );
 }
 add_action( 'admin_menu', 'gk_register_zuordnung_submenus', 20 );
 
@@ -101,6 +118,7 @@ function gk_settings_admin_menu() {
     $hook = add_menu_page(
         'Verband',
         'Verband',
+        // phpcs:ignore WordPress.WP.Capabilities.Unknown -- gk_manage_ov is registered for authorized roles in inc/roles.php.
         'gk_manage_ov',
         'gk-settings',
         'gk_settings_page',
@@ -108,13 +126,48 @@ function gk_settings_admin_menu() {
         26
     );
 
-    add_action( 'load-' . $hook, function () {
-        if ( current_user_can( 'edit_theme_options' ) ) {
-            wp_enqueue_media();
-        }
-    } );
+    add_action( 'load-' . $hook, 'gk_enqueue_settings_media' );
 }
 add_action( 'admin_menu', 'gk_settings_admin_menu' );
+
+/** Load WordPress media tools for authorized settings editors. */
+function gk_enqueue_settings_media() {
+    // phpcs:ignore WordPress.WP.Capabilities.Unknown -- Theme settings capability is registered in roles.php.
+    if ( current_user_can( 'gk_manage_ov' ) && current_user_can( 'upload_files' ) ) {
+        wp_enqueue_media();
+    }
+}
+
+/**
+ * Check a new homepage image while preserving unchanged legacy references.
+ *
+ * @param int $image_id Requested image ID; zero removes the selection.
+ * @param int $previous_id Stored image ID for this exact field.
+ * @return bool Whether the selection can be saved.
+ */
+function gk_can_select_ov_homepage_image( $image_id, $previous_id ) {
+    if ( ! $image_id || $image_id === $previous_id ) {
+        return true;
+    }
+    return current_user_can( 'upload_files' ) &&
+        'attachment' === get_post_type( $image_id ) &&
+        wp_attachment_is_image( $image_id ) && gk_object_in_scope( $image_id );
+}
+
+/** Render a known save outcome, including rejected image selections. */
+function gk_ov_settings_notice() {
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only save outcome; handlers authenticate all writes.
+    $message  = sanitize_key( wp_unslash( $_GET['message'] ?? '' ) );
+    $messages = array(
+        'saved'          => __( 'Gespeichert.', 'neurg-kreisverband' ),
+        'deleted'        => __( 'Ortsverband gelöscht.', 'neurg-kreisverband' ),
+        'media-rejected' => __( 'Die neue Bildauswahl gehört nicht zu deinem Bereich oder ist kein freigegebenes Bild. Die bisherige Bildzuordnung bleibt erhalten; die übrigen Angaben wurden gespeichert.', 'neurg-kreisverband' ),
+    );
+    if ( isset( $messages[ $message ] ) ) {
+        $class = 'media-rejected' === $message ? 'notice-warning' : 'notice-success';
+        echo '<div class="notice ' . esc_attr( $class ) . ' is-dismissible"><p>' . esc_html( $messages[ $message ] ) . '</p></div>';
+    }
+}
 
 /**
  * Router for the settings admin page.
@@ -143,11 +196,13 @@ function gk_settings_page() {
     }
 
     // Admin sub-views: OV edit / delete.
-    if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && isset( $_GET['term_id'] ) ) {
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view/filter parameter; no state changes occur here and write handlers check their own nonce.
+    if ( isset( $_GET['action'] ) && 'edit' === $_GET['action'] && isset( $_GET['term_id'] ) ) {
         gk_ortsverband_edit_page();
         return;
     }
-    if ( isset( $_GET['action'] ) && $_GET['action'] === 'delete' && isset( $_GET['term_id'] ) ) {
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view/filter parameter; no state changes occur here and write handlers check their own nonce.
+    if ( isset( $_GET['action'] ) && 'delete' === $_GET['action'] && isset( $_GET['term_id'] ) ) {
         gk_ortsverband_delete_page();
         return;
     }
@@ -160,60 +215,108 @@ function gk_settings_page() {
  * Handle save actions for OV term editing.
  */
 function gk_ortsverband_handle_save() {
-    if ( ! isset( $_POST['gk_ov_save_nonce'] ) ) return;
-    if ( ! wp_verify_nonce( $_POST['gk_ov_save_nonce'], 'gk_ov_save' ) ) return;
-    if ( ! current_user_can( 'gk_manage_ov' ) ) return;
+    if ( ! isset( $_POST['gk_ov_save_nonce'] ) ) {
+		return;
+    }
+    if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['gk_ov_save_nonce'] ) ), 'gk_ov_save' ) ) {
+		return;
+    }
+    // phpcs:ignore WordPress.WP.Capabilities.Unknown -- gk_manage_ov is registered for authorized roles in inc/roles.php.
+    if ( ! current_user_can( 'gk_manage_ov' ) ) {
+		return;
+    }
 
-    $term_id  = isset( $_POST['term_id'] ) ? (int) $_POST['term_id'] : 0;
+    $term_id  = isset( $_POST['term_id'] ) ? absint( $_POST['term_id'] ) : 0;
     $is_admin = gk_current_user_is_admin();
 
     // OV-Admins: can only edit their own OV, not create new ones.
     if ( ! $is_admin ) {
         $user     = wp_get_current_user();
         $own_term = get_term_by( 'slug', $user->user_login, 'gk_zuordnung' );
-        if ( ! $own_term || $term_id !== (int) $own_term->term_id ) return;
+        if ( ! $own_term || $term_id !== (int) $own_term->term_id ) {
+			return;
+        }
     }
 
-    $name = sanitize_text_field( $_POST['ov_name'] ?? '' );
-    $slug = sanitize_title( $_POST['ov_slug'] ?? '' );
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Raw value is type-checked and validated by gk_validate_public_email(), gk_public_page_id() or the field-specific sanitizer immediately below.
+    $public_email = wp_unslash( $_POST['ov_contact_email'] ?? '' );
+    if ( '' !== $public_email && ! gk_validate_public_email( $public_email ) ) {
+        wp_die(
+            esc_html__( 'Bitte eine gültige öffentliche Kontakt-E-Mail-Adresse eingeben. Es wurden keine Änderungen gespeichert.', 'neurg-kreisverband' ),
+            '',
+            array(
+				'response'  => 400,
+				'back_link' => true,
+            )
+        );
+    }
+    foreach ( array( 'impressum', 'datenschutz' ) as $legal_type ) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Raw value is type-checked and validated by gk_validate_public_email(), gk_public_page_id() or the field-specific sanitizer immediately below.
+        $requested_page = wp_unslash( $_POST[ 'ov_' . $legal_type . '_page' ] ?? '0' );
+        if ( ! is_scalar( $requested_page ) || ( absint( $requested_page ) && ! gk_public_page_id( $requested_page ) ) ) {
+            wp_die(
+                esc_html__( 'Bitte eine veröffentlichte, nicht passwortgeschützte Seite wählen oder die KV-Seite übernehmen. Es wurden keine Änderungen gespeichert.', 'neurg-kreisverband' ),
+                '',
+                array(
+					'response'  => 400,
+					'back_link' => true,
+                )
+            );
+        }
+    }
 
-    if ( empty( $name ) ) return;
+    $name = sanitize_text_field( wp_unslash( $_POST['ov_name'] ?? '' ) );
+    $slug = sanitize_title( wp_unslash( $_POST['ov_slug'] ?? '' ) );
+
+    if ( empty( $name ) ) {
+		return;
+    }
 
     if ( $term_id ) {
         // Update existing term. OV-Admins cannot change name/slug.
         if ( $is_admin ) {
-            wp_update_term( $term_id, 'gk_zuordnung', array(
-                'name' => $name,
-                'slug' => $slug,
-            ) );
+            wp_update_term(
+                $term_id,
+                'gk_zuordnung',
+                array(
+					'name' => $name,
+					'slug' => $slug,
+                )
+            );
         }
     } else {
         // Create new term (admin only — guarded above).
-        $result = wp_insert_term( $name, 'gk_zuordnung', array(
-            'slug' => $slug ?: sanitize_title( $name ),
-        ) );
-        if ( is_wp_error( $result ) ) return;
+        $result = wp_insert_term(
+            $name,
+            'gk_zuordnung',
+            array(
+				'slug' => $slug ? $slug : sanitize_title( $name ),
+            )
+        );
+        if ( is_wp_error( $result ) ) {
+			return;
+        }
         $term_id = $result['term_id'];
     }
 
     // Save type (admin only).
     if ( $is_admin ) {
-        $type = sanitize_text_field( $_POST['ov_type'] ?? 'ov' );
+        $type = sanitize_text_field( wp_unslash( $_POST['ov_type'] ?? 'ov' ) );
         if ( in_array( $type, array( 'ov', 'ortsgruppe', 'werbung' ), true ) ) {
             update_term_meta( $term_id, '_gk_ov_type', $type );
         }
 
         // Save homepage.
-        $homepage_id = (int) ( $_POST['ov_homepage_id'] ?? 0 );
+        $homepage_id = absint( $_POST['ov_homepage_id'] ?? 0 );
         update_term_meta( $term_id, '_gk_homepage_id', $homepage_id );
     }
 
     // Save header (both admin and OV-Admin).
-    $header_value = sanitize_text_field( $_POST['ov_header'] ?? '' );
-    $is_new_term  = ( (int) ( $_POST['term_id'] ?? 0 ) ) === 0;
+    $header_value = sanitize_text_field( wp_unslash( $_POST['ov_header'] ?? '' ) );
+    $is_new_term  = ( absint( $_POST['term_id'] ?? 0 ) ) === 0;
     if ( $is_new_term && empty( $header_value ) ) {
-        $type_for_header = sanitize_text_field( $_POST['ov_type'] ?? 'ov' );
-        $header_value = match ( $type_for_header ) {
+        $type_for_header = sanitize_text_field( wp_unslash( $_POST['ov_type'] ?? 'ov' ) );
+        $header_value    = match ( $type_for_header ) {
             'ortsgruppe' => 'Ortsgruppe Grüne ' . $name,
             'werbung'    => 'Grüne in ' . $name,
             default      => 'Ortsverband Grüne ' . $name,
@@ -221,25 +324,41 @@ function gk_ortsverband_handle_save() {
     }
     update_term_meta( $term_id, '_gk_ov_header', $header_value );
 
+    $media_rejected = false;
     // Save homepage settings (both admin and OV-Admin).
     if ( isset( $_POST['ov_hp'] ) && is_array( $_POST['ov_hp'] ) ) {
-        $raw    = $_POST['ov_hp'];
-        $hp     = array();
+        $raw       = map_deep( wp_unslash( $_POST['ov_hp'] ), 'sanitize_text_field' );
+        $hp        = array();
         $text_keys = array(
-            'landing_mode', 'hero_title', 'hero_subtitle', 'cta_label', 'cta_url',
-            'election_name', 'election_date', 'election_slogan',
-            'candidate_name', 'candidate_role', 'candidate_quote',
-            'candidate_cta_label', 'candidate_cta_url',
+            'landing_mode',
+			'hero_title',
+			'hero_subtitle',
+			'cta_label',
+			'cta_url',
+            'election_name',
+			'election_date',
+			'election_slogan',
+            'candidate_name',
+			'candidate_role',
+			'candidate_quote',
+            'candidate_cta_label',
+			'candidate_cta_url',
         );
         foreach ( $text_keys as $k ) {
             if ( isset( $raw[ $k ] ) ) {
                 $hp[ $k ] = sanitize_text_field( $raw[ $k ] );
             }
         }
+        $previous = get_term_meta( $term_id, '_gk_ov_homepage', true );
+        $previous = is_array( $previous ) ? $previous : array();
         $int_keys = array( 'hero_image', 'candidate_image', 'fundraising_goal', 'fundraising_current' );
         foreach ( $int_keys as $k ) {
             if ( isset( $raw[ $k ] ) ) {
                 $hp[ $k ] = absint( $raw[ $k ] );
+                if ( in_array( $k, array( 'hero_image', 'candidate_image' ), true ) && ! gk_can_select_ov_homepage_image( $hp[ $k ], absint( $previous[ $k ] ?? 0 ) ) ) {
+                    $hp[ $k ]       = absint( $previous[ $k ] ?? 0 );
+                    $media_rejected = true;
+                }
             }
         }
         // Checkboxes: present = '1', absent = '0'.
@@ -252,11 +371,16 @@ function gk_ortsverband_handle_save() {
     // Save contact fields (both admin and OV-Admin).
     $contact_fields = array( 'www', 'email', 'facebook', 'twitter', 'tiktok', 'threads', 'mastodon', 'insta', 'telefon' );
     foreach ( $contact_fields as $field ) {
-        $value = sanitize_text_field( $_POST[ 'ov_contact_' . $field ] ?? '' );
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Raw value is type-checked and validated by gk_validate_public_email(), gk_public_page_id() or the field-specific sanitizer immediately below.
+        $raw   = wp_unslash( $_POST[ 'ov_contact_' . $field ] ?? '' );
+        $value = 'email' === $field ? gk_validate_public_email( $raw ) : sanitize_text_field( $raw );
+        if ( 'www' === $field ) {
+            $value = gk_public_website_url( $raw );
+        }
         update_term_meta( $term_id, '_gk_contact_' . $field, $value );
     }
     if ( isset( $_POST['ov_contact_anschrift'] ) ) {
-        update_term_meta( $term_id, '_gk_contact_anschrift', sanitize_textarea_field( $_POST['ov_contact_anschrift'] ) );
+        update_term_meta( $term_id, '_gk_contact_anschrift', sanitize_textarea_field( wp_unslash( $_POST['ov_contact_anschrift'] ) ) );
     }
 
     // Save legal page assignments.
@@ -267,7 +391,8 @@ function gk_ortsverband_handle_save() {
         update_term_meta( $term_id, '_gk_datenschutz_page', absint( $_POST['ov_datenschutz_page'] ) );
     }
 
-    wp_redirect( admin_url( 'admin.php?page=gk-settings&message=saved' ) );
+    $message = $media_rejected ? 'media-rejected' : 'saved';
+    wp_safe_redirect( add_query_arg( 'message', $message, admin_url( 'admin.php?page=gk-settings' ) ) );
     exit;
 }
 add_action( 'admin_init', 'gk_ortsverband_handle_save' );
@@ -276,33 +401,47 @@ add_action( 'admin_init', 'gk_ortsverband_handle_save' );
  * Handle OV deletion with cascade.
  */
 function gk_ortsverband_handle_delete() {
-    if ( ! isset( $_POST['gk_ov_delete_nonce'] ) ) return;
-    if ( ! wp_verify_nonce( $_POST['gk_ov_delete_nonce'], 'gk_ov_delete' ) ) return;
-    if ( ! current_user_can( 'gk_manage_ov' ) ) return;
+    if ( ! isset( $_POST['gk_ov_delete_nonce'] ) ) {
+		return;
+    }
+    if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['gk_ov_delete_nonce'] ) ), 'gk_ov_delete' ) ) {
+		return;
+    }
+    // phpcs:ignore WordPress.WP.Capabilities.Unknown -- gk_manage_ov is registered for authorized roles in inc/roles.php.
+    if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'gk_manage_ov' ) ) {
+		return;
+    }
 
-    $term_id = (int) ( $_POST['term_id'] ?? 0 );
+    $term_id = absint( $_POST['term_id'] ?? 0 );
     $term    = get_term( $term_id, 'gk_zuordnung' );
-    if ( ! $term || is_wp_error( $term ) || $term->slug === 'kreisverband' ) return;
+    if ( ! $term || is_wp_error( $term ) || 'kreisverband' === $term->slug || ! current_user_can( 'delete_term', $term_id ) ) {
+		return;
+    }
 
     // Cascade: trash all content with this zuordnung.
-    $related = get_posts( array(
-        'post_type'      => array( 'post', 'page', 'person', 'gk_event', 'attachment' ),
-        'post_status'    => 'any',
-        'posts_per_page' => -1,
-        'fields'         => 'ids',
-        'tax_query'      => array( array(
-            'taxonomy' => 'gk_zuordnung',
-            'field'    => 'term_id',
-            'terms'    => $term_id,
-        ) ),
-    ) );
+    $related = get_posts(
+        array(
+			'post_type'      => array( 'post', 'page', 'person', 'gk_event', 'attachment' ),
+			'post_status'    => 'any',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Required taxonomy/date constraints preserve the configured content scope; WordPress caches these queries.
+			'tax_query'      => array(
+				array(
+					'taxonomy' => 'gk_zuordnung',
+					'field'    => 'term_id',
+					'terms'    => $term_id,
+				),
+			),
+        )
+    );
     foreach ( $related as $related_id ) {
         wp_trash_post( $related_id );
     }
 
     wp_delete_term( $term_id, 'gk_zuordnung' );
 
-    wp_redirect( admin_url( 'admin.php?page=gk-settings&message=deleted' ) );
+    wp_safe_redirect( admin_url( 'admin.php?page=gk-settings&message=deleted' ) );
     exit;
 }
 add_action( 'admin_init', 'gk_ortsverband_handle_delete' );
@@ -320,10 +459,7 @@ function gk_settings_main_page() {
 
     $hp               = get_option( 'gk_homepage', array() );
     $all_variant_data = $hp['variants'] ?? array();
-    if ( isset( $_GET['message'] ) ) {
-        $msg = $_GET['message'] === 'deleted' ? 'Ortsverband geloescht.' : 'Gespeichert.';
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $msg ) . '</p></div>';
-    }
+    gk_ov_settings_notice();
     ?>
     <div class="wrap">
         <h1>Verband</h1>
@@ -378,15 +514,21 @@ function gk_settings_main_page() {
             <tbody>
             <?php if ( empty( $ov_terms ) ) : ?>
                 <tr><td colspan="6">Noch keine Ortsverb&auml;nde angelegt.</td></tr>
-            <?php else : foreach ( $ov_terms as $term ) :
-                $type        = gk_get_ov_type( $term->term_id );
-                $homepage_id = gk_get_ov_homepage_id( $term->term_id );
-                $homepage    = $homepage_id ? get_post( $homepage_id ) : null;
-                $edit_url    = admin_url( 'admin.php?page=gk-settings&action=edit&term_id=' . $term->term_id );
-                $delete_url  = admin_url( 'admin.php?page=gk-settings&action=delete&term_id=' . $term->term_id );
+				<?php
+            else :
+				foreach ( $ov_terms as $term ) :
+					$type        = gk_get_ov_type( $term->term_id );
+					$homepage_id = gk_get_ov_homepage_id( $term->term_id );
+					$homepage    = $homepage_id ? get_post( $homepage_id ) : null;
+					$edit_url    = admin_url( 'admin.php?page=gk-settings&action=edit&term_id=' . $term->term_id );
+					$delete_url  = admin_url( 'admin.php?page=gk-settings&action=delete&term_id=' . $term->term_id );
 
-                $type_labels = array( 'ov' => 'Ortsverband', 'ortsgruppe' => 'Ortsgruppe', 'werbung' => 'Werbeseite' );
-            ?>
+					$type_labels = array(
+						'ov'         => 'Ortsverband',
+						'ortsgruppe' => 'Ortsgruppe',
+						'werbung'    => 'Werbeseite',
+					);
+					?>
                 <tr>
                     <td><a href="<?php echo esc_url( $edit_url ); ?>"><strong><?php echo esc_html( $term->name ); ?></strong></a></td>
                     <td><code><?php echo esc_html( $term->slug ); ?></code></td>
@@ -398,30 +540,46 @@ function gk_settings_main_page() {
                         <a href="<?php echo esc_url( $delete_url ); ?>" style="color:#d63638;">L&ouml;schen</a>
                     </td>
                 </tr>
-            <?php endforeach; endif; ?>
+							<?php
+            endforeach;
+endif;
+			?>
             </tbody>
         </table>
     </div>
 
+    <?php gk_render_settings_media_picker(); ?>
+    <?php
+}
+
+/** Render the shared image picker used by KV settings and OV edit forms. */
+function gk_render_settings_media_picker() {
+    // phpcs:ignore WordPress.WP.Capabilities.Unknown -- Theme settings capability is registered in roles.php.
+    if ( ! current_user_can( 'gk_manage_ov' ) || ! current_user_can( 'upload_files' ) ) {
+        return;
+    }
+    ?>
     <script>
     jQuery(function($) {
         // ── Generic media picker ──
         var mediaFrames = {};
         $(document).on('click', '.gk-media-pick', function(e) {
             e.preventDefault();
+            if (!window.wp || !wp.media) return;
             var target = $(this).data('target');
             if (mediaFrames[target]) { mediaFrames[target].open(); return; }
             mediaFrames[target] = wp.media({
                 title: 'Bild waehlen',
                 button: { text: 'Bild verwenden' },
-                multiple: false
+                multiple: false,
+                library: { type: 'image' }
             });
             mediaFrames[target].on('select', function() {
                 var att = mediaFrames[target].state().get('selection').first().toJSON();
                 $('#' + target).val(att.id);
                 var src = att.sizes && att.sizes.medium ? att.sizes.medium.url : att.url;
                 $('.gk-media-preview[data-target="' + target + '"]').html(
-                    '<img src="' + src + '" style="max-width:300px;height:auto;" />'
+                    $('<img>', { src: src, alt: att.alt || '', style: 'max-width:300px;height:auto;' })
                 );
                 var $pick = $('.gk-media-pick[data-target="' + target + '"]');
                 if (!$pick.next('.gk-media-remove').length) {
@@ -457,27 +615,26 @@ function gk_settings_main_page() {
  * Admins see all fields. OV-Admins only see contact fields.
  */
 function gk_ortsverband_edit_page() {
-    $term_id  = (int) ( $_GET['term_id'] ?? 0 );
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view/filter parameter; no state changes occur here and write handlers check their own nonce.
+    $term_id  = absint( $_GET['term_id'] ?? 0 );
     $term     = $term_id ? get_term( $term_id, 'gk_zuordnung' ) : null;
     $is_new   = ! $term || is_wp_error( $term );
     $is_admin = gk_current_user_is_admin();
 
-    $name      = $is_new ? '' : $term->name;
-    $slug      = $is_new ? '' : $term->slug;
-    $type      = $is_new ? 'ov' : gk_get_ov_type( $term_id );
-    $homepage  = $is_new ? 0 : gk_get_ov_homepage_id( $term_id );
-    $header    = $is_new ? '' : get_term_meta( $term_id, '_gk_ov_header', true );
-    $contact   = $is_new ? array() : gk_get_ov_contact( $term_id );
-    $hp        = $is_new ? array() : gk_get_ov_homepage_options( $term_id );
+    $name     = $is_new ? '' : $term->name;
+    $slug     = $is_new ? '' : $term->slug;
+    $type     = $is_new ? 'ov' : gk_get_ov_type( $term_id );
+    $homepage = $is_new ? 0 : gk_get_ov_homepage_id( $term_id );
+    $header   = $is_new ? '' : get_term_meta( $term_id, '_gk_ov_header', true );
+    $contact  = $is_new ? array() : gk_get_ov_contact( $term_id );
+    $hp       = $is_new ? array() : gk_get_ov_homepage_options( $term_id );
 
-    $title = $is_new ? 'Neuen Ortsverband hinzuf&uuml;gen' : ( $is_admin ? 'Ortsverband bearbeiten' : esc_html( $name ) );
+    $title = $is_new ? 'Neuen Ortsverband hinzufügen' : ( $is_admin ? 'Ortsverband bearbeiten' : $name );
     ?>
     <div class="wrap">
-        <h1><?php echo $title; ?></h1>
+        <h1><?php echo esc_html( $title ); ?></h1>
 
-        <?php if ( isset( $_GET['message'] ) && $_GET['message'] === 'saved' ) : ?>
-            <div class="notice notice-success is-dismissible"><p>Gespeichert.</p></div>
-        <?php endif; ?>
+        <?php gk_ov_settings_notice(); ?>
 
         <form method="post" action="">
             <?php wp_nonce_field( 'gk_ov_save', 'gk_ov_save_nonce' ); ?>
@@ -507,7 +664,7 @@ function gk_ortsverband_edit_page() {
                             'werbung'    => array( 'Werbeseite', 'Einladung zum Mitmachen und Gründen eines OV' ),
                         );
                         foreach ( $types as $value => $info ) :
-                        ?>
+							?>
                         <label style="display:block; margin:4px 0;">
                             <input type="radio" name="ov_type" value="<?php echo esc_attr( $value ); ?>" <?php checked( $type, $value ); ?> />
                             <strong><?php echo esc_html( $info[0] ); ?></strong> &mdash; <?php echo esc_html( $info[1] ); ?>
@@ -518,12 +675,17 @@ function gk_ortsverband_edit_page() {
                 <tr>
                     <th><label for="ov_homepage_id">Startseite</label></th>
                     <td>
-                        <?php wp_dropdown_pages( array(
-                            'name'              => 'ov_homepage_id',
-                            'selected'          => $homepage,
-                            'show_option_none'   => '&mdash; Keine Startseite &mdash;',
-                            'option_none_value'  => 0,
-                        ) ); ?>
+                        <?php
+                        wp_dropdown_pages(
+                            array(
+								'name'              => 'ov_homepage_id',
+								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes its option values, labels and attributes; selected is a numeric page ID.
+								'selected'          => $homepage,
+								'show_option_none'  => '&mdash; Keine Startseite &mdash;',
+								'option_none_value' => 0,
+                            )
+                        );
+                        ?>
                         <p class="description">Die Startseite des OV. Kann nicht geloescht werden.</p>
                     </td>
                 </tr>
@@ -549,7 +711,7 @@ function gk_ortsverband_edit_page() {
                     <td>
                         <select name="ov_hp[landing_mode]" id="ov_landing_mode">
                             <?php
-                            $modes = array(
+                            $modes        = array(
                                 'standard'    => 'Standard (Bild + Titel)',
                                 'election'    => 'Wahl (Countdown)',
                                 'candidate'   => 'Kandidat:in (Portrait)',
@@ -559,7 +721,7 @@ function gk_ortsverband_edit_page() {
                             );
                             $current_mode = $hp['landing_mode'] ?? 'standard';
                             foreach ( $modes as $val => $label ) :
-                            ?>
+								?>
                                 <option value="<?php echo esc_attr( $val ); ?>" <?php selected( $current_mode, $val ); ?>><?php echo esc_html( $label ); ?></option>
                             <?php endforeach; ?>
                         </select>
@@ -585,9 +747,11 @@ function gk_ortsverband_edit_page() {
                         <th>Hero-Bild</th>
                         <td>
                             <div class="gk-media-preview" data-target="ov_hero_image">
-                                <?php if ( ! empty( $hp['hero_image'] ) ) :
+                                <?php
+                                if ( ! empty( $hp['hero_image'] ) ) :
                                     echo wp_get_attachment_image( (int) $hp['hero_image'], 'medium', false, array( 'style' => 'max-width:300px;height:auto;' ) );
-                                endif; ?>
+                                endif;
+                                ?>
                             </div>
                             <input type="hidden" name="ov_hp[hero_image]" id="ov_hero_image" value="<?php echo esc_attr( $hp['hero_image'] ?? '' ); ?>" class="gk-media-value" />
                             <button type="button" class="button gk-media-pick" data-target="ov_hero_image">Bild w&auml;hlen</button>
@@ -643,9 +807,11 @@ function gk_ortsverband_edit_page() {
                         <th>Portrait</th>
                         <td>
                             <div class="gk-media-preview" data-target="ov_candidate_image">
-                                <?php if ( ! empty( $hp['candidate_image'] ) ) :
+                                <?php
+                                if ( ! empty( $hp['candidate_image'] ) ) :
                                     echo wp_get_attachment_image( (int) $hp['candidate_image'], 'medium', false, array( 'style' => 'max-width:200px;height:auto;' ) );
-                                endif; ?>
+                                endif;
+                                ?>
                             </div>
                             <input type="hidden" name="ov_hp[candidate_image]" id="ov_candidate_image" value="<?php echo esc_attr( $hp['candidate_image'] ?? '' ); ?>" class="gk-media-value" />
                             <button type="button" class="button gk-media-pick" data-target="ov_candidate_image">Bild w&auml;hlen</button>
@@ -730,8 +896,8 @@ function gk_ortsverband_edit_page() {
                     <td><input type="url" name="ov_contact_www" id="ov_contact_www" value="<?php echo esc_attr( $contact['www'] ?? '' ); ?>" class="regular-text" /></td>
                 </tr>
                 <tr>
-                    <th><label for="ov_contact_email">E-Mail</label></th>
-                    <td><input type="email" name="ov_contact_email" id="ov_contact_email" value="<?php echo esc_attr( $contact['email'] ?? '' ); ?>" class="regular-text" /></td>
+                    <th><label for="ov_contact_email"><?php esc_html_e( 'Öffentliche Kontakt-E-Mail', 'neurg-kreisverband' ); ?></label></th>
+                    <td><input type="email" name="ov_contact_email" id="ov_contact_email" value="<?php echo esc_attr( $contact['email'] ?? '' ); ?>" class="regular-text" aria-describedby="ov_contact_email_help" /><p id="ov_contact_email_help" class="description"><?php esc_html_e( 'Diese Adresse wird öffentlich angezeigt. Keine Zugangsdaten eintragen; hier wird kein Postfach angelegt.', 'neurg-kreisverband' ); ?></p></td>
                 </tr>
                 <tr>
                     <th><label for="ov_contact_telefon">Telefon</label></th>
@@ -775,14 +941,18 @@ function gk_ortsverband_edit_page() {
                     <td>
                         <?php
                         $ov_impressum = (int) get_term_meta( $term_id, '_gk_impressum_page', true );
-                        wp_dropdown_pages( array(
-                            'name'              => 'ov_impressum_page',
-                            'id'                => 'ov_impressum_page',
-                            'selected'          => $ov_impressum,
-                            'show_option_none'   => '&mdash; KV-Impressum verwenden &mdash;',
-                            'option_none_value'  => 0,
-                        ) ); ?>
-                        <p class="description">Eigene Impressum-Seite. Wenn leer, wird die Kreisverbands-Seite verwendet.</p>
+                        wp_dropdown_pages(
+                            array(
+								'name'              => 'ov_impressum_page',
+								'id'                => 'ov_impressum_page',
+								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes its option values, labels and attributes; selected is a numeric page ID.
+								'selected'          => $ov_impressum,
+								'show_option_none'  => '&mdash; KV-Impressum verwenden &mdash;',
+								'option_none_value' => 0,
+                            )
+                        );
+                        ?>
+                        <p class="description">Veröffentlichte eigene Impressum-Seite wählen oder bewusst „KV-Impressum verwenden“ auswählen. Nicht veröffentlichte Seiten fallen auf die KV-Seite zurück.</p>
                     </td>
                 </tr>
                 <tr>
@@ -790,14 +960,18 @@ function gk_ortsverband_edit_page() {
                     <td>
                         <?php
                         $ov_datenschutz = (int) get_term_meta( $term_id, '_gk_datenschutz_page', true );
-                        wp_dropdown_pages( array(
-                            'name'              => 'ov_datenschutz_page',
-                            'id'                => 'ov_datenschutz_page',
-                            'selected'          => $ov_datenschutz,
-                            'show_option_none'   => '&mdash; KV-Datenschutz verwenden &mdash;',
-                            'option_none_value'  => 0,
-                        ) ); ?>
-                        <p class="description">Eigene Datenschutz-Seite. Wenn leer, wird die Kreisverbands-Seite verwendet.</p>
+                        wp_dropdown_pages(
+                            array(
+								'name'              => 'ov_datenschutz_page',
+								'id'                => 'ov_datenschutz_page',
+								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes its option values, labels and attributes; selected is a numeric page ID.
+								'selected'          => $ov_datenschutz,
+								'show_option_none'  => '&mdash; KV-Datenschutz verwenden &mdash;',
+								'option_none_value' => 0,
+                            )
+                        );
+                        ?>
+                        <p class="description">Veröffentlichte eigene Datenschutz-Seite wählen oder bewusst „KV-Datenschutz verwenden“ auswählen. Nicht veröffentlichte Seiten fallen auf die KV-Seite zurück.</p>
                     </td>
                 </tr>
             </table>
@@ -807,17 +981,19 @@ function gk_ortsverband_edit_page() {
         </form>
     </div>
     <?php
+    gk_render_settings_media_picker();
 }
 
 /**
  * Delete confirmation page for an OV.
  */
 function gk_ortsverband_delete_page() {
-    $term_id = (int) ( $_GET['term_id'] ?? 0 );
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view/filter parameter; no state changes occur here and write handlers check their own nonce.
+    $term_id = absint( $_GET['term_id'] ?? 0 );
     $term    = get_term( $term_id, 'gk_zuordnung' );
 
-    if ( ! $term || is_wp_error( $term ) || $term->slug === 'kreisverband' ) {
-        wp_redirect( admin_url( 'admin.php?page=gk-settings' ) );
+    if ( ! $term || is_wp_error( $term ) || 'kreisverband' === $term->slug ) {
+        wp_safe_redirect( admin_url( 'admin.php?page=gk-settings' ) );
         exit;
     }
 
@@ -850,19 +1026,26 @@ function gk_ortsverband_delete_page() {
 
 /**
  * Count content items belonging to a zuordnung term.
+ *
+ * @param int $term_id Term id.
  */
 function gk_get_zuordnung_content_count( $term_id ) {
-    $related = get_posts( array(
-        'post_type'      => array( 'post', 'page', 'person', 'gk_event', 'attachment' ),
-        'post_status'    => 'any',
-        'posts_per_page' => -1,
-        'fields'         => 'ids',
-        'tax_query'      => array( array(
-            'taxonomy' => 'gk_zuordnung',
-            'field'    => 'term_id',
-            'terms'    => $term_id,
-        ) ),
-    ) );
+    $related = get_posts(
+        array(
+			'post_type'      => array( 'post', 'page', 'person', 'gk_event', 'attachment' ),
+			'post_status'    => 'any',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Required taxonomy/date constraints preserve the configured content scope; WordPress caches these queries.
+			'tax_query'      => array(
+				array(
+					'taxonomy' => 'gk_zuordnung',
+					'field'    => 'term_id',
+					'terms'    => $term_id,
+				),
+			),
+        )
+    );
     return count( $related );
 }
 
@@ -874,7 +1057,9 @@ function gk_get_zuordnung_content_count( $term_id ) {
  */
 function gk_get_homepage_page_ids() {
     static $ids = null;
-    if ( $ids !== null ) return $ids;
+    if ( null !== $ids ) {
+		return $ids;
+    }
 
     $ids      = array();
     $ov_terms = gk_get_ov_terms();
@@ -889,12 +1074,21 @@ function gk_get_homepage_page_ids() {
 
 /**
  * Prevent deletion of pages set as an OV homepage.
+ *
+ * @param array $caps Caps.
+ * @param mixed $cap Cap.
+ * @param int   $user_id User id.
+ * @param array $args Args.
  */
 function gk_protect_homepage_pages( $caps, $cap, $user_id, $args ) {
-    if ( $cap !== 'delete_post' || empty( $args[0] ) ) return $caps;
+    if ( 'delete_post' !== $cap || empty( $args[0] ) ) {
+		return $caps;
+    }
 
     $post = get_post( $args[0] );
-    if ( ! $post || $post->post_type !== 'page' ) return $caps;
+    if ( ! $post || 'page' !== $post->post_type ) {
+		return $caps;
+    }
 
     $homepages = gk_get_homepage_page_ids();
     if ( isset( $homepages[ $post->ID ] ) ) {
@@ -906,14 +1100,20 @@ add_filter( 'map_meta_cap', 'gk_protect_homepage_pages', 10, 4 );
 
 /**
  * Mark homepage pages in the admin list with "Startseite: OV Name".
+ *
+ * @param mixed   $states States.
+ * @param WP_Post $post Post.
  */
 function gk_mark_homepage_in_list( $states, $post ) {
-    if ( $post->post_type !== 'page' ) return $states;
+    if ( 'page' !== $post->post_type ) {
+		return $states;
+    }
 
     $homepages = gk_get_homepage_page_ids();
     if ( isset( $homepages[ $post->ID ] ) ) {
-        $term = get_term( $homepages[ $post->ID ], 'gk_zuordnung' );
+        $term                  = get_term( $homepages[ $post->ID ], 'gk_zuordnung' );
         $states['gk_homepage'] = sprintf(
+            /* translators: %s: name of the KV or OV whose homepage this is. */
             __( 'Startseite: %s', 'neurg-kreisverband' ),
             $term ? $term->name : '?'
         );
@@ -930,17 +1130,21 @@ add_filter( 'display_post_states', 'gk_mark_homepage_in_list', 10, 2 );
  * Each gets exactly one header and one footer menu.
  */
 function gk_register_zuordnung_nav_menus() {
-    $terms = get_terms( array(
-        'taxonomy'   => 'gk_zuordnung',
-        'hide_empty' => false,
-    ) );
+    $terms = get_terms(
+        array(
+			'taxonomy'   => 'gk_zuordnung',
+			'hide_empty' => false,
+        )
+    );
 
-    if ( is_wp_error( $terms ) ) return;
+    if ( is_wp_error( $terms ) ) {
+		return;
+    }
 
     $locations = array();
     foreach ( $terms as $term ) {
-        $locations[ 'nav-' . $term->slug ]              = $term->name . ' — Hauptmenü';
-        $locations[ 'nav-' . $term->slug . '-footer' ]  = $term->name . ' — Footer';
+        $locations[ 'nav-' . $term->slug ]             = $term->name . ' — Hauptmenü';
+        $locations[ 'nav-' . $term->slug . '-footer' ] = $term->name . ' — Footer';
     }
 
     register_nav_menus( $locations );
@@ -968,36 +1172,58 @@ function gk_menus_admin_page() {
     $is_admin = gk_current_user_is_admin();
 
     if ( $is_admin ) {
-        $terms = get_terms( array(
-            'taxonomy'   => 'gk_zuordnung',
-            'hide_empty' => false,
-            'orderby'    => 'name',
-        ) );
+        $terms = get_terms(
+            array(
+				'taxonomy'   => 'gk_zuordnung',
+				'hide_empty' => false,
+				'orderby'    => 'name',
+            )
+        );
         if ( ! is_wp_error( $terms ) ) {
             // Put Kreisverband first.
-            usort( $terms, function ( $a, $b ) {
-                if ( $a->slug === 'kreisverband' ) return -1;
-                if ( $b->slug === 'kreisverband' ) return 1;
-                return strcmp( $a->name, $b->name );
-            } );
+            usort(
+                $terms,
+                function ( $a, $b ) {
+					if ( 'kreisverband' === $a->slug ) {
+						return -1;
+					}
+					if ( 'kreisverband' === $b->slug ) {
+						return 1;
+					}
+					return strcmp( $a->name, $b->name );
+				}
+            );
             foreach ( $terms as $term ) {
-                add_submenu_page( 'gk-menus', $term->name . ' — Men&uuml;s', $term->name,
-                    'edit_theme_options', 'gk-menus-' . $term->slug, 'gk_menus_page_cb' );
+                add_submenu_page(
+                    'gk-menus',
+                    $term->name . ' — Men&uuml;s',
+                    $term->name,
+                    'edit_theme_options',
+                    'gk-menus-' . $term->slug,
+                    'gk_menus_page_cb'
+                );
             }
         }
     } else {
         $own_term = get_term_by( 'slug', $user->user_login, 'gk_zuordnung' );
         if ( $own_term ) {
-            add_submenu_page( 'gk-menus', $own_term->name . ' — Men&uuml;s', $own_term->name,
-                'edit_theme_options', 'gk-menus-' . $own_term->slug, 'gk_menus_page_cb' );
+            add_submenu_page(
+                'gk-menus',
+                $own_term->name . ' — Men&uuml;s',
+                $own_term->name,
+                'edit_theme_options',
+                'gk-menus-' . $own_term->slug,
+                'gk_menus_page_cb'
+            );
         }
     }
 
     // WordPress auto-adds a parent duplicate as the first submenu entry.
     // Remove it so only the zuordnung entries remain.
     global $submenu;
-    if ( isset( $submenu['gk-menus'][0] ) && $submenu['gk-menus'][0][2] === 'gk-menus' ) {
+    if ( isset( $submenu['gk-menus'][0] ) && 'gk-menus' === $submenu['gk-menus'][0][2] ) {
         unset( $submenu['gk-menus'][0] );
+        // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress admin-menu API exposes submenu through this global for intentional menu customization.
         $submenu['gk-menus'] = array_values( $submenu['gk-menus'] );
     }
 }
@@ -1007,33 +1233,45 @@ add_action( 'admin_menu', 'gk_menus_admin_page' );
  * Handle menu location assignments (scoped to one zuordnung).
  */
 function gk_menus_handle_save() {
-    if ( ! isset( $_POST['gk_menus_nonce'] ) ) return;
-    if ( ! wp_verify_nonce( $_POST['gk_menus_nonce'], 'gk_menus_save' ) ) return;
-    if ( ! current_user_can( 'edit_theme_options' ) ) return;
+    if ( ! isset( $_POST['gk_menus_nonce'] ) ) {
+		return;
+    }
+    if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['gk_menus_nonce'] ) ), 'gk_menus_save' ) ) {
+		return;
+    }
+    if ( ! current_user_can( 'edit_theme_options' ) ) {
+		return;
+    }
 
     $zuordnung_slug = sanitize_key( $_POST['gk_zuordnung_slug'] ?? '' );
-    if ( empty( $zuordnung_slug ) ) return;
+    if ( empty( $zuordnung_slug ) ) {
+		return;
+    }
 
     // OV-Admin: can only save their own zuordnung.
     if ( ! gk_current_user_is_admin() ) {
         $user     = wp_get_current_user();
         $own_term = get_term_by( 'slug', $user->user_login, 'gk_zuordnung' );
-        if ( ! $own_term || $own_term->slug !== $zuordnung_slug ) return;
+        if ( ! $own_term || $own_term->slug !== $zuordnung_slug ) {
+			return;
+        }
     }
 
     $locations = get_nav_menu_locations();
-    $submitted = isset( $_POST['menu_locations'] ) ? (array) $_POST['menu_locations'] : array();
+    $submitted = isset( $_POST['menu_locations'] ) ? map_deep( (array) wp_unslash( $_POST['menu_locations'] ), 'absint' ) : array();
     $prefix    = 'nav-' . $zuordnung_slug;
 
     foreach ( $submitted as $location => $menu_id ) {
         $location = sanitize_key( $location );
-        if ( strpos( $location, $prefix ) !== 0 ) continue;
+        if ( 0 !== strpos( $location, $prefix ) ) {
+			continue;
+        }
         $locations[ $location ] = absint( $menu_id );
     }
 
     set_theme_mod( 'nav_menu_locations', $locations );
 
-    wp_redirect( admin_url( 'admin.php?page=gk-menus-' . $zuordnung_slug . '&message=saved' ) );
+    wp_safe_redirect( admin_url( 'admin.php?page=gk-menus-' . $zuordnung_slug . '&message=saved' ) );
     exit;
 }
 add_action( 'admin_init', 'gk_menus_handle_save' );
@@ -1046,21 +1284,22 @@ add_action( 'admin_init', 'gk_menus_handle_save' );
  * with dropdowns to assign menus and links to the native menu editor.
  */
 function gk_menus_page_cb() {
-    $page = $_GET['page'] ?? '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view/filter parameter; no state changes occur here and write handlers check their own nonce.
+    $page = sanitize_key( wp_unslash( $_GET['page'] ?? '' ) );
 
     // Parent page: redirect to the first zuordnung.
-    if ( $page === 'gk-menus' ) {
+    if ( 'gk-menus' === $page ) {
         if ( gk_current_user_is_admin() ) {
             $kv_term = get_term_by( 'slug', 'kreisverband', 'gk_zuordnung' );
             if ( $kv_term ) {
-                wp_redirect( admin_url( 'admin.php?page=gk-menus-kreisverband' ) );
+                wp_safe_redirect( admin_url( 'admin.php?page=gk-menus-kreisverband' ) );
                 exit;
             }
         } else {
             $user = wp_get_current_user();
             $term = get_term_by( 'slug', $user->user_login, 'gk_zuordnung' );
             if ( $term ) {
-                wp_redirect( admin_url( 'admin.php?page=gk-menus-' . $term->slug ) );
+                wp_safe_redirect( admin_url( 'admin.php?page=gk-menus-' . $term->slug ) );
                 exit;
             }
         }
@@ -1070,7 +1309,7 @@ function gk_menus_page_cb() {
 
     // Extract zuordnung slug from page slug.
     $zuordnung_slug = substr( $page, strlen( 'gk-menus-' ) );
-    $term = get_term_by( 'slug', $zuordnung_slug, 'gk_zuordnung' );
+    $term           = get_term_by( 'slug', $zuordnung_slug, 'gk_zuordnung' );
 
     if ( ! $term ) {
         echo '<div class="wrap"><h1>Men&uuml;s</h1><p>Bereich nicht gefunden.</p></div>';
@@ -1093,7 +1332,8 @@ function gk_menus_page_cb() {
     $main_menu_id   = $locations[ $slug_main ] ?? 0;
     $footer_menu_id = $locations[ $slug_footer ] ?? 0;
 
-    if ( isset( $_GET['message'] ) && $_GET['message'] === 'saved' ) {
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view/filter parameter; no state changes occur here and write handlers check their own nonce.
+    if ( isset( $_GET['message'] ) && 'saved' === $_GET['message'] ) {
         echo '<div class="notice notice-success is-dismissible"><p>Men&uuml;s gespeichert.</p></div>';
     }
     ?>
@@ -1154,58 +1394,86 @@ function gk_menus_page_cb() {
  */
 function gk_scope_nav_menus_for_user() {
     $screen = get_current_screen();
-    if ( ! $screen || $screen->id !== 'nav-menus' ) return;
-    if ( gk_current_user_is_admin() ) return;
+    if ( ! $screen || 'nav-menus' !== $screen->id ) {
+		return;
+    }
+    if ( gk_current_user_is_admin() ) {
+		return;
+    }
 
     $user = wp_get_current_user();
     $term = get_term_by( 'slug', $user->user_login, 'gk_zuordnung' );
-    if ( ! $term ) return;
+    if ( ! $term ) {
+		return;
+    }
 
     // Scope menu locations to this zuordnung only.
     global $_wp_registered_nav_menus;
     $prefix = 'nav-' . $term->slug;
     foreach ( array_keys( $_wp_registered_nav_menus ) as $location ) {
-        if ( strpos( $location, $prefix ) !== 0 ) {
+        if ( 0 !== strpos( $location, $prefix ) ) {
             unset( $_wp_registered_nav_menus[ $location ] );
         }
     }
 
     // Scope the "add items" meta boxes (Pages, Posts, etc.) to this zuordnung.
-    add_filter( 'pre_get_posts', function ( $query ) use ( $term ) {
-        // Only filter front-facing post type queries used by nav menu meta boxes.
-        $post_type = $query->get( 'post_type' );
-        if ( empty( $post_type ) ) return;
+    add_filter(
+        'pre_get_posts',
+        function ( $query ) use ( $term ) {
+			// Only filter front-facing post type queries used by nav menu meta boxes.
+			$post_type = $query->get( 'post_type' );
+			if ( empty( $post_type ) ) {
+				return;
+			}
 
-        // Skip nav_menu_item queries (those are the menu items themselves).
-        $types = (array) $post_type;
-        if ( in_array( 'nav_menu_item', $types, true ) ) return;
+			// Skip nav_menu_item queries (those are the menu items themselves).
+			$types = (array) $post_type;
+			if ( in_array( 'nav_menu_item', $types, true ) ) {
+				return;
+			}
 
-        $query->set( 'tax_query', array( array(
-            'taxonomy' => 'gk_zuordnung',
-            'field'    => 'term_id',
-            'terms'    => $term->term_id,
-        ) ) );
-    } );
+			$query->set(
+                'tax_query',
+                array(
+					array(
+						'taxonomy' => 'gk_zuordnung',
+						'field'    => 'term_id',
+						'terms'    => $term->term_id,
+					),
+                )
+			);
+		}
+    );
 
     // Scope the menu selector dropdown to only menus assigned to this zuordnung.
-    $locations  = get_nav_menu_locations();
+    $locations   = get_nav_menu_locations();
     $allowed_ids = array();
     foreach ( $locations as $location => $menu_id ) {
-        if ( strpos( $location, $prefix ) === 0 && $menu_id ) {
+        if ( 0 === strpos( $location, $prefix ) && $menu_id ) {
             $allowed_ids[] = (int) $menu_id;
         }
     }
     // Also include the menu currently being edited (e.g. just created).
-    if ( isset( $_REQUEST['menu'] ) && (int) $_REQUEST['menu'] > 0 ) {
-        $allowed_ids[] = (int) $_REQUEST['menu'];
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view/filter parameter; no state changes occur here and write handlers check their own nonce.
+    if ( isset( $_REQUEST['menu'] ) && absint( $_REQUEST['menu'] ) > 0 ) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view/filter parameter; no state changes occur here and write handlers check their own nonce.
+        $allowed_ids[] = absint( $_REQUEST['menu'] );
     }
     $allowed_ids = array_unique( $allowed_ids );
 
-    add_filter( 'wp_get_nav_menus', function ( $menus ) use ( $allowed_ids ) {
-        return array_values( array_filter( $menus, function ( $menu ) use ( $allowed_ids ) {
-            return in_array( (int) $menu->term_id, $allowed_ids, true );
-        } ) );
-    } );
+    add_filter(
+        'wp_get_nav_menus',
+        function ( $menus ) use ( $allowed_ids ) {
+			return array_values(
+                array_filter(
+                    $menus,
+                    function ( $menu ) use ( $allowed_ids ) {
+                        return in_array( (int) $menu->term_id, $allowed_ids, true );
+                    }
+                )
+			);
+		}
+    );
 }
 add_action( 'current_screen', 'gk_scope_nav_menus_for_user' );
 
@@ -1213,12 +1481,18 @@ add_action( 'current_screen', 'gk_scope_nav_menus_for_user' );
 // ── Security: Block user enumeration ─────────────────────────────────────────
 
 if ( ! is_admin() ) {
-    if ( isset( $_SERVER['QUERY_STRING'] ) && preg_match( '/author=([0-9]*)/i', $_SERVER['QUERY_STRING'] ) ) {
+    if ( isset( $_SERVER['QUERY_STRING'] ) && preg_match( '/author=([0-9]*)/i', sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ) ) ) {
         die();
     }
     add_filter( 'redirect_canonical', 'gk_block_enum', 10, 2 );
 }
 
+/**
+ * Block enum.
+ *
+ * @param mixed $redirect Redirect.
+ * @param mixed $request Request.
+ */
 function gk_block_enum( $redirect, $request ) {
     if ( preg_match( '/\?author=([0-9]*)(\/*)/i', $request ) ) {
         die();
@@ -1230,14 +1504,24 @@ function gk_block_enum( $redirect, $request ) {
 // ── Editor: Custom MCE styles ────────────────────────────────────────────────
 
 add_filter( 'mce_buttons_2', 'gk_mce_buttons' );
+/**
+ * Mce buttons.
+ *
+ * @param mixed $buttons Buttons.
+ */
 function gk_mce_buttons( $buttons ) {
     array_unshift( $buttons, 'styleselect' );
     return $buttons;
 }
 
 add_filter( 'tiny_mce_before_init', 'gk_mce_custom_styles' );
+/**
+ * Mce custom styles.
+ *
+ * @param mixed $init_array Init array.
+ */
 function gk_mce_custom_styles( $init_array ) {
-    $style_formats = array(
+    $style_formats               = array(
         array(
             'title'   => 'Absatz Einleitung',
             'block'   => 'p',
@@ -1265,6 +1549,9 @@ function gk_mce_custom_styles( $init_array ) {
 // ── Disable comments completely ──────────────────────────────────────────────
 
 add_action( 'admin_init', 'gk_disable_comments_support' );
+/**
+ * Disable comments support.
+ */
 function gk_disable_comments_support() {
     foreach ( get_post_types() as $post_type ) {
         if ( post_type_supports( $post_type, 'comments' ) ) {
@@ -1275,18 +1562,27 @@ function gk_disable_comments_support() {
 }
 
 add_action( 'admin_menu', 'gk_disable_comments_menu' );
+/**
+ * Disable comments menu.
+ */
 function gk_disable_comments_menu() {
     remove_menu_page( 'edit-comments.php' );
 }
 
 add_action( 'wp_before_admin_bar_render', 'gk_disable_comments_adminbar' );
+/**
+ * Disable comments adminbar.
+ */
 function gk_disable_comments_adminbar() {
     global $wp_admin_bar;
     $wp_admin_bar->remove_menu( 'comments' );
 }
 
 add_filter( 'comments_array', 'gk_hide_existing_comments', 10, 2 );
-function gk_hide_existing_comments( $comments ) {
+/**
+ * Hide existing comments.
+ */
+function gk_hide_existing_comments() {
     return array();
 }
 
@@ -1296,17 +1592,22 @@ function gk_hide_existing_comments( $comments ) {
 add_filter( 'custom_menu_order', '__return_true' );
 add_filter( 'menu_order', 'gk_custom_menu_order' );
 
+/**
+ * Custom menu order.
+ *
+ * @param mixed $menu_order Menu order.
+ */
 function gk_custom_menu_order( $menu_order ) {
     $preferred = array(
-        'index.php',                    // Dashboard
+        'index.php',                    // Dashboard.
         'separator1',
-        'gk-menus',                     // Menüs
-        'edit.php?post_type=page',      // Pages
-        'edit.php',                     // Posts
-        'edit.php?post_type=gk_event',  // Events
-        'edit.php?post_type=person',    // Personen
-        'gk-settings',                  // Verband
-        'upload.php',                   // Media
+        'gk-menus',                     // Menüs.
+        'edit.php?post_type=page',      // Pages.
+        'edit.php',                     // Posts.
+        'edit.php?post_type=gk_event',  // Events.
+        'edit.php?post_type=person',    // Personen.
+        'gk-settings',                  // Verband.
+        'upload.php',                   // Media.
         'separator2',
     );
 

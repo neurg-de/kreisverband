@@ -14,33 +14,33 @@
 
 get_header();
 
-$post_id = get_the_ID();
+$gk_post_id = get_the_ID();
 
 // ── Meta fields ────────────────────────────────────────────────────────────
-$amt       = get_post_meta( $post_id, 'kr8mb_pers_pos_amt', true );
-$shortbio  = get_post_meta( $post_id, 'kr8mb_pers_excerpt', true );
-$email     = get_post_meta( $post_id, 'kr8mb_pers_contact_email', true );
-$telefon   = get_post_meta( $post_id, 'kr8mb_pers_contact_telefon', true );
-$www       = get_post_meta( $post_id, 'kr8mb_pers_contact_www', true );
-$anschrift = get_post_meta( $post_id, 'kr8mb_pers_contact_anschrift', true );
-$wahlkreis = get_post_meta( $post_id, 'kr8mb_pers_pos_wahlkreis', true );
+$amt       = get_post_meta( $gk_post_id, 'kr8mb_pers_pos_amt', true );
+$shortbio  = get_post_meta( $gk_post_id, 'kr8mb_pers_excerpt', true );
+$email     = get_post_meta( $gk_post_id, 'kr8mb_pers_contact_email', true );
+$telefon   = get_post_meta( $gk_post_id, 'kr8mb_pers_contact_telefon', true );
+$www       = get_post_meta( $gk_post_id, 'kr8mb_pers_contact_www', true );
+$anschrift = get_post_meta( $gk_post_id, 'kr8mb_pers_contact_anschrift', true );
+$wahlkreis = get_post_meta( $gk_post_id, 'kr8mb_pers_pos_wahlkreis', true );
 
-$contact = array(
-    'facebook'  => get_post_meta( $post_id, 'kr8mb_pers_contact_facebook', true ),
-    'twitter'   => get_post_meta( $post_id, 'kr8mb_pers_contact_twitter', true ),
-    'insta'     => get_post_meta( $post_id, 'kr8mb_pers_contact_insta', true ),
-    'tiktok'    => get_post_meta( $post_id, 'kr8mb_pers_contact_tiktok', true ),
-    'threads'   => get_post_meta( $post_id, 'kr8mb_pers_contact_threads', true ),
-    'mastodon'  => get_post_meta( $post_id, 'kr8mb_pers_contact_mastodon', true ),
+$contact      = array(
+    'facebook' => get_post_meta( $gk_post_id, 'kr8mb_pers_contact_facebook', true ),
+    'twitter'  => get_post_meta( $gk_post_id, 'kr8mb_pers_contact_twitter', true ),
+    'insta'    => get_post_meta( $gk_post_id, 'kr8mb_pers_contact_insta', true ),
+    'tiktok'   => get_post_meta( $gk_post_id, 'kr8mb_pers_contact_tiktok', true ),
+    'threads'  => get_post_meta( $gk_post_id, 'kr8mb_pers_contact_threads', true ),
+    'mastodon' => get_post_meta( $gk_post_id, 'kr8mb_pers_contact_mastodon', true ),
 );
 $social_links = gk_build_social_links( $contact );
 
 // ── Organizational context ─────────────────────────────────────────────────
-$ov_slug = gk_get_post_zuordnung_slug( $post_id );
-$ov_term = ( $ov_slug && $ov_slug !== 'kreisverband' ) ? gk_get_ov_term( $ov_slug ) : false;
+$ov_slug = gk_get_post_zuordnung_slug( $gk_post_id );
+$ov_term = ( $ov_slug && 'kreisverband' !== $ov_slug ) ? gk_get_ov_term( $ov_slug ) : false;
 
-// Department(s)
-$departments = wp_get_post_terms( $post_id, 'abteilung' );
+// Department(s).
+$departments = wp_get_post_terms( $gk_post_id, 'abteilung' );
 if ( is_wp_error( $departments ) ) {
     $departments = array();
 }
@@ -58,7 +58,15 @@ $has_content = trim( get_the_content() ) !== '';
 
             <?php if ( has_post_thumbnail() ) : ?>
                 <div class="gk-profile__photo">
-                    <?php the_post_thumbnail( 'medium', array( 'class' => 'gk-profile__img', 'loading' => 'eager' ) ); ?>
+                    <?php
+                    the_post_thumbnail(
+                        'medium',
+                        array(
+							'class'   => 'gk-profile__img',
+							'loading' => 'eager',
+                        )
+                    );
+					?>
                 </div>
             <?php endif; ?>
 
@@ -69,7 +77,7 @@ $has_content = trim( get_the_content() ) !== '';
                     <p class="gk-profile__role"><?php echo esc_html( $amt ); ?></p>
                 <?php endif; ?>
 
-                <?php // Organizational context badges ?>
+                <?php // Organizational context badges. ?>
                 <div class="gk-profile__context">
                     <?php if ( $ov_term ) : ?>
                         <span class="gk-profile__badge">
@@ -86,7 +94,7 @@ $has_content = trim( get_the_content() ) !== '';
                     <?php endif; ?>
 
                     <?php foreach ( $departments as $dept ) : ?>
-                        <a href="<?php echo esc_url( gk_abteilung_url( $dept, $ov_slug ?: 'kreisverband' ) ); ?>" class="gk-profile__badge">
+                        <a href="<?php echo esc_url( gk_abteilung_url( $dept, $ov_slug ? $ov_slug : 'kreisverband' ) ); ?>" class="gk-profile__badge">
                             <?php echo esc_html( $dept->name ); ?>
                         </a>
                     <?php endforeach; ?>

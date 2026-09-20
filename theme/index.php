@@ -1,4 +1,11 @@
-<?php get_header(); ?>
+<?php
+/**
+ * Index template.
+ *
+ * @package Neurg_Kreisverband
+ */
+
+get_header(); ?>
 
 <!-- aktuelles (index.php) -->
 <section id="content"><div class="inner gk-layout clearfix">
@@ -12,7 +19,7 @@
         <div class="archive-title gk-layout__full"><h1><?php single_tag_title(); ?></h1></div>
     <?php elseif ( is_author() ) : ?>
         <h1 class="archive-title gk-layout__full h2">
-            <span><?php echo get_the_author_meta( 'display_name', get_queried_object_id() ); ?></span>
+            <span><?php echo esc_html( get_the_author_meta( 'display_name', get_queried_object_id() ) ); ?></span>
         </h1>
     <?php endif; ?>
 
@@ -21,7 +28,10 @@
     <div id="main" class="gk-layout__main first clearfix" role="main">
         <div class="list-article">
             <?php if ( have_posts() ) : ?>
-                <?php while ( have_posts() ) : the_post(); ?>
+                <?php
+                while ( have_posts() ) :
+					the_post();
+					?>
                     <?php get_template_part( 'template-parts/content-list', get_post_type() ); ?>
                 <?php endwhile; ?>
         </div>

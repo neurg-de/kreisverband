@@ -1,0 +1,185 @@
+Installing...
+Running as single site... To run multisite, use -c tests/phpunit/multisite.xml
+Not running ajax tests. To execute these, use --group ajax.
+Not running ms-files tests. To execute these, use --group ms-files.
+Not running external-http tests. To execute these, use --group external-http.
+PHPUnit 9.6.36 by Sebastian Bergmann and contributors.
+
+FFFEF.F.......F.................FFF................               51 / 51 (100%)
+
+Time: 00:00.310, Memory: 44.50 MB
+
+There was 1 error:
+
+1) ContactFormTest::test_missing_nonce_honeypot_and_array_input_do_not_send
+Array to string conversion
+
+/tmp/wordpress/wp-includes/pluggable.php:2469
+/workspace/theme/inc/contact-form.php:47
+/tmp/wordpress/wp-includes/shortcodes.php:434
+/tmp/wordpress/wp-includes/shortcodes.php:273
+/workspace/tests/ContactFormTest.php:68
+
+--
+
+There were 9 failures:
+
+1) ContactFormTest::test_form_uses_normal_submit_and_persistent_marker
+Failed asserting that '\n
+        \n
+        <form method="post" class="gk-contact-form">\n
+            <input type="hidden" id="gk_contact_nonce" name="gk_contact_nonce" value="[REDACTED TEST NONCE]" /><input type="hidden" name="_wp_http_referer" value="" />\n
+            <!-- Honeypot -->\n
+            <div style="display:none" aria-hidden="true">\n
+                <input type="text" name="gk_website_url" tabindex="-1" autocomplete="off" />\n
+            </div>\n
+\n
+            <p class="gk-field">\n
+                <label for="gk_contact_name">Name *</label>\n
+                <input type="text" name="gk_contact_name" id="gk_contact_name" value="" required />\n
+            </p>\n
+\n
+            <p class="gk-field">\n
+                <label for="gk_contact_email">E-Mail *</label>\n
+                <input type="email" name="gk_contact_email" id="gk_contact_email" value="" required />\n
+            </p>\n
+\n
+            <p class="gk-field">\n
+                <label for="gk_contact_subject">Betreff</label>\n
+                <input type="text" name="gk_contact_subject" id="gk_contact_subject" value="" />\n
+            </p>\n
+\n
+            <p class="gk-field">\n
+                <label for="gk_contact_message">Nachricht *</label>\n
+                <textarea name="gk_contact_message" id="gk_contact_message" rows="6" required></textarea>\n
+            </p>\n
+\n
+            <p class="gk-field gk-field-checkbox">\n
+                <label for="gk_contact_privacy">\n
+                    <input type="checkbox" name="gk_contact_privacy" id="gk_contact_privacy" value="1" required aria-required="true" />\n
+                    Ich habe die\n
+                                            <a href="http://example.org/?page_id=4" target="_blank">Datenschutzerklärung</a>\n
+                                        gelesen und stimme der Verarbeitung meiner Daten zu. *\n
+                </label>\n
+            </p>\n
+\n
+            <p class="gk-field gk-field-submit">\n
+                <button type="submit" name="gk_contact_submit" class="gk-btn" onclick="this.disabled=true;this.form.submit();">Nachricht senden</button>\n
+            </p>\n
+        </form>\n
+    ' does not contain "this.form.submit()".
+
+/workspace/tests/ContactFormTest.php:44
+
+2) ContactFormTest::test_newsletter_requires_explicit_consent
+Failed asserting that '[newsletter_anfrage]' contains "Bitte bestätige".
+
+/workspace/tests/ContactFormTest.php:53
+
+3) ContactFormTest::test_newsletter_sends_only_interest_to_fixed_recipient
+Failed asserting that actual size 0 matches expected size 1.
+
+/workspace/tests/ContactFormTest.php:60
+
+4) ContactFormTest::test_rate_limit_and_form_isolation
+Failed asserting that actual size 0 matches expected size 3.
+
+/workspace/tests/ContactFormTest.php:85
+
+5) ContactFormTest::test_mail_failure_has_accessible_error
+Failed asserting that '\n
+                    <div class="gk-contact-errors" role="alert" aria-live="polite">\n
+                                    <p>Sicherheitsprüfung fehlgeschlagen. Bitte versuche es erneut.</p>\n
+                            </div>\n
+        \n
+        <form method="post" class="gk-contact-form">\n
+            <input type="hidden" id="gk_contact_nonce" name="gk_contact_nonce" value="[REDACTED TEST NONCE]" /><input type="hidden" name="_wp_http_referer" value="" />\n
+            <!-- Honeypot -->\n
+            <div style="display:none" aria-hidden="true">\n
+                <input type="text" name="gk_website_url" tabindex="-1" autocomplete="off" />\n
+            </div>\n
+\n
+            <p class="gk-field">\n
+                <label for="gk_contact_name">Name *</label>\n
+                <input type="text" name="gk_contact_name" id="gk_contact_name" value="Test Person" required />\n
+            </p>\n
+\n
+            <p class="gk-field">\n
+                <label for="gk_contact_email">E-Mail *</label>\n
+                <input type="email" name="gk_contact_email" id="gk_contact_email" value="test@example.org" required />\n
+            </p>\n
+\n
+            <p class="gk-field">\n
+                <label for="gk_contact_subject">Betreff</label>\n
+                <input type="text" name="gk_contact_subject" id="gk_contact_subject" value="" />\n
+            </p>\n
+\n
+            <p class="gk-field">\n
+                <label for="gk_contact_message">Nachricht *</label>\n
+                <textarea name="gk_contact_message" id="gk_contact_message" rows="6" required>Testnachricht</textarea>\n
+            </p>\n
+\n
+            <p class="gk-field gk-field-checkbox">\n
+                <label for="gk_contact_privacy">\n
+                    <input type="checkbox" name="gk_contact_privacy" id="gk_contact_privacy" value="1" required aria-required="true" />\n
+                    Ich habe die\n
+                                            <a href="http://example.org/?page_id=10" target="_blank">Datenschutzerklärung</a>\n
+                                        gelesen und stimme der Verarbeitung meiner Daten zu. *\n
+                </label>\n
+            </p>\n
+\n
+            <p class="gk-field gk-field-submit">\n
+                <button type="submit" name="gk_contact_submit" class="gk-btn" onclick="this.disabled=true;this.form.submit();">Nachricht senden</button>\n
+            </p>\n
+        </form>\n
+    ' contains "nicht gesendet".
+
+/workspace/tests/ContactFormTest.php:103
+
+6) MediaTest::test_regression_media_modal_uses_taxonomy_not_author
+Failed asserting that an array does not have the key 'author'.
+
+/workspace/tests/MediaTest.php:27
+
+7) RolesTest::test_regression_published_ov_post_can_be_trashed
+Failed asserting that false is true.
+
+/workspace/tests/RolesTest.php:37
+
+8) RolesTest::test_regression_own_post_outside_scope_cannot_be_edited
+Failed asserting that true is false.
+
+/workspace/tests/RolesTest.php:43
+
+9) RolesTest::test_regression_permanent_deletion_is_blocked
+Failed asserting that WP_Post Object &000000000000095f0000000000000000 (
+    'ID' => 25
+    'post_author' => '7'
+    'post_date' => '2026-09-20 14:05:12'
+    'post_date_gmt' => '2026-09-20 14:05:12'
+    'post_content' => 'Post content 0000045'
+    'post_title' => 'Post title 0000045'
+    'post_excerpt' => 'Post excerpt 0000045'
+    'post_status' => 'publish'
+    'comment_status' => 'open'
+    'ping_status' => 'open'
+    'post_password' => ''
+    'post_name' => 'post-title-0000045'
+    'to_ping' => ''
+    'pinged' => ''
+    'post_modified' => '2026-09-20 14:05:12'
+    'post_modified_gmt' => '2026-09-20 14:05:12'
+    'post_content_filtered' => ''
+    'post_parent' => 0
+    'guid' => 'http://example.org/?p=25'
+    'menu_order' => 0
+    'post_type' => 'post'
+    'post_mime_type' => ''
+    'comment_count' => '0'
+    'filter' => 'raw'
+) is false.
+
+/workspace/tests/RolesTest.php:50
+
+ERRORS!
+Tests: 51, Assertions: 90, Errors: 1, Failures: 9.

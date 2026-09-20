@@ -1,0 +1,83 @@
+
+PHP CODE SNIFFER REPORT SUMMARY
+--------------------------------------------------------------------------------
+FILE                                                            ERRORS  WARNINGS
+--------------------------------------------------------------------------------
+/workspace/theme/404.php                                        1       0
+/workspace/theme/archive-gk_event.php                           18      3
+/workspace/theme/archive.php                                    2       0
+/workspace/theme/footer.php                                     8       0
+/workspace/theme/functions.php                                  24      0
+/workspace/theme/header.php                                     11      3
+/workspace/theme/index.php                                      3       0
+/workspace/theme/page-blog.php                                  13      1
+/workspace/theme/page-fullpage.php                              1       0
+/workspace/theme/page-landingpage.php                           16      1
+/workspace/theme/page-OV-team.php                               25      8
+/workspace/theme/page-OV.php                                    163     36
+/workspace/theme/page-OVsubpages.php                            5       0
+/workspace/theme/page-story.php                                 3       0
+/workspace/theme/page-termine.php                               26      8
+/workspace/theme/page.php                                       18      3
+/workspace/theme/search.php                                     2       0
+/workspace/theme/sidebar.php                                    7       0
+/workspace/theme/single-gk_event.php                            13      4
+/workspace/theme/single-OV.php                                  7       0
+/workspace/theme/single-person.php                              6       8
+/workspace/theme/single.php                                     6       0
+/workspace/theme/style.css                                      0       3
+/workspace/theme/taxonomy-abteilung.php                         6       0
+/workspace/theme/inc/abteilung-meta.php                         26      8
+/workspace/theme/inc/admin.php                                  239     53
+/workspace/theme/inc/blocks.php                                 29      5
+/workspace/theme/inc/contact-form.php                           34      14
+/workspace/theme/inc/cookie-consent.php                         8       2
+/workspace/theme/inc/dev-seed-data.php                          99      103
+/workspace/theme/inc/donation.php                               21      9
+/workspace/theme/inc/events.php                                 139     24
+/workspace/theme/inc/kreiskarte-generator.php                   35      21
+/workspace/theme/inc/kreiskarte.php                             80      38
+/workspace/theme/inc/meta-boxes.php                             44      0
+/workspace/theme/inc/ortsverband.php                            125     23
+/workspace/theme/inc/post-types.php                             31      14
+/workspace/theme/inc/roles.php                                  41      11
+/workspace/theme/inc/seo.php                                    63      27
+/workspace/theme/inc/settings.php                               28      3
+/workspace/theme/inc/setup-wizard.php                           57      39
+/workspace/theme/inc/shortcodes.php                             125     25
+/workspace/theme/inc/social-links.php                           10      8
+/workspace/theme/inc/social-share.php                           9       9
+/workspace/theme/inc/taurus.php                                 52      5
+/workspace/theme/inc/theme-setup.php                            72      11
+/workspace/theme/inc/widgets.php                                47      8
+/workspace/theme/lib/css/editor.css                             0       1
+/workspace/theme/lib/css/grundlagen2024.css                     0       18
+/workspace/theme/lib/css/kreiskarte-generator.css               0       1
+/workspace/theme/lib/css/main.css                               0       1
+/workspace/theme/lib/css/style.css                              0       2
+/workspace/theme/lib/js/block-abteilung.js                      39      12
+/workspace/theme/lib/js/block-taurus-badge.js                   13      6
+/workspace/theme/lib/js/event-sidebar.js                        55      8
+/workspace/theme/lib/js/kreiskarte-generator.js                 1235    94
+/workspace/theme/lib/js/scripts.js                              582     23
+/workspace/theme/template-parts/content-list.php                1       0
+/workspace/theme/template-parts/content-person-glv.php          10      0
+/workspace/theme/template-parts/content-person-kontakt.php      4       0
+/workspace/theme/template-parts/content-person-landesliste.php  10      0
+/workspace/theme/template-parts/content-person-mandat.php       10      0
+...space/theme/template-parts/content-person-personenliste.php  12      0
+/workspace/theme/template-parts/content-person-team.php         5       0
+/workspace/theme/template-parts/content-person-vorstand.php     9       0
+/workspace/theme/template-parts/content-person.php              31      18
+/workspace/theme/template-parts/content-single-person-OV.php    7       1
+/workspace/theme/template-parts/content-single-post-OV.php      3       0
+/workspace/theme/template-parts/ov-werbung.php                  7       7
+/workspace/theme/template-parts/home/neue-energie-settings.php  60      97
+/workspace/theme/template-parts/home/neue-energie.php           128     31
+--------------------------------------------------------------------------------
+A TOTAL OF 4019 ERRORS AND 858 WARNINGS WERE FOUND IN 71 FILES
+--------------------------------------------------------------------------------
+PHPCBF CAN FIX 3790 OF THESE SNIFF VIOLATIONS AUTOMATICALLY
+--------------------------------------------------------------------------------
+
+Time: 4.63 secs; Memory: 58MB

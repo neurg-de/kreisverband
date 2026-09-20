@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase -- Existing template filename is required for WordPress routing and saved page templates.
 /**
  * Single Event Template
  *
@@ -10,7 +10,8 @@
 
 get_header();
 
-while ( have_posts() ) : the_post();
+while ( have_posts() ) :
+	the_post();
     $start_date = get_post_meta( get_the_ID(), 'gk_event_start_date', true );
     $start_time = get_post_meta( get_the_ID(), 'gk_event_start_time', true );
     $end_date   = get_post_meta( get_the_ID(), 'gk_event_end_date', true );
@@ -26,22 +27,23 @@ while ( have_posts() ) : the_post();
     $event_cats     = wp_get_post_terms( get_the_ID(), 'event_kategorie', array( 'fields' => 'names' ) );
     $event_cat      = ( ! is_wp_error( $event_cats ) && ! empty( $event_cats ) ) ? $event_cats[0] : '';
 
-    // Build Google Calendar URL
+    // Build Google Calendar URL.
     $gcal_url = '';
     if ( $start_date ) {
-        $gcal_base = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+        $gcal_base  = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+        $gcal_base .= '&ctz=' . rawurlencode( wp_timezone_string() );
         $gcal_base .= '&text=' . rawurlencode( get_the_title() );
 
-        if ( $all_day === '1' ) {
+        if ( '1' === $all_day ) {
             $gcal_start = str_replace( '-', '', $start_date );
-            $gcal_end   = $end_date ? str_replace( '-', '', date( 'Y-m-d', strtotime( $end_date . ' +1 day' ) ) ) : str_replace( '-', '', date( 'Y-m-d', strtotime( $start_date . ' +1 day' ) ) );
+            $gcal_end   = $end_date ? str_replace( '-', '', gmdate( 'Y-m-d', strtotime( $end_date . ' +1 day' ) ) ) : str_replace( '-', '', gmdate( 'Y-m-d', strtotime( $start_date . ' +1 day' ) ) );
             $gcal_base .= '&dates=' . $gcal_start . '/' . $gcal_end;
         } else {
-            $gcal_start = str_replace( '-', '', $start_date ) . 'T' . str_replace( ':', '', $start_time ?: '0000' ) . '00';
-            $gcal_end_date = $end_date ?: $start_date;
-            $gcal_end_time = $end_time ?: $start_time ?: '0000';
-            $gcal_end   = str_replace( '-', '', $gcal_end_date ) . 'T' . str_replace( ':', '', $gcal_end_time ) . '00';
-            $gcal_base .= '&dates=' . $gcal_start . '/' . $gcal_end;
+            $gcal_start    = str_replace( '-', '', $start_date ) . 'T' . str_replace( ':', '', ( $start_time ? $start_time : '0000' ) ) . '00';
+            $gcal_end_date = ( $end_date ? $end_date : $start_date );
+            $gcal_end_time = $end_time ? $end_time : ( $start_time ? $start_time : '0000' );
+            $gcal_end      = str_replace( '-', '', $gcal_end_date ) . 'T' . str_replace( ':', '', $gcal_end_time ) . '00';
+            $gcal_base    .= '&dates=' . $gcal_start . '/' . $gcal_end;
         }
 
         $loc_parts = array_filter( array( $location, $address ) );
@@ -57,10 +59,14 @@ while ( have_posts() ) : the_post();
     // Is this event in the past?
     $is_past = $start_date && $start_date < current_time( 'Y-m-d' );
 
-    // Termine page for back link
+    // Termine page for back link.
     $termine_page = get_page_by_path( 'termine' );
     $termine_url  = $termine_page ? get_permalink( $termine_page ) : home_url( '/termine/' );
-?>
+    $event_scope  = gk_get_post_zuordnung_slug( get_the_ID() );
+    if ( $event_scope && 'kreisverband' !== $event_scope ) {
+        $termine_url = add_query_arg( 'zuordnung', $event_scope, $termine_url );
+    }
+	?>
 
 <!-- Back navigation -->
 <div class="gk-event-single__back">
@@ -140,7 +146,10 @@ while ( have_posts() ) : the_post();
                     <div class="gk-event-single__detail-body">
                         <h3 class="gk-event-single__detail-label">Wo</h3>
                         <p class="gk-event-single__detail-value">
-                            <?php if ( $location ) echo esc_html( $location ); ?>
+                            <?php
+                            if ( $location ) {
+								echo esc_html( $location );}
+							?>
                             <?php if ( $address && $address !== $location ) : ?>
                                 <br><span class="gk-event-single__address"><?php echo esc_html( $address ); ?></span>
                             <?php endif; ?>
@@ -171,7 +180,7 @@ while ( have_posts() ) : the_post();
 
             <!-- Actions: Calendar buttons -->
             <div class="gk-event-single__actions">
-                <a href="<?php the_permalink(); ?>?ical=1" download="event.ics" class="gk-btn gk-btn--primary gk-btn--sm">
+                <a href="<?php echo esc_url( add_query_arg( 'ical', '1', get_permalink() ) ); ?>" download="event.ics" class="gk-btn gk-btn--primary gk-btn--sm">
                     <span class="fa fa-download" aria-hidden="true"></span> In Kalender speichern
                 </a>
                 <?php if ( $gcal_url ) : ?>

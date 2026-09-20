@@ -4,7 +4,7 @@ Contributors: severinkistner
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.6.2
+Stable tag: 0.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,13 +44,23 @@ Ab WordPress 6.4 mit PHP 8.1 oder hoeher.
 
 = Wie richte ich einen Ortsverband ein? =
 
-Unter Beitraege > Zuordnung (KV/OV) einen neuen Term anlegen und als OV-Typ konfigurieren. Details im Admin-Bereich unter Einstellungen > Neurg KV.
+Als Administrator unter Verband einen Ortsverband anlegen und eine lokale Startseite oder eine externe Kontakt-Website hinterlegen. Anschliessend die Links in OV-Liste und Kreiskarte pruefen. Das vollstaendige deutsche Benutzerhandbuch liegt im Repository unter docs/BENUTZERHANDBUCH.md.
 
 = Welche Plugins werden benoetigt? =
 
 Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Theme integriert.
 
 == Changelog ==
+
+= 0.7.0 =
+* Rollen- und Bereichsprüfung für Redaktion und Medien; geschützter Papierkorb.
+* Datensparsame Rollenübersicht und kontrollierte Medienzuordnung mit Rücknahme.
+* Lokale und externe OV-Websites sowie Datenschutz-/Impressumsrückfall korrigiert.
+* Einheitliche Karten- und Listenziele, bestehende /ov-xy/-Routen und mobile Tastaturbedienung.
+* Eindeutige Terminzuordnung und robuster iCal-Export.
+* Newsletteranfrage mit ausdrücklicher Einwilligung, ohne automatisches Abonnement.
+* Deutsches Geschäftsstelle-Handbuch und erweiterte Regressionstests.
+* Release validiert alle Versionsangaben und lädt keine fehlende Demo-Datei.
 
 = 0.5.1 =
 * The Taurus Integration: Compliance-Badge, Customizer-Einstellungen, Dashboard-Promo

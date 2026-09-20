@@ -1,4 +1,11 @@
-<article id="post-<?php the_ID(); ?>" <?php post_class( 'clearfix gk-post-list' ); ?> role="article">
+<article id="post-<?php
+/**
+ * Content list template.
+ *
+ * @package Neurg_Kreisverband
+ */
+
+the_ID(); ?>" <?php post_class( 'clearfix gk-post-list' ); ?> role="article">
 
     <?php if ( has_post_thumbnail() ) : ?>
         <a href="<?php the_permalink(); ?>" class="gk-post-list__image"><?php the_post_thumbnail( '350uncropped' ); ?></a>

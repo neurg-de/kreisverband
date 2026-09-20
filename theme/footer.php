@@ -1,3 +1,11 @@
+<?php
+/**
+ * Site footer and context-specific legal links.
+ *
+ * @package Neurg_Kreisverband
+ */
+
+?>
 
     <footer id="footer" class="site-footer" role="contentinfo">
 
@@ -32,12 +40,7 @@
         <div class="footer-bottom">
             <div class="inner">
                 <?php
-                // Detect zuordnung context (same pattern as header.php).
-                global $post;
-                $gk_footer_slug = isset( $post ) ? gk_get_post_zuordnung_slug( $post->ID ) : '';
-                if ( empty( $gk_footer_slug ) ) {
-                    $gk_footer_slug = 'kreisverband';
-                }
+                $gk_footer_slug = gk_legal_context_slug();
                 ?>
                 <nav class="footer-nav" role="navigation" aria-label="Footer-Navigation">
                     <?php gk_nav_footer( $gk_footer_slug ); ?>
@@ -47,11 +50,11 @@
                     // Check for zuordnung-specific legal pages, fall back to KV.
                     $impressum_id   = gk_get_zuordnung_legal_page( $gk_footer_slug, 'impressum' );
                     $datenschutz_id = gk_get_zuordnung_legal_page( $gk_footer_slug, 'datenschutz' );
-                    if ( $impressum_id && get_post_status( $impressum_id ) === 'publish' ) :
-                    ?>
+                    if ( $impressum_id && 'publish' === get_post_status( $impressum_id ) ) :
+						?>
                         <li><a href="<?php echo esc_url( get_permalink( $impressum_id ) ); ?>">Impressum</a></li>
                     <?php endif; ?>
-                    <?php if ( $datenschutz_id && get_post_status( $datenschutz_id ) === 'publish' ) : ?>
+                    <?php if ( $datenschutz_id && 'publish' === get_post_status( $datenschutz_id ) ) : ?>
                         <li><a href="<?php echo esc_url( get_permalink( $datenschutz_id ) ); ?>">Datenschutz</a></li>
                     <?php endif; ?>
                 </ul>
@@ -61,13 +64,15 @@
                 }
                 ?>
                 <p class="footer-copyright">
-                    &copy; <?php echo date( 'Y' ); ?> <?php bloginfo( 'name' ); ?>
+                    &copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>
                 </p>
-                <p class="neurg-theme-credit">WordPress-Theme: <a href="https://neurg.de" target="_blank" rel="noopener">Neurg Kreisverband</a><?php
-                    if ( function_exists( 'gk_taurus_render_sponsor_credit' ) ) {
-                        gk_taurus_render_sponsor_credit();
-                    }
-                ?></p>
+                <p class="neurg-theme-credit">WordPress-Theme: <a href="https://neurg.de" target="_blank" rel="noopener">Neurg Kreisverband</a>
+                <?php
+				if ( function_exists( 'gk_taurus_render_sponsor_credit' ) ) {
+					gk_taurus_render_sponsor_credit();
+				}
+                ?>
+                </p>
             </div>
         </div>
 

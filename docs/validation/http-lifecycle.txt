@@ -1,0 +1,17 @@
+PASS: taxonomy available to office
+PASS: office publishes event in another OV
+PASS: OV admin edits another author inside own OV
+PASS: foreign OV edit rejected
+PASS: OV author draft assigned automatically
+PASS: foreign reassignment rejected
+PASS: OV author publishes own draft
+PASS: permanent deletion rejected
+PASS: published own post moves to trash
+PASS: post restored as draft
+PASS: office moves synthetic private post to KV
+PASS: former author cannot read now-foreign private content
+PASS: media REST collection contains only own OV
+PASS: administrator role overview opens
+PASS: office cannot open role administration
+PASS: office session remains valid
+All HTTP lifecycle checks passed. Synthetic content retained for manual inspection.

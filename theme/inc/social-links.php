@@ -34,49 +34,49 @@ function gk_social_platforms() {
             'base'    => 'https://www.instagram.com/%s',
             'extract' => '#instagram\.com/([^/?]+)#i',
         ),
-        'facebook' => array(
+        'facebook'  => array(
             'label'   => 'Facebook',
             'icon'    => 'fab fa-facebook-f',
             'color'   => '#1877F2',
             'base'    => 'https://www.facebook.com/%s',
             'extract' => '#facebook\.com/([^/?]+)#i',
         ),
-        'x' => array(
+        'x'         => array(
             'label'   => 'X',
             'icon'    => 'fab fa-x-twitter',
             'color'   => '#000000',
             'base'    => 'https://x.com/%s',
             'extract' => '#(?:twitter|x)\.com/([^/?]+)#i',
         ),
-        'tiktok' => array(
+        'tiktok'    => array(
             'label'   => 'TikTok',
             'icon'    => 'fab fa-tiktok',
             'color'   => '#000000',
             'base'    => 'https://www.tiktok.com/@%s',
             'extract' => '#tiktok\.com/@?([^/?]+)#i',
         ),
-        'threads' => array(
+        'threads'   => array(
             'label'   => 'Threads',
             'icon'    => 'fab fa-threads',
             'color'   => '#000000',
             'base'    => 'https://www.threads.net/@%s',
             'extract' => '#threads\.net/@?([^/?]+)#i',
         ),
-        'bluesky' => array(
+        'bluesky'   => array(
             'label'   => 'Bluesky',
             'icon'    => 'fab fa-bluesky',
             'color'   => '#0085FF',
             'base'    => 'https://bsky.app/profile/%s',
             'extract' => '#bsky\.app/profile/([^/?]+)#i',
         ),
-        'mastodon' => array(
+        'mastodon'  => array(
             'label'   => 'Mastodon',
             'icon'    => 'fab fa-mastodon',
             'color'   => '#6364FF',
-            'base'    => '',   // Mastodon URLs are instance-specific, stored as full URL
+            'base'    => '',   // Mastodon URLs are instance-specific, stored as full URL.
             'extract' => '',
         ),
-        'youtube' => array(
+        'youtube'   => array(
             'label'   => 'YouTube',
             'icon'    => 'fab fa-youtube',
             'color'   => '#FF0000',
@@ -101,7 +101,7 @@ function gk_social_platforms() {
  */
 function gk_normalize_social_url( $platform, $input ) {
     $input = trim( $input );
-    if ( $input === '' ) {
+    if ( '' === $input ) {
         return '';
     }
 
@@ -115,7 +115,7 @@ function gk_normalize_social_url( $platform, $input ) {
 
     // Mastodon: instance-specific, can't build from username alone.
     // Accept @user@instance format and build URL.
-    if ( $platform === 'mastodon' ) {
+    if ( 'mastodon' === $platform ) {
         if ( preg_match( '#^@?([^@]+)@(.+)$#', $input, $m ) ) {
             return 'https://' . $m[2] . '/@' . $m[1];
         }
@@ -189,11 +189,14 @@ function gk_social_links_bar( $links, $args = array() ) {
     $class     = 'gk-social-links' . ( ! empty( $args['class'] ) ? ' ' . esc_attr( $args['class'] ) : '' );
     $label     = $args['label'] ?? 'Soziale Netzwerke';
     ?>
-    <nav class="<?php echo $class; ?>" aria-label="<?php echo esc_attr( $label ); ?>">
-        <?php foreach ( $links as $platform => $url ) :
+    <nav class="<?php echo esc_attr( $class ); ?>" aria-label="<?php echo esc_attr( $label ); ?>">
+        <?php
+        foreach ( $links as $platform => $url ) :
             $def = $platforms[ $platform ] ?? null;
-            if ( ! $def ) continue;
-        ?>
+            if ( ! $def ) {
+				continue;
+            }
+			?>
             <a href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo esc_attr( $def['label'] ); ?>" data-platform="<?php echo esc_attr( $platform ); ?>">
                 <i class="<?php echo esc_attr( $def['icon'] ); ?>" aria-hidden="true"></i>
                 <span class="gk-social-links__label"><?php echo esc_html( $def['label'] ); ?></span>
@@ -238,7 +241,7 @@ function gk_get_context_social_links() {
         $kv['social_x'] = $kv['social_twitter'];
     }
     $kv_contact = array();
-    $key_map = array(
+    $key_map    = array(
         'social_instagram' => 'insta',
         'social_facebook'  => 'facebook',
         'social_x'         => 'x',
@@ -272,10 +275,13 @@ function gk_footer_social_bar() {
     $platforms = gk_social_platforms();
     ?>
     <nav class="gk-social-links gk-social-links--footer" aria-label="Soziale Netzwerke">
-        <?php foreach ( $links as $platform => $url ) :
+        <?php
+        foreach ( $links as $platform => $url ) :
             $def = $platforms[ $platform ] ?? null;
-            if ( ! $def ) continue;
-        ?>
+            if ( ! $def ) {
+				continue;
+            }
+			?>
             <a href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo esc_attr( $def['label'] ); ?>" data-platform="<?php echo esc_attr( $platform ); ?>" style="--brand-color: <?php echo esc_attr( $def['color'] ); ?>">
                 <i class="<?php echo esc_attr( $def['icon'] ); ?>" aria-hidden="true"></i>
                 <span class="gk-social-links__label"><?php echo esc_html( $def['label'] ); ?></span>

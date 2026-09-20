@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function gk_get_home_variants() {
     static $variants = null;
-    if ( $variants !== null ) {
+    if ( null !== $variants ) {
         return $variants;
     }
 
@@ -45,12 +45,15 @@ function gk_get_home_variants() {
             continue;
         }
 
-        $headers = get_file_data( $file, array(
-            'variant'       => 'Variant',
-            'variant_name'  => 'Variant Name',
-            'variant_desc'  => 'Variant Desc',
-            'variant_thumb' => 'Variant Thumb',
-        ) );
+        $headers = get_file_data(
+            $file,
+            array(
+				'variant'       => 'Variant',
+				'variant_name'  => 'Variant Name',
+				'variant_desc'  => 'Variant Desc',
+				'variant_thumb' => 'Variant Thumb',
+            )
+        );
 
         if ( empty( $headers['variant'] ) ) {
             continue;
@@ -59,16 +62,19 @@ function gk_get_home_variants() {
         $slug = sanitize_file_name( $headers['variant'] );
 
         $variants[ $slug ] = array(
-            'name'  => $headers['variant_name'] ?: $slug,
-            'desc'  => $headers['variant_desc'] ?: '',
-            'thumb' => $headers['variant_thumb'] ?: '',
+            'name'  => $headers['variant_name'] ? $headers['variant_name'] : $slug,
+            'desc'  => $headers['variant_desc'] ? $headers['variant_desc'] : '',
+            'thumb' => $headers['variant_thumb'] ? $headers['variant_thumb'] : '',
             'file'  => $file,
         );
     }
 
-    uasort( $variants, function ( $a, $b ) {
-        return strcasecmp( $a['name'], $b['name'] );
-    } );
+    uasort(
+        $variants,
+        function ( $a, $b ) {
+			return strcasecmp( $a['name'], $b['name'] );
+		}
+    );
 
     return $variants;
 }
@@ -83,7 +89,9 @@ function gk_get_home_variants() {
  */
 function gk_load_variant_settings_files() {
     static $loaded = false;
-    if ( $loaded ) return;
+    if ( $loaded ) {
+		return;
+    }
     $loaded = true;
 
     $dir = get_template_directory() . '/template-parts/home';
@@ -98,21 +106,34 @@ function gk_load_variant_settings_files() {
 
 // ── Settings Registration ───────────────────────────────────────────────────
 
+/**
+ * Register settings.
+ */
 function gk_register_settings() {
-    register_setting( 'gk_settings', 'gk_homepage', array(
-        'type'              => 'array',
-        'sanitize_callback' => 'gk_sanitize_homepage_settings',
-        'default'           => array(),
-    ) );
-
+    register_setting(
+        'gk_settings',
+        'gk_homepage',
+        array(
+			'type'              => 'array',
+			'sanitize_callback' => 'gk_sanitize_homepage_settings',
+			'default'           => array(),
+        )
+    );
 }
 add_action( 'admin_init', 'gk_register_settings' );
 
 
 // ── Homepage Settings: Sanitize ─────────────────────────────────────────────
 
+/**
+ * Sanitize homepage settings.
+ *
+ * @param array $input Submitted settings.
+ */
 function gk_sanitize_homepage_settings( $input ) {
-    if ( ! is_array( $input ) ) return array();
+    if ( ! is_array( $input ) ) {
+		return array();
+    }
 
     // Validate variant slug.
     $variant_slug = 'neue-energie';
@@ -121,9 +142,9 @@ function gk_sanitize_homepage_settings( $input ) {
     gk_load_variant_settings_files();
 
     // Preserve existing variant data, then sanitize submitted variants.
-    $old_data = get_option( 'gk_homepage', array() );
+    $old_data     = get_option( 'gk_homepage', array() );
     $old_variants = $old_data['variants'] ?? array();
-    $new_variants = $old_variants; // keep data for non-submitted variants
+    $new_variants = $old_variants; // keep data for non-submitted variants.
 
     $submitted = $input['variants'] ?? array();
     foreach ( $submitted as $slug => $variant_input ) {
@@ -161,33 +182,31 @@ function gk_sanitize_homepage_settings( $input ) {
  * @param mixed  $default Fallback value.
  * @return mixed
  */
-function gk_homepage_option( $key, $default = '' ) {
-    static $opts = null;
+function gk_homepage_option( $key, $default = '' ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound -- Preserve the public parameter name for PHP named-argument callers.
+    static $opts         = null;
     static $variant_opts = null;
 
-    if ( $opts === null ) {
+    if ( null === $opts ) {
         $opts         = get_option( 'gk_homepage', array() );
         $variant      = $opts['home_variant'] ?? 'neue-energie';
         $all_variants = $opts['variants'] ?? array();
         $variant_opts = $all_variants[ $variant ] ?? array();
     }
 
-    // Top-level keys (home_variant itself)
-    if ( $key === 'home_variant' ) {
+    // Top-level keys (home_variant itself).
+    if ( 'home_variant' === $key ) {
         return $opts['home_variant'] ?? $default;
     }
 
-    // Variant-specific settings
-    if ( isset( $variant_opts[ $key ] ) && $variant_opts[ $key ] !== '' ) {
+    // Variant-specific settings.
+    if ( isset( $variant_opts[ $key ] ) && '' !== $variant_opts[ $key ] ) {
         return $variant_opts[ $key ];
     }
 
-    // Backwards compat: check top-level (for migrated data)
-    if ( isset( $opts[ $key ] ) && $opts[ $key ] !== '' ) {
+    // Backwards compat: check top-level (for migrated data).
+    if ( isset( $opts[ $key ] ) && '' !== $opts[ $key ] ) {
         return $opts[ $key ];
     }
 
     return $default;
 }
-
-

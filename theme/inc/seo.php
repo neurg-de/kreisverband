@@ -23,11 +23,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // ── Open Graph, Twitter Cards & Meta ───────────────────────────────────────
 
+/**
+ * Seo meta tags.
+ */
 function gk_seo_meta_tags() {
-    $kv_name = function_exists( 'gk_kv_name' ) ? gk_kv_name() : get_bloginfo( 'name' );
-    $site_name = $kv_name ?: get_bloginfo( 'name' );
+    $kv_name   = function_exists( 'gk_kv_name' ) ? gk_kv_name() : get_bloginfo( 'name' );
+    $site_name = $kv_name ? $kv_name : get_bloginfo( 'name' );
 
-    // Defaults
+    // Defaults.
     $og_title       = get_bloginfo( 'name' );
     $og_description = get_bloginfo( 'description' );
     $og_url         = home_url( '/' );
@@ -42,14 +45,14 @@ function gk_seo_meta_tags() {
         $og_url   = get_permalink();
         $og_type  = is_singular( 'post' ) ? 'article' : 'website';
 
-        // Description from excerpt or content
+        // Description from excerpt or content.
         if ( has_excerpt( $post->ID ) ) {
             $og_description = get_the_excerpt();
         } else {
             $og_description = wp_trim_words( strip_shortcodes( $post->post_content ), 30, '...' );
         }
 
-        // Featured image with dimensions
+        // Featured image with dimensions.
         if ( has_post_thumbnail( $post->ID ) ) {
             $img = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'large' );
             if ( $img ) {
@@ -59,7 +62,7 @@ function gk_seo_meta_tags() {
             }
         }
 
-        // Fallback: custom logo or default theme image
+        // Fallback: custom logo or default theme image.
         if ( ! $og_image ) {
             $custom_logo_id = get_theme_mod( 'custom_logo' );
             if ( $custom_logo_id ) {
@@ -75,14 +78,14 @@ function gk_seo_meta_tags() {
             $og_image = GK_IMAGE_DIR . 'og-default.png';
         }
     } elseif ( is_category() || is_tag() || is_tax() ) {
-        $term = get_queried_object();
+        $term     = get_queried_object();
         $og_title = $term->name;
         $og_url   = get_term_link( $term );
         if ( $term->description ) {
             $og_description = $term->description;
         }
     } elseif ( is_author() ) {
-        $author = get_queried_object();
+        $author   = get_queried_object();
         $og_title = $author->display_name;
         $og_url   = get_author_posts_url( $author->ID );
     } elseif ( is_post_type_archive() ) {
@@ -93,20 +96,20 @@ function gk_seo_meta_tags() {
     $og_description = wp_strip_all_tags( $og_description );
     $og_description = mb_substr( $og_description, 0, 160 );
 
-    // Output
+    // Output.
     echo "\n<!-- Neurg Kreisverband SEO -->\n";
 
-    // Meta description
+    // Meta description.
     echo '<meta name="description" content="' . esc_attr( $og_description ) . '" />' . "\n";
 
-    // Robots
+    // Robots.
     if ( is_search() ) {
         echo '<meta name="robots" content="noindex, follow" />' . "\n";
     } elseif ( is_paged() && ( is_category() || is_tag() || is_tax() || is_archive() ) ) {
         echo '<meta name="robots" content="noindex, follow" />' . "\n";
     }
 
-    // Open Graph
+    // Open Graph.
     echo '<meta property="og:title" content="' . esc_attr( $og_title ) . '" />' . "\n";
     echo '<meta property="og:description" content="' . esc_attr( $og_description ) . '" />' . "\n";
     echo '<meta property="og:url" content="' . esc_url( $og_url ) . '" />' . "\n";
@@ -124,7 +127,7 @@ function gk_seo_meta_tags() {
         echo '<meta property="og:image:alt" content="' . esc_attr( $og_image_alt ) . '" />' . "\n";
     }
 
-    // Article-specific OG tags
+    // Article-specific OG tags.
     if ( is_singular( 'post' ) ) {
         global $post;
         $article_author = function_exists( 'gk_kv_name' ) ? gk_kv_name() : get_bloginfo( 'name' );
@@ -143,7 +146,7 @@ function gk_seo_meta_tags() {
         }
     }
 
-    // Twitter Card
+    // Twitter Card.
     echo '<meta name="twitter:card" content="' . ( $og_image ? 'summary_large_image' : 'summary' ) . '" />' . "\n";
     echo '<meta name="twitter:title" content="' . esc_attr( $og_title ) . '" />' . "\n";
     echo '<meta name="twitter:description" content="' . esc_attr( $og_description ) . '" />' . "\n";
@@ -151,8 +154,8 @@ function gk_seo_meta_tags() {
         echo '<meta name="twitter:image" content="' . esc_url( $og_image ) . '" />' . "\n";
     }
 
-    // Twitter site handle from KV social settings
-    $kv_info    = function_exists( 'gk_get_kv_info' ) ? gk_get_kv_info() : array();
+    // Twitter site handle from KV social settings.
+    $kv_info        = function_exists( 'gk_get_kv_info' ) ? gk_get_kv_info() : array();
     $twitter_handle = '';
     if ( ! empty( $kv_info['social_x'] ) ) {
         $twitter_handle = '@' . ltrim( $kv_info['social_x'], '@' );
@@ -163,7 +166,7 @@ function gk_seo_meta_tags() {
         echo '<meta name="twitter:site" content="' . esc_attr( $twitter_handle ) . '" />' . "\n";
     }
 
-    // Canonical URL — all page types
+    // Canonical URL — all page types.
     $canonical = '';
     if ( is_singular() ) {
         $canonical = get_permalink();
@@ -180,7 +183,7 @@ function gk_seo_meta_tags() {
         echo '<link rel="canonical" href="' . esc_url( $canonical ) . '" />' . "\n";
     }
 
-    // Pagination rel links
+    // Pagination rel links.
     if ( is_archive() || is_home() || is_search() ) {
         global $wp_query;
         $paged = max( 1, get_query_var( 'paged' ) );
@@ -200,8 +203,13 @@ add_action( 'wp_head', 'gk_seo_meta_tags', 1 );
 
 // ── JSON-LD: Organization (front page) ─────────────────────────────────────
 
+/**
+ * Seo jsonld organization.
+ */
 function gk_seo_jsonld_organization() {
-    if ( ! is_front_page() ) return;
+    if ( ! is_front_page() ) {
+		return;
+    }
 
     $kv      = function_exists( 'gk_get_kv_info' ) ? gk_get_kv_info() : array();
     $name    = ! empty( $kv['name'] ) ? $kv['name'] : get_bloginfo( 'name' );
@@ -217,10 +225,14 @@ function gk_seo_jsonld_organization() {
         'url'      => $url,
     );
 
-    if ( $email ) $schema['email'] = $email;
-    if ( $phone ) $schema['telephone'] = $phone;
+    if ( $email ) {
+		$schema['email'] = $email;
+    }
+    if ( $phone ) {
+		$schema['telephone'] = $phone;
+    }
 
-    // Address from setup wizard (free-text, output as one block)
+    // Address from setup wizard (free-text, output as one block).
     if ( $address ) {
         $schema['address'] = array(
             '@type'          => 'PostalAddress',
@@ -229,20 +241,34 @@ function gk_seo_jsonld_organization() {
         );
     }
 
-    // Social profiles
+    // Social profiles.
     $same_as = array();
-    if ( ! empty( $kv['social_facebook'] ) )  $same_as[] = $kv['social_facebook'];
-    if ( ! empty( $kv['social_instagram'] ) ) $same_as[] = 'https://instagram.com/' . $kv['social_instagram'];
-    if ( ! empty( $kv['social_mastodon'] ) )  $same_as[] = $kv['social_mastodon'];
-    if ( ! empty( $kv['social_youtube'] ) )   $same_as[] = $kv['social_youtube'];
-    if ( ! empty( $kv['social_bluesky'] ) )   $same_as[] = 'https://bsky.app/profile/' . $kv['social_bluesky'];
-    if ( ! empty( $same_as ) ) $schema['sameAs'] = $same_as;
+    if ( ! empty( $kv['social_facebook'] ) ) {
+		$same_as[] = $kv['social_facebook'];
+    }
+    if ( ! empty( $kv['social_instagram'] ) ) {
+		$same_as[] = 'https://instagram.com/' . $kv['social_instagram'];
+    }
+    if ( ! empty( $kv['social_mastodon'] ) ) {
+		$same_as[] = $kv['social_mastodon'];
+    }
+    if ( ! empty( $kv['social_youtube'] ) ) {
+		$same_as[] = $kv['social_youtube'];
+    }
+    if ( ! empty( $kv['social_bluesky'] ) ) {
+		$same_as[] = 'https://bsky.app/profile/' . $kv['social_bluesky'];
+    }
+    if ( ! empty( $same_as ) ) {
+		$schema['sameAs'] = $same_as;
+    }
 
-    // Logo
+    // Logo.
     $custom_logo_id = get_theme_mod( 'custom_logo' );
     if ( $custom_logo_id ) {
         $logo_url = wp_get_attachment_image_url( $custom_logo_id, 'full' );
-        if ( $logo_url ) $schema['logo'] = $logo_url;
+        if ( $logo_url ) {
+			$schema['logo'] = $logo_url;
+        }
     }
 
     echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) . '</script>' . "\n";
@@ -252,23 +278,28 @@ add_action( 'wp_head', 'gk_seo_jsonld_organization', 2 );
 
 // ── JSON-LD: WebSite + SearchAction (front page) ──────────────────────────
 
+/**
+ * Seo jsonld website.
+ */
 function gk_seo_jsonld_website() {
-    if ( ! is_front_page() ) return;
+    if ( ! is_front_page() ) {
+		return;
+    }
 
     $kv_name = function_exists( 'gk_kv_name' ) ? gk_kv_name() : '';
-    $name    = $kv_name ?: get_bloginfo( 'name' );
+    $name    = $kv_name ? $kv_name : get_bloginfo( 'name' );
 
     $schema = array(
-        '@context'      => 'https://schema.org',
-        '@type'         => 'WebSite',
-        'name'          => $name,
-        'url'           => home_url( '/' ),
-        'inLanguage'    => 'de-DE',
+        '@context'        => 'https://schema.org',
+        '@type'           => 'WebSite',
+        'name'            => $name,
+        'url'             => home_url( '/' ),
+        'inLanguage'      => 'de-DE',
         'potentialAction' => array(
             '@type'       => 'SearchAction',
             'target'      => array(
-                '@type'        => 'EntryPoint',
-                'urlTemplate'  => home_url( '/?s={search_term_string}' ),
+                '@type'       => 'EntryPoint',
+                'urlTemplate' => home_url( '/?s={search_term_string}' ),
             ),
             'query-input' => 'required name=search_term_string',
         ),
@@ -281,42 +312,47 @@ add_action( 'wp_head', 'gk_seo_jsonld_website', 2 );
 
 // ── JSON-LD: Article (single posts) ────────────────────────────────────────
 
+/**
+ * Seo jsonld article.
+ */
 function gk_seo_jsonld_article() {
-    if ( ! is_singular( 'post' ) ) return;
+    if ( ! is_singular( 'post' ) ) {
+		return;
+    }
 
     global $post;
 
     $schema = array(
-        '@context'      => 'https://schema.org',
-        '@type'         => 'Article',
-        'headline'      => get_the_title(),
-        'url'           => get_permalink(),
-        'datePublished' => get_the_date( 'c' ),
-        'dateModified'  => get_the_modified_date( 'c' ),
-        'inLanguage'    => 'de-DE',
+        '@context'         => 'https://schema.org',
+        '@type'            => 'Article',
+        'headline'         => get_the_title(),
+        'url'              => get_permalink(),
+        'datePublished'    => get_the_date( 'c' ),
+        'dateModified'     => get_the_modified_date( 'c' ),
+        'inLanguage'       => 'de-DE',
         'mainEntityOfPage' => array(
             '@type' => 'WebPage',
             '@id'   => get_permalink(),
         ),
     );
 
-    // Description
+    // Description.
     if ( has_excerpt( $post->ID ) ) {
         $schema['description'] = wp_strip_all_tags( get_the_excerpt() );
     } else {
         $schema['description'] = wp_strip_all_tags( wp_trim_words( strip_shortcodes( $post->post_content ), 30, '...' ) );
     }
 
-    // Author as the organization
-    $kv_name = function_exists( 'gk_kv_name' ) ? gk_kv_name() : get_bloginfo( 'name' );
-    $schema['author'] = array(
+    // Author as the organization.
+    $kv_name             = function_exists( 'gk_kv_name' ) ? gk_kv_name() : get_bloginfo( 'name' );
+    $schema['author']    = array(
         '@type' => 'Organization',
-        'name'  => $kv_name ?: get_bloginfo( 'name' ),
+        'name'  => $kv_name ? $kv_name : get_bloginfo( 'name' ),
         'url'   => home_url( '/' ),
     );
     $schema['publisher'] = $schema['author'];
 
-    // Publisher logo
+    // Publisher logo.
     $custom_logo_id = get_theme_mod( 'custom_logo' );
     if ( $custom_logo_id ) {
         $logo_url = wp_get_attachment_image_url( $custom_logo_id, 'full' );
@@ -328,7 +364,7 @@ function gk_seo_jsonld_article() {
         }
     }
 
-    // Featured image
+    // Featured image.
     if ( has_post_thumbnail( $post->ID ) ) {
         $img = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'large' );
         if ( $img ) {
@@ -348,8 +384,13 @@ add_action( 'wp_head', 'gk_seo_jsonld_article', 3 );
 
 // ── JSON-LD: Event ─────────────────────────────────────────────────────────
 
+/**
+ * Seo jsonld event.
+ */
 function gk_seo_jsonld_event() {
-    if ( ! is_singular( 'gk_event' ) ) return;
+    if ( ! is_singular( 'gk_event' ) ) {
+		return;
+    }
 
     global $post;
     $start_date = get_post_meta( $post->ID, 'gk_event_start_date', true );
@@ -359,7 +400,9 @@ function gk_seo_jsonld_event() {
     $location   = get_post_meta( $post->ID, 'gk_event_location', true );
     $address    = get_post_meta( $post->ID, 'gk_event_address', true );
 
-    if ( ! $start_date ) return;
+    if ( ! $start_date ) {
+		return;
+    }
 
     $schema = array(
         '@context'  => 'https://schema.org',
@@ -377,7 +420,7 @@ function gk_seo_jsonld_event() {
         $schema['description'] = wp_strip_all_tags( get_the_excerpt() );
     }
 
-    // Featured image
+    // Featured image.
     if ( has_post_thumbnail( $post->ID ) ) {
         $img = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'large' );
         if ( $img ) {
@@ -387,8 +430,8 @@ function gk_seo_jsonld_event() {
 
     if ( $location || $address ) {
         $schema['location'] = array(
-            '@type'   => 'Place',
-            'name'    => $location ?: $address,
+            '@type' => 'Place',
+            'name'  => $location ? $location : $address,
         );
         if ( $address ) {
             $schema['location']['address'] = array(
@@ -415,8 +458,13 @@ add_action( 'wp_head', 'gk_seo_jsonld_event', 3 );
 
 // ── JSON-LD: Person (single person CPT) ───────────────────────────────────
 
+/**
+ * Seo jsonld person.
+ */
 function gk_seo_jsonld_person() {
-    if ( ! is_singular( 'person' ) ) return;
+    if ( ! is_singular( 'person' ) ) {
+		return;
+    }
 
     global $post;
 
@@ -427,7 +475,7 @@ function gk_seo_jsonld_person() {
         'url'      => get_permalink(),
     );
 
-    // Description from excerpt or content
+    // Description from excerpt or content.
     if ( has_excerpt( $post->ID ) ) {
         $schema['description'] = wp_strip_all_tags( get_the_excerpt() );
     } else {
@@ -437,7 +485,7 @@ function gk_seo_jsonld_person() {
         }
     }
 
-    // Featured image
+    // Featured image.
     if ( has_post_thumbnail( $post->ID ) ) {
         $img = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'large' );
         if ( $img ) {
@@ -445,7 +493,7 @@ function gk_seo_jsonld_person() {
         }
     }
 
-    // Job title from post meta
+    // Job title from post meta.
     $job_title = get_post_meta( $post->ID, 'gk_person_job_title', true );
     if ( ! $job_title ) {
         $job_title = get_post_meta( $post->ID, 'job_title', true );
@@ -454,7 +502,7 @@ function gk_seo_jsonld_person() {
         $schema['jobTitle'] = $job_title;
     }
 
-    // Affiliation: the organization
+    // Affiliation: the organization.
     $kv_name = function_exists( 'gk_kv_name' ) ? gk_kv_name() : get_bloginfo( 'name' );
     if ( $kv_name ) {
         $schema['affiliation'] = array(
@@ -471,13 +519,18 @@ add_action( 'wp_head', 'gk_seo_jsonld_person', 3 );
 
 // ── JSON-LD: BreadcrumbList ────────────────────────────────────────────────
 
+/**
+ * Seo jsonld breadcrumbs.
+ */
 function gk_seo_jsonld_breadcrumbs() {
-    if ( is_front_page() || is_admin() ) return;
+    if ( is_front_page() || is_admin() ) {
+		return;
+    }
 
     $items = array();
     $pos   = 1;
 
-    // Home is always first
+    // Home is always first.
     $items[] = array(
         '@type'    => 'ListItem',
         'position' => $pos++,
@@ -489,12 +542,14 @@ function gk_seo_jsonld_breadcrumbs() {
         $cats = get_the_category();
         if ( $cats ) {
             $cat = $cats[0];
-            // Walk up the category hierarchy
+            // Walk up the category hierarchy.
             $ancestors = array();
             $current   = $cat;
             while ( $current->parent ) {
                 $parent = get_category( $current->parent );
-                if ( ! $parent || is_wp_error( $parent ) ) break;
+                if ( ! $parent || is_wp_error( $parent ) ) {
+					break;
+                }
                 $ancestors[] = $parent;
                 $current     = $parent;
             }
@@ -563,7 +618,9 @@ function gk_seo_jsonld_breadcrumbs() {
             $current   = $term;
             while ( $current->parent ) {
                 $parent = get_category( $current->parent );
-                if ( ! $parent || is_wp_error( $parent ) ) break;
+                if ( ! $parent || is_wp_error( $parent ) ) {
+					break;
+                }
                 $ancestors[] = $parent;
                 $current     = $parent;
             }
@@ -597,7 +654,9 @@ function gk_seo_jsonld_breadcrumbs() {
         );
     }
 
-    if ( count( $items ) < 2 ) return;
+    if ( count( $items ) < 2 ) {
+		return;
+    }
 
     $schema = array(
         '@context'        => 'https://schema.org',
@@ -612,6 +671,11 @@ add_action( 'wp_head', 'gk_seo_jsonld_breadcrumbs', 4 );
 
 // ── Clean Title Tag ────────────────────────────────────────────────────────
 
+/**
+ * Seo document title parts.
+ *
+ * @param array $title Document title parts.
+ */
 function gk_seo_document_title_parts( $title ) {
     $kv_short = function_exists( 'gk_kv_short_name' ) ? gk_kv_short_name() : '';
     if ( $kv_short ) {
@@ -624,7 +688,14 @@ add_filter( 'document_title_parts', 'gk_seo_document_title_parts' );
 
 // ── Lazy Loading ───────────────────────────────────────────────────────────
 
-function gk_seo_lazy_load_images( $attr, $attachment, $size ) {
+/**
+ * Seo lazy load images.
+ *
+ * @param array        $attr Image attributes.
+ * @param WP_Post      $attachment Attachment object.
+ * @param string|int[] $size Requested image size.
+ */
+function gk_seo_lazy_load_images( $attr, $attachment, $size ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Preserve the existing public image-filter callback signature for child themes.
     if ( ! is_admin() ) {
         if ( ! isset( $attr['loading'] ) ) {
             $attr['loading'] = 'lazy';
@@ -640,6 +711,12 @@ add_filter( 'wp_get_attachment_image_attributes', 'gk_seo_lazy_load_images', 10,
 
 // ── Resource Hints ─────────────────────────────────────────────────────────
 
+/**
+ * Seo resource hints.
+ *
+ * @param array  $urls Resource hint URLs.
+ * @param string $relation_type Resource hint relation.
+ */
 function gk_seo_resource_hints( $urls, $relation_type ) {
     if ( 'dns-prefetch' === $relation_type ) {
         $urls[] = 'cdnjs.cloudflare.com';
@@ -657,11 +734,11 @@ add_filter( 'wp_resource_hints', 'gk_seo_resource_hints', 10, 2 );
 
 // ── Cleanup WP Head ────────────────────────────────────────────────────────
 
-// Remove WP version meta tag
+// Remove WP version meta tag.
 remove_action( 'wp_head', 'wp_generator' );
 
-// Remove WordPress canonical (we output our own)
+// Remove WordPress canonical (we output our own).
 remove_action( 'wp_head', 'rel_canonical' );
 
-// Remove shortlink
+// Remove shortlink.
 remove_action( 'wp_head', 'wp_shortlink_wp_head' );

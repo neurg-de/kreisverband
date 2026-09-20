@@ -7,6 +7,21 @@
 
 class ShortcodesTest extends WP_UnitTestCase {
 
+    public function test_legacy_person_shortcode_honors_abteilung_and_slug_alias() {
+        $term = self::factory()->term->create( array( 'taxonomy' => 'abteilung', 'slug' => 'test-board' ) );
+        $included = self::factory()->post->create( array( 'post_type' => 'person', 'post_title' => 'Visible Board Person' ) );
+        $excluded = self::factory()->post->create( array( 'post_type' => 'person', 'post_title' => 'Other Person' ) );
+        foreach ( array( $included, $excluded ) as $id ) {
+            update_post_meta( $id, 'kr8mb_pers_pos_sortierung', '1' );
+        }
+        wp_set_object_terms( $included, $term, 'abteilung' );
+        foreach ( array( 'abteilung', 'slug' ) as $attribute ) {
+            $html = do_shortcode( '[vorstand ' . $attribute . '="test-board"]' );
+            $this->assertStringContainsString( 'Visible Board Person', $html );
+            $this->assertStringNotContainsString( 'Other Person', $html );
+        }
+    }
+
     public function test_termine_shortcode_registered() {
         $this->assertTrue( shortcode_exists( 'termine' ) );
     }
