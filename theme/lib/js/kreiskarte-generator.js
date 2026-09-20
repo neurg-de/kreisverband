@@ -4,7 +4,10 @@
  * Two phases:
  *   Phase 1 — Load map: search → loading → preview → confirm & save
  *   Phase 2 — Configure: map + editable Gemeinde table (permanent workspace)
+ *
+ * @package Neurg_Kreisverband
  */
+
 (function () {
     'use strict';
 

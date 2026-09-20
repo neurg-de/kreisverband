@@ -20,6 +20,11 @@ if ( ! file_exists( "{$_tests_dir}/includes/functions.php" ) ) {
     exit( 1 );
 }
 
+// Composer provides the WordPress PHPUnit compatibility layer.
+if ( ! defined( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH' ) ) {
+    define( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH', dirname( __DIR__ ) . '/vendor/yoast/phpunit-polyfills' );
+}
+
 // Give access to tests_add_filter() function.
 require_once "{$_tests_dir}/includes/functions.php";
 

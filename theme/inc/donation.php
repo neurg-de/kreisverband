@@ -18,42 +18,62 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // ── Settings ────────────────────────────────────────────────────────────────
 
+/**
+ * Donation settings.
+ */
 function gk_donation_settings() {
-    register_setting( 'gk_settings', 'gk_donation', array(
-        'type'              => 'array',
-        'sanitize_callback' => 'gk_sanitize_donation_settings',
-        'default'           => array(),
-    ) );
+    register_setting(
+        'gk_settings',
+        'gk_donation',
+        array(
+			'type'              => 'array',
+			'sanitize_callback' => 'gk_sanitize_donation_settings',
+			'default'           => array(),
+        )
+    );
 }
 add_action( 'admin_init', 'gk_donation_settings' );
 
+/**
+ * Sanitize donation settings.
+ *
+ * @param array $input Submitted settings.
+ */
 function gk_sanitize_donation_settings( $input ) {
-    if ( ! is_array( $input ) ) return array();
+    if ( ! is_array( $input ) ) {
+		return array();
+    }
     return array(
-        'enabled'       => ! empty( $input['enabled'] ),
-        'twingle_url'   => esc_url_raw( $input['twingle_url'] ?? '' ),
-        'bank_name'     => sanitize_text_field( $input['bank_name'] ?? '' ),
-        'iban'          => sanitize_text_field( $input['iban'] ?? '' ),
-        'bic'           => sanitize_text_field( $input['bic'] ?? '' ),
-        'paypal_url'    => esc_url_raw( $input['paypal_url'] ?? '' ),
-        'purpose'       => sanitize_text_field( $input['purpose'] ?? '' ),
-        'cta_text'      => sanitize_text_field( $input['cta_text'] ?? 'Jetzt spenden' ),
-        'cta_subtext'   => sanitize_text_field( $input['cta_subtext'] ?? '' ),
+        'enabled'     => ! empty( $input['enabled'] ),
+        'twingle_url' => esc_url_raw( $input['twingle_url'] ?? '' ),
+        'bank_name'   => sanitize_text_field( $input['bank_name'] ?? '' ),
+        'iban'        => sanitize_text_field( $input['iban'] ?? '' ),
+        'bic'         => sanitize_text_field( $input['bic'] ?? '' ),
+        'paypal_url'  => esc_url_raw( $input['paypal_url'] ?? '' ),
+        'purpose'     => sanitize_text_field( $input['purpose'] ?? '' ),
+        'cta_text'    => sanitize_text_field( $input['cta_text'] ?? 'Jetzt spenden' ),
+        'cta_subtext' => sanitize_text_field( $input['cta_subtext'] ?? '' ),
     );
 }
 
+/**
+ * Get donation config.
+ */
 function gk_get_donation_config() {
-    return wp_parse_args( get_option( 'gk_donation', array() ), array(
-        'enabled'     => false,
-        'twingle_url' => '',
-        'bank_name'   => '',
-        'iban'        => '',
-        'bic'         => '',
-        'paypal_url'  => '',
-        'purpose'     => '',
-        'cta_text'    => 'Jetzt spenden',
-        'cta_subtext' => '',
-    ) );
+    return wp_parse_args(
+        get_option( 'gk_donation', array() ),
+        array(
+			'enabled'     => false,
+			'twingle_url' => '',
+			'bank_name'   => '',
+			'iban'        => '',
+			'bic'         => '',
+			'paypal_url'  => '',
+			'purpose'     => '',
+			'cta_text'    => 'Jetzt spenden',
+			'cta_subtext' => '',
+        )
+    );
 }
 
 
@@ -64,19 +84,21 @@ function gk_get_donation_config() {
  *
  * Prefers the dedicated Spenden page (which embeds the Twingle widget).
  * Falls back to PayPal URL or empty string.
+ *
+ * @param array|null $config Donation settings, or null for saved settings.
  */
 function gk_get_donate_page_url( $config = null ) {
-    if ( $config === null ) {
+    if ( null === $config ) {
         $config = gk_get_donation_config();
     }
 
-    // Look for a published page with slug "spenden"
+    // Look for a published page with slug "spenden".
     $page = get_page_by_path( 'spenden' );
-    if ( $page && $page->post_status === 'publish' ) {
+    if ( $page && 'publish' === $page->post_status ) {
         return get_permalink( $page );
     }
 
-    // Fallback to PayPal (external link, safe to open directly)
+    // Fallback to PayPal (external link, safe to open directly).
     if ( ! empty( $config['paypal_url'] ) ) {
         return $config['paypal_url'];
     }
@@ -91,16 +113,21 @@ function gk_get_donate_page_url( $config = null ) {
  * [spenden] — Donation call-to-action block with bank details and optional Twingle/PayPal.
  *
  * Attributes override defaults from settings.
+ *
+ * @param array $atts Shortcode attributes.
  */
 function gk_shortcode_spenden( $atts ) {
     $config = gk_get_donation_config();
 
-    $atts = shortcode_atts( array(
-        'titel'   => $config['cta_text'],
-        'text'    => $config['cta_subtext'],
-        'paypal'  => $config['paypal_url'],
-        'twingle' => $config['twingle_url'],
-    ), $atts );
+    $atts = shortcode_atts(
+        array(
+			'titel'   => $config['cta_text'],
+			'text'    => $config['cta_subtext'],
+			'paypal'  => $config['paypal_url'],
+			'twingle' => $config['twingle_url'],
+        ),
+        $atts
+    );
 
     ob_start();
     ?>
@@ -150,6 +177,9 @@ add_shortcode( 'spenden', 'gk_shortcode_spenden' );
 
 // ── Settings Section (rendered in settings.php page) ────────────────────────
 
+/**
+ * Donation settings section.
+ */
 function gk_donation_settings_section() {
     $config = gk_get_donation_config();
     ?>

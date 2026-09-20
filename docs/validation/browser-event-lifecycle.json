@@ -1,0 +1,11 @@
+{
+  "id": "fe3657a7-95f8-4308-9790-ace1aac639d6",
+  "ok": true,
+  "result": {
+    "result": "[{\"force\":\"gk_permanent_delete_forbidden\",\"status\":403},{\"trash\":\"trash\"},{\"restore\":\"draft\"},{\"republish\":\"publish\"}]",
+    "origin": "http://localhost:8082/wp-admin/post.php?post=66&action=edit"
+  },
+  "_meta": {
+    "runtimeId": "343e7f17-1ecd-4d80-b513-e05bc9ca9b68"
+  }
+}

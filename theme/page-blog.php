@@ -17,28 +17,41 @@ get_header(); ?>
         </header>
 
         <?php
-        $paged = max( 1, get_query_var( 'paged' ) );
+        $gk_paged = max( 1, get_query_var( 'paged' ) );
 
-        $blog_query = new WP_Query( array_merge( array(
-            'post_type'      => 'post',
-            'posts_per_page' => 10,
-            'paged'          => $paged,
-        ), gk_kv_query_args() ) );
+        $blog_query = new WP_Query(
+            array_merge(
+                array(
+					'post_type'      => 'post',
+					'posts_per_page' => 10,
+					'paged'          => $gk_paged,
+                ),
+                gk_kv_query_args()
+            )
+        );
 
-        if ( $blog_query->have_posts() ) : ?>
+        if ( $blog_query->have_posts() ) :
+			?>
             <div class="blog-archive inner">
-            <?php while ( $blog_query->have_posts() ) : $blog_query->the_post(); ?>
+            <?php
+            while ( $blog_query->have_posts() ) :
+				$blog_query->the_post();
+				?>
                 <?php get_template_part( 'template-parts/content-list' ); ?>
             <?php endwhile; ?>
             </div>
 
             <?php
             $big_query = $GLOBALS['wp_query'];
+    // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Temporarily use the custom query for core pagination; the original query is restored below.
             $GLOBALS['wp_query'] = $blog_query;
-            the_posts_pagination( array(
-                'prev_text' => '&laquo;',
-                'next_text' => '&raquo;',
-            ) );
+            the_posts_pagination(
+                array(
+					'prev_text' => '&laquo;',
+					'next_text' => '&raquo;',
+                )
+            );
+    // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Temporarily use the custom query for core pagination; the original query is restored below.
             $GLOBALS['wp_query'] = $big_query;
             wp_reset_postdata();
             ?>

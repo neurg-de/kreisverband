@@ -1,4 +1,4 @@
-.PHONY: up down restart logs shell db-shell wp-install wp-activate seed setup zip release clean css css-watch test phpcs
+.PHONY: up down restart logs shell db-shell wp-install wp-activate seed setup zip release clean css css-watch test phpcs js-check
 
 # ── Development Environment ──────────────────────────────────────────────────
 
@@ -71,6 +71,9 @@ test:
 
 phpcs:
 	composer exec phpcs -- --standard=phpcs.xml.dist theme/
+
+js-check:
+	@set -e; for file in theme/lib/js/*.js; do node --check "$$file"; done
 
 # ── CSS Build ────────────────────────────────────────────────────────────
 

@@ -1,0 +1,1 @@
+POST /mach-mit-test/ -> HTTP 200; explicit consent accepted; success message says no subscription. Local pre_wp_mail interceptor enabled; no external email sent.

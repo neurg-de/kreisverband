@@ -1,5 +1,12 @@
 <!doctype html>
-<html <?php language_attributes(); ?> class="no-js">
+<html <?php
+/**
+ * Header template.
+ *
+ * @package Neurg_Kreisverband
+ */
+
+language_attributes(); ?> class="no-js">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -19,14 +26,14 @@
     // Determine OV context via zuordnung taxonomy.
     global $post;
     $gk_ov_slug = isset( $post ) ? gk_get_post_zuordnung_slug( $post->ID ) : '';
-    $gk_is_ov   = $gk_ov_slug !== '' && $gk_ov_slug !== 'kreisverband';
+    $gk_is_ov   = '' !== $gk_ov_slug && 'kreisverband' !== $gk_ov_slug;
 
-    if ( $gk_is_ov ) {
-        $gk_ov_term   = get_term_by( 'slug', $gk_ov_slug, 'gk_zuordnung' );
-        $homepage_id   = $gk_ov_term ? gk_get_ov_homepage_id( $gk_ov_term->term_id ) : 0;
-        $gk_ov_home    = $homepage_id ? get_permalink( $homepage_id ) : home_url( '/' );
-        $gk_ov_header  = $gk_ov_term ? gk_get_ov_header( $gk_ov_term->term_id ) : '';
-    }
+if ( $gk_is_ov ) {
+	$gk_ov_term   = get_term_by( 'slug', $gk_ov_slug, 'gk_zuordnung' );
+	$homepage_id  = $gk_ov_term ? gk_get_ov_homepage_id( $gk_ov_term->term_id ) : 0;
+	$gk_ov_home   = $homepage_id ? get_permalink( $homepage_id ) : home_url( '/' );
+	$gk_ov_header = $gk_ov_term ? gk_get_ov_header( $gk_ov_term->term_id ) : '';
+}
 ?>
 <body <?php body_class( $gk_is_ov ? 'gk-ov-context' : '' ); ?>>
     
@@ -82,7 +89,7 @@
                 <?php if ( file_exists( GK_DIR . '/lib/images/logo_small.png' ) ) : ?>
                     <img src="<?php echo esc_url( GK_IMAGE_DIR . 'logo_small.png' ); ?>" width="500" height="500" alt="<?php bloginfo( 'name' ); ?>" />
                 <?php endif; ?>
-                <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : get_bloginfo( 'name' ); ?></h2>
+                <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : esc_html( get_bloginfo( 'name' ) ); ?></h2>
             </a>
             <a class="switch-menu" href="#nav-mobile" role="button" aria-expanded="false" aria-label="Menü öffnen"><span class="fa fa-bars" aria-hidden="true"></span><span class="hidden">Menu</span></a>
         </section>
@@ -100,7 +107,7 @@
                     <?php if ( file_exists( GK_DIR . '/lib/images/logo_small.png' ) ) : ?>
                         <img src="<?php echo esc_url( GK_IMAGE_DIR . 'logo_small.png' ); ?>" width="500" height="500" alt="<?php bloginfo( 'name' ); ?>" />
                     <?php endif; ?>
-                    <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : get_bloginfo( 'name' ); ?></h2>
+                    <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : esc_html( get_bloginfo( 'name' ) ); ?></h2>
                 </a>
                 <span class="clearfix"></span>
             </div>
@@ -126,11 +133,14 @@
                 <?php if ( file_exists( GK_DIR . '/lib/images/logo_small.png' ) ) : ?>
                     <img src="<?php echo esc_url( GK_IMAGE_DIR . 'logo_small.png' ); ?>" width="500" height="500" alt="<?php bloginfo( 'name' ); ?>" />
                 <?php endif; ?>
-                <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : get_bloginfo( 'name' ); ?></h2>
+                <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : esc_html( get_bloginfo( 'name' ) ); ?></h2>
             </a>
         </div>
         <nav role="navigation" class="nav-main"><h6 class="unsichtbar">Hauptmenue:</h6>
-            <?php if ( $gk_is_ov ) { gk_nav_ov( $gk_ov_slug ); } ?>
+            <?php
+            if ( $gk_is_ov ) {
+				gk_nav_ov( $gk_ov_slug ); }
+			?>
             <?php gk_nav_main(); ?>
         </nav>
     </div></div>
@@ -145,9 +155,12 @@
                 <?php if ( file_exists( GK_DIR . '/lib/images/logo_small.png' ) ) : ?>
                     <img src="<?php echo esc_url( GK_IMAGE_DIR . 'logo_small.png' ); ?>" width="500" height="500" alt="<?php bloginfo( 'name' ); ?>" />
                 <?php endif; ?>
-                <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : get_bloginfo( 'name' ); ?></h2>
+                <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : esc_html( get_bloginfo( 'name' ) ); ?></h2>
             </a>
-            <?php if ( $gk_is_ov ) { gk_nav_ov( $gk_ov_slug ); } ?>
+            <?php
+            if ( $gk_is_ov ) {
+				gk_nav_ov( $gk_ov_slug ); }
+			?>
             <?php gk_nav_main(); ?>
         </nav>
     </div>

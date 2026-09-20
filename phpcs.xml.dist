@@ -9,6 +9,15 @@
     <exclude-pattern>*/node_modules/*</exclude-pattern>
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/lib/js/*.min.js</exclude-pattern>
+    <!-- PHPCS 3 mis-tokenizes modern JavaScript operators/template literals in
+         the generator. Check all JS with make js-check and browser smoke tests. -->
+    <exclude-pattern>*/lib/js/kreiskarte-generator.js</exclude-pattern>
+
+    <!-- Sass compiler outputs are minified and PHPCS cannot tokenize them.
+         Their source is validated by npm run build / make zip in CI. -->
+    <exclude-pattern>*/lib/css/editor.css</exclude-pattern>
+    <exclude-pattern>*/lib/css/kreiskarte-generator.css</exclude-pattern>
+    <exclude-pattern>*/lib/css/main.css</exclude-pattern>
 
     <!-- WordPress coding standards -->
     <rule ref="WordPress">

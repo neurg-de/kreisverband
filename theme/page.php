@@ -1,4 +1,10 @@
 <?php
+/**
+ * Page template.
+ *
+ * @package Neurg_Kreisverband
+ */
+
 get_header();
 
 global $post;
@@ -6,7 +12,12 @@ global $post;
 // Determine page hierarchy for sidebar navigation.
 $ancestors    = get_post_ancestors( $post->ID );
 $section_root = ! empty( $ancestors ) ? end( $ancestors ) : $post->ID;
-$children     = get_pages( array( 'child_of' => $section_root, 'sort_column' => 'menu_order, post_title' ) );
+$children     = get_pages(
+    array(
+		'child_of'    => $section_root,
+		'sort_column' => 'menu_order, post_title',
+    )
+);
 $has_sidebar  = ! empty( $children );
 $section_page = get_post( $section_root );
 ?>
@@ -20,16 +31,24 @@ $section_page = get_post( $section_root );
             <?php echo esc_html( get_the_title( $section_root ) ); ?>
         </a>
         <ul class="subpage-nav">
-            <?php wp_list_pages( array(
-                'child_of'  => $section_root,
-                'title_li'  => '',
-                'depth'     => 2,
-            ) ); ?>
+            <?php
+            wp_list_pages(
+                array(
+					'child_of' => $section_root,
+					'title_li' => '',
+					'depth'    => 2,
+                )
+            );
+            ?>
         </ul>
     </nav>
 
     <div id="main" class="subpage__main" role="main">
-        <?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
+        <?php
+        if ( have_posts() ) :
+			while ( have_posts() ) :
+				the_post();
+				?>
 
             <article id="post-<?php the_ID(); ?>" <?php post_class(); ?> role="article">
                 <?php if ( has_post_thumbnail() ) : ?>
@@ -45,7 +64,10 @@ $section_page = get_post( $section_root );
                 </section>
             </article>
 
-        <?php endwhile; endif; ?>
+					<?php
+        endwhile;
+endif;
+		?>
     </div>
 
 </div></section>
@@ -54,7 +76,11 @@ $section_page = get_post( $section_root );
 
 <section id="content" class="subpage"><div class="inner">
     <div id="main" class="subpage__main" role="main">
-        <?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
+        <?php
+        if ( have_posts() ) :
+			while ( have_posts() ) :
+				the_post();
+				?>
 
             <article id="post-<?php the_ID(); ?>" <?php post_class(); ?> role="article">
                 <?php if ( has_post_thumbnail() ) : ?>
@@ -70,7 +96,10 @@ $section_page = get_post( $section_root );
                 </section>
             </article>
 
-        <?php endwhile; endif; ?>
+					<?php
+        endwhile;
+endif;
+		?>
     </div>
 </div></section>
 

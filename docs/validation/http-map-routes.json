@@ -1,0 +1,130 @@
+[
+  {
+    "slug": "ov-woerthsee",
+    "name": "Wörthsee",
+    "kind": "local",
+    "canonical": "http://localhost:8082/ov-woerthsee/",
+    "status": 200,
+    "actual_url": "http://localhost:8082/ov-woerthsee/",
+    "title": "Test-OV Wörthsee &#8211; KV Musterkreis",
+    "context_present": true
+  },
+  {
+    "slug": "ov-inning",
+    "name": "Inning am Ammersee",
+    "kind": "local",
+    "canonical": "http://localhost:8082/ov-inning/",
+    "status": 200,
+    "actual_url": "http://localhost:8082/ov-inning/",
+    "title": "Test-OV Inning am Ammersee &#8211; KV Musterkreis",
+    "context_present": true
+  },
+  {
+    "slug": "ov-herrsching",
+    "name": "Herrsching am Ammersee",
+    "kind": "local",
+    "canonical": "http://localhost:8082/ov-herrsching/",
+    "status": 200,
+    "actual_url": "http://localhost:8082/ov-herrsching/",
+    "title": "Test-OV Herrsching am Ammersee &#8211; KV Musterkreis",
+    "context_present": true
+  },
+  {
+    "slug": "ov-andechs",
+    "name": "Andechs",
+    "kind": "external",
+    "canonical": "http://localhost:8083/external-ov/",
+    "status": 200,
+    "actual_url": "http://localhost:8083/external-ov/",
+    "title": "Test-OV Andechs – externe Website",
+    "context_present": true
+  },
+  {
+    "slug": "ov-seefeld",
+    "name": "Seefeld",
+    "kind": "unavailable",
+    "canonical": ""
+  },
+  {
+    "slug": "ov-gilching",
+    "name": "Gilching",
+    "kind": "local",
+    "canonical": "http://localhost:8082/ov-gilching/",
+    "status": 200,
+    "actual_url": "http://localhost:8082/ov-gilching/",
+    "title": "Test-OV Gilching &#8211; KV Musterkreis",
+    "context_present": true
+  },
+  {
+    "slug": "ov-krailling",
+    "name": "Krailling",
+    "kind": "local",
+    "canonical": "http://localhost:8082/ov-krailling/",
+    "status": 200,
+    "actual_url": "http://localhost:8082/ov-krailling/",
+    "title": "Test-OV Krailling &#8211; KV Musterkreis",
+    "context_present": true
+  },
+  {
+    "slug": "ov-tutzing",
+    "name": "Tutzing",
+    "kind": "local",
+    "canonical": "http://localhost:8082/ov-tutzing/",
+    "status": 200,
+    "actual_url": "http://localhost:8082/ov-tutzing/",
+    "title": "Test-OV Tutzing &#8211; KV Musterkreis",
+    "context_present": true
+  },
+  {
+    "slug": "ov-feldafing",
+    "name": "Feldafing",
+    "kind": "unavailable",
+    "canonical": ""
+  },
+  {
+    "slug": "ov-poecking",
+    "name": "Pöcking",
+    "kind": "local",
+    "canonical": "http://localhost:8082/ov-poecking/",
+    "status": 200,
+    "actual_url": "http://localhost:8082/ov-poecking/",
+    "title": "Test-OV Pöcking &#8211; KV Musterkreis",
+    "context_present": true
+  },
+  {
+    "slug": "ov-starnberg",
+    "name": "Starnberg",
+    "kind": "local",
+    "canonical": "http://localhost:8082/ov-starnberg/",
+    "status": 200,
+    "actual_url": "http://localhost:8082/ov-starnberg/",
+    "title": "Test-OV Starnberg &#8211; KV Musterkreis",
+    "context_present": true
+  },
+  {
+    "slug": "ov-berg",
+    "name": "Berg",
+    "kind": "local",
+    "canonical": "http://localhost:8082/ov-berg/",
+    "status": 200,
+    "actual_url": "http://localhost:8082/ov-berg/",
+    "title": "Test-OV Berg &#8211; KV Musterkreis",
+    "context_present": true
+  },
+  {
+    "slug": "ov-gauting",
+    "name": "Gauting",
+    "kind": "local",
+    "canonical": "http://localhost:8082/ov-gauting/",
+    "status": 200,
+    "actual_url": "http://localhost:8082/ov-gauting/",
+    "title": "Test-OV Gauting &#8211; KV Musterkreis",
+    "context_present": true
+  },
+  {
+    "slug": "ov-wessling",
+    "name": "Weßling",
+    "kind": "unavailable",
+    "canonical": ""
+  }
+]

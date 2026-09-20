@@ -1,4 +1,11 @@
-<?php get_header(); ?>
+<?php
+/**
+ * 404 template.
+ *
+ * @package Neurg_Kreisverband
+ */
+
+get_header(); ?>
 
 <section id="content"><div class="inner gk-layout clearfix">
     <div id="main" class="gk-layout__main first clearfix" role="main">

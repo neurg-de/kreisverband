@@ -1,0 +1,20 @@
+Installing...
+Running as single site... To run multisite, use -c tests/phpunit/multisite.xml
+Not running ajax tests. To execute these, use --group ajax.
+Not running ms-files tests. To execute these, use --group ms-files.
+Not running external-http tests. To execute these, use --group external-http.
+PHPUnit 9.6.36 by Sebastian Bergmann and contributors.
+
+F                                                                   1 / 1 (100%)
+
+Time: 00:00.042, Memory: 44.50 MB
+
+There was 1 failure:
+
+1) OrtsverbandTest::test_downgraded_ov_admin_cannot_delete_foreign_term
+Failed asserting that null is an instance of class "WP_Term".
+
+/workspace/tests/OrtsverbandTest.php:455
+
+FAILURES!
+Tests: 1, Assertions: 4, Failures: 1.

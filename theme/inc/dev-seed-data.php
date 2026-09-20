@@ -8,7 +8,7 @@
  *
  * Usage:
  *   wp eval 'gk_seed_all();'
- *   Or visit: /wp-admin/?gk_seed=1 (as admin)
+ *   Admin URL: wp_nonce_url( admin_url( '?gk_seed=1' ), 'gk_seed' ).
  *   Or: make seed (via WP-CLI in Docker)
  *
  * @package Neurg_Kreisverband
@@ -47,17 +47,20 @@ function gk_seed_all() {
 
 // ── Taxonomies ─────────────────────────────────────────────────────────────
 
+/**
+ * Seed taxonomies.
+ */
 function gk_seed_taxonomies() {
     $seeded = array();
 
-    // Abteilungen
+    // Abteilungen.
     $abteilungen = array(
-        'kreisvorstand'   => 'Kreisvorstand',
-        'stadtrat'        => 'Stadtratsfraktion',
-        'kreistag'        => 'Kreistagsfraktion',
-        'ortsvorstand'    => 'Ortsvorstand',
-        'gruene-jugend'   => 'GRÜNE Jugend',
-        'ag-energie'      => 'AG Energie & Klima',
+        'kreisvorstand' => 'Kreisvorstand',
+        'stadtrat'      => 'Stadtratsfraktion',
+        'kreistag'      => 'Kreistagsfraktion',
+        'ortsvorstand'  => 'Ortsvorstand',
+        'gruene-jugend' => 'GRÜNE Jugend',
+        'ag-energie'    => 'AG Energie & Klima',
     );
 
     foreach ( $abteilungen as $slug => $name ) {
@@ -70,56 +73,60 @@ function gk_seed_taxonomies() {
     // Zuordnungen (KV is created automatically, add OVs)
     // One OV per landing mode so each variant can be previewed.
     $ovs = array(
-        'ov-musterstadt' => array(
-            'name'   => 'OV Musterstadt',
-            'header' => 'Musterstadt',
-            'type'   => 'ov',
+        'ov-musterstadt'    => array(
+            'name'         => 'OV Musterstadt',
+            'header'       => 'Musterstadt',
+            'type'         => 'ov',
             'landing_mode' => 'standard',
         ),
-        'ov-neuburg' => array(
-            'name'   => 'OV Neuburg',
-            'header' => 'Neuburg',
-            'type'   => 'ov',
+        'ov-neuburg'        => array(
+            'name'         => 'OV Neuburg',
+            'header'       => 'Neuburg',
+            'type'         => 'ov',
             'landing_mode' => 'election',
         ),
         'ov-schrobenhausen' => array(
-            'name'   => 'OV Schrobenhausen',
-            'header' => 'Schrobenhausen',
-            'type'   => 'ov',
+            'name'         => 'OV Schrobenhausen',
+            'header'       => 'Schrobenhausen',
+            'type'         => 'ov',
             'landing_mode' => 'candidate',
         ),
-        'ov-weilheim' => array(
-            'name'   => 'OV Weilheim',
-            'header' => 'Weilheim',
-            'type'   => 'ov',
+        'ov-weilheim'       => array(
+            'name'         => 'OV Weilheim',
+            'header'       => 'Weilheim',
+            'type'         => 'ov',
             'landing_mode' => 'news',
         ),
-        'ov-landsberg' => array(
-            'name'   => 'OV Landsberg',
-            'header' => 'Landsberg',
-            'type'   => 'ov',
+        'ov-landsberg'      => array(
+            'name'         => 'OV Landsberg',
+            'header'       => 'Landsberg',
+            'type'         => 'ov',
             'landing_mode' => 'fundraising',
         ),
-        'ov-pfaffenhofen' => array(
-            'name'   => 'OV Pfaffenhofen',
-            'header' => 'Pfaffenhofen',
-            'type'   => 'ov',
+        'ov-pfaffenhofen'   => array(
+            'name'         => 'OV Pfaffenhofen',
+            'header'       => 'Pfaffenhofen',
+            'type'         => 'ov',
             'landing_mode' => 'minimal',
         ),
-        'gruene-in-dachau' => array(
-            'name'   => 'Grüne in Dachau',
-            'header' => 'Dachau',
-            'type'   => 'werbung',
+        'gruene-in-dachau'  => array(
+            'name'         => 'Grüne in Dachau',
+            'header'       => 'Dachau',
+            'type'         => 'werbung',
             'landing_mode' => 'standard',
         ),
     );
 
     foreach ( $ovs as $slug => $data ) {
         if ( ! term_exists( $slug, 'gk_zuordnung' ) ) {
-            $result = wp_insert_term( $data['name'], 'gk_zuordnung', array(
-                'slug'        => $slug,
-                'description' => 'Ortsverband ' . $data['header'],
-            ) );
+            $result = wp_insert_term(
+                $data['name'],
+                'gk_zuordnung',
+                array(
+					'slug'        => $slug,
+					'description' => 'Ortsverband ' . $data['header'],
+                )
+            );
             if ( ! is_wp_error( $result ) ) {
                 update_term_meta( $result['term_id'], '_gk_ov_type', $data['type'] );
                 update_term_meta( $result['term_id'], '_gk_ov_header', $data['header'] );
@@ -128,13 +135,13 @@ function gk_seed_taxonomies() {
         }
     }
 
-    // Event categories
+    // Event categories.
     $event_cats = array(
-        'sitzung'        => 'Sitzung',
-        'veranstaltung'  => 'Veranstaltung',
-        'aktion'         => 'Aktion',
-        'parteitag'      => 'Parteitag',
-        'stammtisch'     => 'Stammtisch',
+        'sitzung'       => 'Sitzung',
+        'veranstaltung' => 'Veranstaltung',
+        'aktion'        => 'Aktion',
+        'parteitag'     => 'Parteitag',
+        'stammtisch'    => 'Stammtisch',
     );
 
     foreach ( $event_cats as $slug => $name ) {
@@ -144,12 +151,12 @@ function gk_seed_taxonomies() {
         }
     }
 
-    // Post categories
+    // Post categories.
     $categories = array(
-        'presse'         => 'Pressemitteilungen',
-        'aktuelles'      => 'Aktuelles',
+        'presse'          => 'Pressemitteilungen',
+        'aktuelles'       => 'Aktuelles',
         'kommunalpolitik' => 'Kommunalpolitik',
-        'umwelt-klima'   => 'Umwelt & Klima',
+        'umwelt-klima'    => 'Umwelt & Klima',
     );
 
     foreach ( $categories as $slug => $name ) {
@@ -165,6 +172,9 @@ function gk_seed_taxonomies() {
 
 // ── Pages ──────────────────────────────────────────────────────────────────
 
+/**
+ * Seed pages.
+ */
 function gk_seed_pages() {
     $seeded = array();
 
@@ -209,19 +219,19 @@ function gk_seed_pages() {
             'title'    => 'Kreisvorstand',
             'slug'     => 'kreisvorstand',
             'template' => '',
-            'content'  => "[vorstand abteilung=\"kreisvorstand\"]",
+            'content'  => '[vorstand abteilung="kreisvorstand"]',
         ),
         array(
             'title'    => 'Kreistagsfraktion',
             'slug'     => 'kreistagsfraktion',
             'template' => '',
-            'content'  => "[team abteilung=\"kreistag\"]",
+            'content'  => '[team abteilung="kreistag"]',
         ),
         array(
             'title'    => 'Ortsverbände',
             'slug'     => 'ortsverbaende',
             'template' => '',
-            'content'  => "[gliederungen]",
+            'content'  => '[gliederungen]',
         ),
         array(
             'title'    => 'Spenden',
@@ -248,13 +258,15 @@ function gk_seed_pages() {
             continue;
         }
 
-        $page_id = wp_insert_post( array(
-            'post_type'    => 'page',
-            'post_title'   => $page['title'],
-            'post_name'    => $page['slug'],
-            'post_content' => $page['content'],
-            'post_status'  => 'publish',
-        ) );
+        $page_id = wp_insert_post(
+            array(
+				'post_type'    => 'page',
+				'post_title'   => $page['title'],
+				'post_name'    => $page['slug'],
+				'post_content' => $page['content'],
+				'post_status'  => 'publish',
+            )
+        );
 
         if ( $page_id && ! is_wp_error( $page_id ) ) {
             if ( ! empty( $page['template'] ) ) {
@@ -281,6 +293,9 @@ function gk_seed_pages() {
 
 // ── Blog Posts ──────────────────────────────────────────────────────────────
 
+/**
+ * Seed posts.
+ */
 function gk_seed_posts() {
     $seeded = array();
 
@@ -326,19 +341,27 @@ function gk_seed_posts() {
     $kv_term = get_term_by( 'slug', 'kreisverband', 'gk_zuordnung' );
 
     foreach ( $posts as $post_data ) {
-        $existing = get_posts( array( 'title' => $post_data['title'], 'post_type' => 'post', 'posts_per_page' => 1 ) );
+        $existing = get_posts(
+            array(
+				'title'          => $post_data['title'],
+				'post_type'      => 'post',
+				'posts_per_page' => 1,
+            )
+        );
         $existing = ! empty( $existing ) ? $existing[0] : null;
         if ( $existing ) {
             continue;
         }
 
-        $post_id = wp_insert_post( array(
-            'post_type'    => 'post',
-            'post_title'   => $post_data['title'],
-            'post_content' => $post_data['content'],
-            'post_status'  => 'publish',
-            'post_date'    => date( 'Y-m-d H:i:s', strtotime( $post_data['date'] ) ),
-        ) );
+        $post_id = wp_insert_post(
+            array(
+				'post_type'    => 'post',
+				'post_title'   => $post_data['title'],
+				'post_content' => $post_data['content'],
+				'post_status'  => 'publish',
+				'post_date'    => wp_date( 'Y-m-d H:i:s', strtotime( $post_data['date'] ) ),
+            )
+        );
 
         if ( $post_id && ! is_wp_error( $post_id ) ) {
             $cat = get_term_by( 'slug', $post_data['category'], 'category' );
@@ -358,6 +381,9 @@ function gk_seed_posts() {
 
 // ── Persons ────────────────────────────────────────────────────────────────
 
+/**
+ * Seed persons.
+ */
 function gk_seed_persons() {
     $seeded = array();
 
@@ -366,7 +392,13 @@ function gk_seed_persons() {
             'name'        => 'Maria Musterfrau',
             'content'     => 'Kreisvorstandssprecherin seit 2022. Engagiert für Klimaschutz und soziale Gerechtigkeit.',
             'abteilungen' => array( 'kreisvorstand' ),
-            'abt_meta'    => array( 'kreisvorstand' => array( 'position' => '1', 'function' => 'Sprecherin', 'hidden' => false ) ),
+            'abt_meta'    => array(
+				'kreisvorstand' => array(
+					'position' => '1',
+					'function' => 'Sprecherin',
+					'hidden'   => false,
+				),
+			),
             'contact'     => array(
                 'kr8mb_pers_contact_email'    => 'maria@gruene-musterkreis.de',
                 'kr8mb_pers_contact_insta'    => 'maria.musterfrau',
@@ -378,8 +410,16 @@ function gk_seed_persons() {
             'content'     => 'Kreisvorstandssprecher und Kreisrat. Schwerpunkte: Verkehrswende und ÖPNV.',
             'abteilungen' => array( 'kreisvorstand', 'kreistag' ),
             'abt_meta'    => array(
-                'kreisvorstand' => array( 'position' => '2', 'function' => 'Sprecher', 'hidden' => false ),
-                'kreistag'      => array( 'position' => '1', 'function' => 'Fraktionsvorsitzender', 'hidden' => false ),
+                'kreisvorstand' => array(
+					'position' => '2',
+					'function' => 'Sprecher',
+					'hidden'   => false,
+				),
+                'kreistag'      => array(
+					'position' => '1',
+					'function' => 'Fraktionsvorsitzender',
+					'hidden'   => false,
+				),
             ),
             'contact'     => array(
                 'kr8mb_pers_contact_email'   => 'thomas@gruene-musterkreis.de',
@@ -391,8 +431,16 @@ function gk_seed_persons() {
             'content'     => 'Kreisrätin und Energieexpertin. Setzt sich für den Ausbau erneuerbarer Energien ein.',
             'abteilungen' => array( 'kreistag', 'ag-energie' ),
             'abt_meta'    => array(
-                'kreistag'   => array( 'position' => '2', 'function' => 'Stv. Fraktionsvorsitzende', 'hidden' => false ),
-                'ag-energie' => array( 'position' => '1', 'function' => 'Sprecherin', 'hidden' => false ),
+                'kreistag'   => array(
+					'position' => '2',
+					'function' => 'Stv. Fraktionsvorsitzende',
+					'hidden'   => false,
+				),
+                'ag-energie' => array(
+					'position' => '1',
+					'function' => 'Sprecherin',
+					'hidden'   => false,
+				),
             ),
             'contact'     => array(
                 'kr8mb_pers_contact_email'    => 'claudia@gruene-musterkreis.de',
@@ -403,7 +451,13 @@ function gk_seed_persons() {
             'name'        => 'Stefan Waldmann',
             'content'     => 'Schatzmeister des Kreisverbands. Im Beruf Steuerberater.',
             'abteilungen' => array( 'kreisvorstand' ),
-            'abt_meta'    => array( 'kreisvorstand' => array( 'position' => '3', 'function' => 'Schatzmeister', 'hidden' => false ) ),
+            'abt_meta'    => array(
+				'kreisvorstand' => array(
+					'position' => '3',
+					'function' => 'Schatzmeister',
+					'hidden'   => false,
+				),
+			),
             'contact'     => array(
                 'kr8mb_pers_contact_email' => 'stefan@gruene-musterkreis.de',
             ),
@@ -413,8 +467,16 @@ function gk_seed_persons() {
             'content'     => 'Beisitzerin im Kreisvorstand. Aktiv in der GRÜNEN Jugend.',
             'abteilungen' => array( 'kreisvorstand', 'gruene-jugend' ),
             'abt_meta'    => array(
-                'kreisvorstand' => array( 'position' => '4', 'function' => 'Beisitzerin', 'hidden' => false ),
-                'gruene-jugend' => array( 'position' => '1', 'function' => 'Sprecherin GJ', 'hidden' => false ),
+                'kreisvorstand' => array(
+					'position' => '4',
+					'function' => 'Beisitzerin',
+					'hidden'   => false,
+				),
+                'gruene-jugend' => array(
+					'position' => '1',
+					'function' => 'Sprecherin GJ',
+					'hidden'   => false,
+				),
             ),
             'contact'     => array(
                 'kr8mb_pers_contact_insta'  => 'lisa.blumenfeld',
@@ -425,7 +487,13 @@ function gk_seed_persons() {
             'name'        => 'Hans Bergmann',
             'content'     => 'Kreisrat seit 2020. Experte für Naturschutz und Landwirtschaft.',
             'abteilungen' => array( 'kreistag' ),
-            'abt_meta'    => array( 'kreistag' => array( 'position' => '3', 'function' => '', 'hidden' => false ) ),
+            'abt_meta'    => array(
+				'kreistag' => array(
+					'position' => '3',
+					'function' => '',
+					'hidden'   => false,
+				),
+			),
             'contact'     => array(
                 'kr8mb_pers_contact_email' => 'hans@gruene-musterkreis.de',
                 'kr8mb_pers_contact_www'   => 'https://hans-bergmann.example.de',
@@ -437,8 +505,16 @@ function gk_seed_persons() {
             'content'     => 'Sprecherin des OV Musterstadt und Stadträtin. Schwerpunkt: Bildung und Soziales.',
             'abteilungen' => array( 'ortsvorstand', 'stadtrat' ),
             'abt_meta'    => array(
-                'ortsvorstand' => array( 'position' => '1', 'function' => 'Sprecherin', 'hidden' => false ),
-                'stadtrat'     => array( 'position' => '1', 'function' => 'Fraktionsvorsitzende', 'hidden' => false ),
+                'ortsvorstand' => array(
+					'position' => '1',
+					'function' => 'Sprecherin',
+					'hidden'   => false,
+				),
+                'stadtrat'     => array(
+					'position' => '1',
+					'function' => 'Fraktionsvorsitzende',
+					'hidden'   => false,
+				),
             ),
             'contact'     => array(
                 'kr8mb_pers_contact_email'   => 'anna@gruene-musterstadt.de',
@@ -450,7 +526,13 @@ function gk_seed_persons() {
             'name'        => 'Jonas Eichenbach',
             'content'     => 'Sprecher des OV Musterstadt. Stadtplaner mit Leidenschaft für lebenswerte Quartiere.',
             'abteilungen' => array( 'ortsvorstand' ),
-            'abt_meta'    => array( 'ortsvorstand' => array( 'position' => '2', 'function' => 'Sprecher', 'hidden' => false ) ),
+            'abt_meta'    => array(
+				'ortsvorstand' => array(
+					'position' => '2',
+					'function' => 'Sprecher',
+					'hidden'   => false,
+				),
+			),
             'contact'     => array(
                 'kr8mb_pers_contact_email' => 'jonas@gruene-musterstadt.de',
             ),
@@ -460,7 +542,13 @@ function gk_seed_persons() {
             'name'        => 'Fatima Karim',
             'content'     => 'Schatzmeisterin des OV und engagiert in der Integrationspolitik.',
             'abteilungen' => array( 'ortsvorstand' ),
-            'abt_meta'    => array( 'ortsvorstand' => array( 'position' => '3', 'function' => 'Schatzmeisterin', 'hidden' => false ) ),
+            'abt_meta'    => array(
+				'ortsvorstand' => array(
+					'position' => '3',
+					'function' => 'Schatzmeisterin',
+					'hidden'   => false,
+				),
+			),
             'contact'     => array(
                 'kr8mb_pers_contact_email' => 'fatima@gruene-musterstadt.de',
             ),
@@ -470,7 +558,13 @@ function gk_seed_persons() {
             'name'        => 'Rainer Hofmann',
             'content'     => 'Stadtrat und Sprecher der AG Verkehr. Setzt sich für Tempo 30 und sichere Schulwege ein.',
             'abteilungen' => array( 'stadtrat' ),
-            'abt_meta'    => array( 'stadtrat' => array( 'position' => '2', 'function' => '', 'hidden' => false ) ),
+            'abt_meta'    => array(
+				'stadtrat' => array(
+					'position' => '2',
+					'function' => '',
+					'hidden'   => false,
+				),
+			),
             'contact'     => array(
                 'kr8mb_pers_contact_email' => 'rainer@gruene-musterstadt.de',
                 'kr8mb_pers_contact_www'   => 'https://rainer-hofmann.example.de',
@@ -481,7 +575,13 @@ function gk_seed_persons() {
             'name'        => 'Susanne Bäcker',
             'content'     => 'Stadträtin mit Schwerpunkt Kultur und Stadtentwicklung.',
             'abteilungen' => array( 'stadtrat' ),
-            'abt_meta'    => array( 'stadtrat' => array( 'position' => '3', 'function' => '', 'hidden' => false ) ),
+            'abt_meta'    => array(
+				'stadtrat' => array(
+					'position' => '3',
+					'function' => '',
+					'hidden'   => false,
+				),
+			),
             'contact'     => array(
                 'kr8mb_pers_contact_email' => 'susanne@gruene-musterstadt.de',
             ),
@@ -491,7 +591,13 @@ function gk_seed_persons() {
             'name'        => 'Nele Winther',
             'content'     => 'Sprecherin der GRÜNEN Jugend Musterstadt. Studiert Umweltwissenschaften.',
             'abteilungen' => array( 'gruene-jugend' ),
-            'abt_meta'    => array( 'gruene-jugend' => array( 'position' => '1', 'function' => 'Sprecherin', 'hidden' => false ) ),
+            'abt_meta'    => array(
+				'gruene-jugend' => array(
+					'position' => '1',
+					'function' => 'Sprecherin',
+					'hidden'   => false,
+				),
+			),
             'contact'     => array(
                 'kr8mb_pers_contact_insta'  => 'nele.winther',
                 'kr8mb_pers_contact_tiktok' => '@nele.winther',
@@ -502,7 +608,13 @@ function gk_seed_persons() {
             'name'        => 'Luca Brandt',
             'content'     => 'Aktiv in der GRÜNEN Jugend. Organisiert Klimastreiks und Podiumsdiskussionen.',
             'abteilungen' => array( 'gruene-jugend' ),
-            'abt_meta'    => array( 'gruene-jugend' => array( 'position' => '2', 'function' => '', 'hidden' => false ) ),
+            'abt_meta'    => array(
+				'gruene-jugend' => array(
+					'position' => '2',
+					'function' => '',
+					'hidden'   => false,
+				),
+			),
             'contact'     => array(
                 'kr8mb_pers_contact_insta' => 'luca.brandt',
             ),
@@ -513,8 +625,16 @@ function gk_seed_persons() {
             'content'     => 'Beisitzerin im OV-Vorstand. Engagiert sich für Naturschutz und Artenvielfalt.',
             'abteilungen' => array( 'ortsvorstand', 'ag-energie' ),
             'abt_meta'    => array(
-                'ortsvorstand' => array( 'position' => '4', 'function' => 'Beisitzerin', 'hidden' => false ),
-                'ag-energie'   => array( 'position' => '', 'function' => '', 'hidden' => false ),
+                'ortsvorstand' => array(
+					'position' => '4',
+					'function' => 'Beisitzerin',
+					'hidden'   => false,
+				),
+                'ag-energie'   => array(
+					'position' => '',
+					'function' => '',
+					'hidden'   => false,
+				),
             ),
             'contact'     => array(
                 'kr8mb_pers_contact_email' => 'elvira@gruene-musterstadt.de',
@@ -526,7 +646,13 @@ function gk_seed_persons() {
             'name'        => 'Peter Lichtblick',
             'content'     => 'Sprecher des OV Neuburg. Kümmert sich um Stadtentwicklung und Wohnen.',
             'abteilungen' => array( 'ortsvorstand' ),
-            'abt_meta'    => array( 'ortsvorstand' => array( 'position' => '1', 'function' => 'Sprecher', 'hidden' => false ) ),
+            'abt_meta'    => array(
+				'ortsvorstand' => array(
+					'position' => '1',
+					'function' => 'Sprecher',
+					'hidden'   => false,
+				),
+			),
             'contact'     => array(
                 'kr8mb_pers_contact_email' => 'peter@gruene-neuburg.de',
             ),
@@ -537,24 +663,32 @@ function gk_seed_persons() {
     $kv_term = get_term_by( 'slug', 'kreisverband', 'gk_zuordnung' );
 
     foreach ( $persons as $p ) {
-        $existing = get_posts( array( 'title' => $p['name'], 'post_type' => 'person', 'posts_per_page' => 1 ) );
+        $existing = get_posts(
+            array(
+				'title'          => $p['name'],
+				'post_type'      => 'person',
+				'posts_per_page' => 1,
+            )
+        );
         $existing = ! empty( $existing ) ? $existing[0] : null;
         if ( $existing ) {
             continue;
         }
 
-        $post_id = wp_insert_post( array(
-            'post_type'    => 'person',
-            'post_title'   => $p['name'],
-            'post_content' => $p['content'],
-            'post_status'  => 'publish',
-        ) );
+        $post_id = wp_insert_post(
+            array(
+				'post_type'    => 'person',
+				'post_title'   => $p['name'],
+				'post_content' => $p['content'],
+				'post_status'  => 'publish',
+            )
+        );
 
         if ( ! $post_id || is_wp_error( $post_id ) ) {
             continue;
         }
 
-        // Abteilungen
+        // Abteilungen.
         if ( ! empty( $p['abteilungen'] ) ) {
             $term_ids = array();
             foreach ( $p['abteilungen'] as $slug ) {
@@ -568,19 +702,19 @@ function gk_seed_persons() {
             }
         }
 
-        // Per-abteilung meta
+        // Per-abteilung meta.
         if ( ! empty( $p['abt_meta'] ) ) {
             update_post_meta( $post_id, '_gk_abteilung_meta', $p['abt_meta'] );
         }
 
-        // Contact meta
+        // Contact meta.
         if ( ! empty( $p['contact'] ) ) {
             foreach ( $p['contact'] as $key => $value ) {
                 update_post_meta( $post_id, $key, $value );
             }
         }
 
-        // Zuordnung
+        // Zuordnung.
         $zuordnung_slug = $p['zuordnung'] ?? 'kreisverband';
         $zuordnung_term = get_term_by( 'slug', $zuordnung_slug, 'gk_zuordnung' );
         if ( $zuordnung_term ) {
@@ -598,6 +732,9 @@ function gk_seed_persons() {
 
 // ── Events ─────────────────────────────────────────────────────────────────
 
+/**
+ * Seed events.
+ */
 function gk_seed_events() {
     $seeded = array();
 
@@ -605,7 +742,7 @@ function gk_seed_events() {
         array(
             'title'      => 'Kreismitgliederversammlung',
             'content'    => 'Ordentliche Kreismitgliederversammlung mit Vorstandswahlen und Antragsberatung.',
-            'start_date' => date( 'Y-m-d', strtotime( '+14 days' ) ),
+            'start_date' => wp_date( 'Y-m-d', strtotime( '+14 days' ) ),
             'start_time' => '19:00',
             'end_time'   => '22:00',
             'location'   => 'Bürgerhaus Musterstadt',
@@ -616,7 +753,7 @@ function gk_seed_events() {
         array(
             'title'      => 'Grüner Stammtisch',
             'content'    => 'Offener Stammtisch – alle Interessierten sind willkommen!',
-            'start_date' => date( 'Y-m-d', strtotime( '+7 days' ) ),
+            'start_date' => wp_date( 'Y-m-d', strtotime( '+7 days' ) ),
             'start_time' => '19:30',
             'end_time'   => '22:00',
             'location'   => 'Gasthaus Zum Löwen',
@@ -627,7 +764,7 @@ function gk_seed_events() {
         array(
             'title'      => 'Kreistagssitzung',
             'content'    => 'Öffentliche Sitzung des Kreistags. Auf der Tagesordnung: Haushaltsberatung.',
-            'start_date' => date( 'Y-m-d', strtotime( '+21 days' ) ),
+            'start_date' => wp_date( 'Y-m-d', strtotime( '+21 days' ) ),
             'start_time' => '14:00',
             'end_time'   => '18:00',
             'location'   => 'Landratsamt',
@@ -638,7 +775,7 @@ function gk_seed_events() {
         array(
             'title'      => 'Radltour durch den Landkreis',
             'content'    => 'Gemeinsame Radtour entlang der geplanten Radschnellwege. Ca. 30 km, flach.',
-            'start_date' => date( 'Y-m-d', strtotime( '+30 days' ) ),
+            'start_date' => wp_date( 'Y-m-d', strtotime( '+30 days' ) ),
             'start_time' => '10:00',
             'end_time'   => '15:00',
             'location'   => 'Bahnhof Musterstadt',
@@ -649,8 +786,8 @@ function gk_seed_events() {
         array(
             'title'      => 'Klausurwochenende Kreisvorstand',
             'content'    => 'Strategieklausur des Kreisvorstands zur Vorbereitung der Kommunalwahl.',
-            'start_date' => date( 'Y-m-d', strtotime( '+45 days' ) ),
-            'end_date'   => date( 'Y-m-d', strtotime( '+46 days' ) ),
+            'start_date' => wp_date( 'Y-m-d', strtotime( '+45 days' ) ),
+            'end_date'   => wp_date( 'Y-m-d', strtotime( '+46 days' ) ),
             'all_day'    => true,
             'location'   => 'Tagungshaus Waldfrieden',
             'address'    => 'Waldweg 12, 12346 Oberdorf',
@@ -660,7 +797,7 @@ function gk_seed_events() {
         array(
             'title'      => 'OV Musterstadt: Vorstandssitzung',
             'content'    => 'Interne Vorstandssitzung des OV Musterstadt.',
-            'start_date' => date( 'Y-m-d', strtotime( '+10 days' ) ),
+            'start_date' => wp_date( 'Y-m-d', strtotime( '+10 days' ) ),
             'start_time' => '20:00',
             'end_time'   => '21:30',
             'location'   => 'GRÜNES Büro Musterstadt',
@@ -672,7 +809,7 @@ function gk_seed_events() {
         array(
             'title'      => 'Infostand auf dem Wochenmarkt',
             'content'    => 'Kommt vorbei! Wir informieren über unsere Arbeit im Kreistag und sammeln Unterschriften.',
-            'start_date' => date( 'Y-m-d', strtotime( '+5 days' ) ),
+            'start_date' => wp_date( 'Y-m-d', strtotime( '+5 days' ) ),
             'start_time' => '09:00',
             'end_time'   => '13:00',
             'location'   => 'Wochenmarkt Musterstadt',
@@ -685,25 +822,33 @@ function gk_seed_events() {
     $kv_term = get_term_by( 'slug', 'kreisverband', 'gk_zuordnung' );
 
     foreach ( $events as $event ) {
-        $existing = get_posts( array( 'title' => $event['title'], 'post_type' => 'gk_event', 'posts_per_page' => 1 ) );
+        $existing = get_posts(
+            array(
+				'title'          => $event['title'],
+				'post_type'      => 'gk_event',
+				'posts_per_page' => 1,
+            )
+        );
         $existing = ! empty( $existing ) ? $existing[0] : null;
         if ( $existing ) {
             continue;
         }
 
-        $post_id = wp_insert_post( array(
-            'post_type'    => 'gk_event',
-            'post_title'   => $event['title'],
-            'post_content' => $event['content'],
-            'post_status'  => 'publish',
-            'post_excerpt' => wp_trim_words( $event['content'], 20 ),
-        ) );
+        $post_id = wp_insert_post(
+            array(
+				'post_type'    => 'gk_event',
+				'post_title'   => $event['title'],
+				'post_content' => $event['content'],
+				'post_status'  => 'publish',
+				'post_excerpt' => wp_trim_words( $event['content'], 20 ),
+            )
+        );
 
         if ( ! $post_id || is_wp_error( $post_id ) ) {
             continue;
         }
 
-        // Event meta
+        // Event meta.
         update_post_meta( $post_id, 'gk_event_start_date', $event['start_date'] );
         if ( ! empty( $event['start_time'] ) ) {
             update_post_meta( $post_id, 'gk_event_start_time', $event['start_time'] );
@@ -727,7 +872,7 @@ function gk_seed_events() {
             update_post_meta( $post_id, 'gk_event_organizer', $event['organizer'] );
         }
 
-        // Event category
+        // Event category.
         if ( ! empty( $event['kategorie'] ) ) {
             $cat = get_term_by( 'slug', $event['kategorie'], 'event_kategorie' );
             if ( $cat ) {
@@ -735,7 +880,7 @@ function gk_seed_events() {
             }
         }
 
-        // Zuordnung
+        // Zuordnung.
         $zuordnung_slug = $event['zuordnung'] ?? '';
         if ( $zuordnung_slug ) {
             $zuordnung_term = get_term_by( 'slug', $zuordnung_slug, 'gk_zuordnung' );
@@ -755,12 +900,15 @@ function gk_seed_events() {
 
 // ── Navigation Menus ───────────────────────────────────────────────────────
 
+/**
+ * Seed menus.
+ */
 function gk_seed_menus() {
     $seeded = array();
 
-    // Main menu
+    // Main menu.
     $main_menu_name = 'Hauptmenü (Demo)';
-    $main_menu = wp_get_nav_menu_object( $main_menu_name );
+    $main_menu      = wp_get_nav_menu_object( $main_menu_name );
     if ( ! $main_menu ) {
         $main_menu_id = wp_create_nav_menu( $main_menu_name );
 
@@ -778,18 +926,22 @@ function gk_seed_menus() {
         foreach ( $pages_in_menu as $slug => $label ) {
             $page = get_page_by_path( $slug );
             if ( $page ) {
-                wp_update_nav_menu_item( $main_menu_id, 0, array(
-                    'menu-item-title'     => $label,
-                    'menu-item-object-id' => $page->ID,
-                    'menu-item-object'    => 'page',
-                    'menu-item-type'      => 'post_type',
-                    'menu-item-status'    => 'publish',
-                    'menu-item-position'  => ++$position,
-                ) );
+                wp_update_nav_menu_item(
+                    $main_menu_id,
+                    0,
+                    array(
+						'menu-item-title'     => $label,
+						'menu-item-object-id' => $page->ID,
+						'menu-item-object'    => 'page',
+						'menu-item-type'      => 'post_type',
+						'menu-item-status'    => 'publish',
+						'menu-item-position'  => ++$position,
+                    )
+                );
             }
         }
 
-        $locations = get_theme_mod( 'nav_menu_locations', array() );
+        $locations               = get_theme_mod( 'nav_menu_locations', array() );
         $locations['nav-main']   = $main_menu_id;
         $locations['nav-mobile'] = $main_menu_id;
         set_theme_mod( 'nav_menu_locations', $locations );
@@ -797,9 +949,9 @@ function gk_seed_menus() {
         $seeded[] = $main_menu_name;
     }
 
-    // Footer menu
+    // Footer menu.
     $footer_menu_name = 'Fußleiste (Demo)';
-    $footer_menu = wp_get_nav_menu_object( $footer_menu_name );
+    $footer_menu      = wp_get_nav_menu_object( $footer_menu_name );
     if ( ! $footer_menu ) {
         $footer_menu_id = wp_create_nav_menu( $footer_menu_name );
 
@@ -813,18 +965,22 @@ function gk_seed_menus() {
         foreach ( $footer_pages as $slug => $label ) {
             $page = get_page_by_path( $slug );
             if ( $page ) {
-                wp_update_nav_menu_item( $footer_menu_id, 0, array(
-                    'menu-item-title'     => $label,
-                    'menu-item-object-id' => $page->ID,
-                    'menu-item-object'    => 'page',
-                    'menu-item-type'      => 'post_type',
-                    'menu-item-status'    => 'publish',
-                    'menu-item-position'  => ++$position,
-                ) );
+                wp_update_nav_menu_item(
+                    $footer_menu_id,
+                    0,
+                    array(
+						'menu-item-title'     => $label,
+						'menu-item-object-id' => $page->ID,
+						'menu-item-object'    => 'page',
+						'menu-item-type'      => 'post_type',
+						'menu-item-status'    => 'publish',
+						'menu-item-position'  => ++$position,
+                    )
+                );
             }
         }
 
-        $locations = get_theme_mod( 'nav_menu_locations', array() );
+        $locations               = get_theme_mod( 'nav_menu_locations', array() );
         $locations['nav-footer'] = $footer_menu_id;
         set_theme_mod( 'nav_menu_locations', $locations );
 
@@ -837,6 +993,9 @@ function gk_seed_menus() {
 
 // ── Social / Contact Data ──────────────────────────────────────────────────
 
+/**
+ * Seed social data.
+ */
 function gk_seed_social_data() {
     if ( ! taxonomy_exists( 'gk_zuordnung' ) ) {
         return array( 'error' => 'Taxonomy gk_zuordnung not registered.' );
@@ -853,15 +1012,15 @@ function gk_seed_social_data() {
 
     if ( $kv_term ) {
         $kv_social = array(
-            '_gk_contact_facebook' => 'https://www.facebook.com/GrueneMusterkreis',
-            '_gk_contact_insta'    => 'gruene.musterkreis',
-            '_gk_contact_twitter'  => 'GrueneMK',
-            '_gk_contact_tiktok'   => '@gruene.musterkreis',
-            '_gk_contact_threads'  => 'gruene.musterkreis',
-            '_gk_contact_mastodon' => 'https://gruene.social/@musterkreis',
-            '_gk_contact_www'      => 'https://gruene-musterkreis.de',
-            '_gk_contact_email'    => 'info@gruene-musterkreis.de',
-            '_gk_contact_telefon'  => '01234 567890',
+            '_gk_contact_facebook'  => 'https://www.facebook.com/GrueneMusterkreis',
+            '_gk_contact_insta'     => 'gruene.musterkreis',
+            '_gk_contact_twitter'   => 'GrueneMK',
+            '_gk_contact_tiktok'    => '@gruene.musterkreis',
+            '_gk_contact_threads'   => 'gruene.musterkreis',
+            '_gk_contact_mastodon'  => 'https://gruene.social/@musterkreis',
+            '_gk_contact_www'       => 'https://gruene-musterkreis.de',
+            '_gk_contact_email'     => 'info@gruene-musterkreis.de',
+            '_gk_contact_telefon'   => '01234 567890',
             '_gk_contact_anschrift' => "GRÜNES Büro\nMusterstraße 1\n12345 Musterstadt",
         );
         foreach ( $kv_social as $key => $value ) {
@@ -869,17 +1028,20 @@ function gk_seed_social_data() {
         }
 
         $kv_info = get_option( 'gk_kv_info', array() );
-        $kv_info = array_merge( $kv_info, array(
-            'name'              => 'KV Musterkreis',
-            'social_instagram'  => 'gruene.musterkreis',
-            'social_facebook'   => 'https://www.facebook.com/GrueneMusterkreis',
-            'social_x'          => 'GrueneMK',
-            'social_tiktok'     => '@gruene.musterkreis',
-            'social_threads'    => 'gruene.musterkreis',
-            'social_bluesky'    => 'gruene-musterkreis.bsky.social',
-            'social_mastodon'   => 'https://gruene.social/@musterkreis',
-            'social_youtube'    => 'https://www.youtube.com/@GrueneMusterkreis',
-        ) );
+        $kv_info = array_merge(
+            $kv_info,
+            array(
+				'name'             => 'KV Musterkreis',
+				'social_instagram' => 'gruene.musterkreis',
+				'social_facebook'  => 'https://www.facebook.com/GrueneMusterkreis',
+				'social_x'         => 'GrueneMK',
+				'social_tiktok'    => '@gruene.musterkreis',
+				'social_threads'   => 'gruene.musterkreis',
+				'social_bluesky'   => 'gruene-musterkreis.bsky.social',
+				'social_mastodon'  => 'https://gruene.social/@musterkreis',
+				'social_youtube'   => 'https://www.youtube.com/@GrueneMusterkreis',
+            )
+        );
         update_option( 'gk_kv_info', $kv_info );
 
         $seeded[] = 'Kreisverband';
@@ -887,33 +1049,33 @@ function gk_seed_social_data() {
 
     // ── OV social data ──────────────────────────────────────────────────────
     $ov_contacts = array(
-        'ov-musterstadt' => array(
+        'ov-musterstadt'    => array(
             '_gk_contact_facebook' => 'GrueneMusterstadt',
             '_gk_contact_insta'    => 'gruene.musterstadt',
             '_gk_contact_www'      => 'https://gruene-musterstadt.de',
             '_gk_contact_email'    => 'info@gruene-musterstadt.de',
         ),
-        'ov-neuburg' => array(
-            '_gk_contact_insta'  => 'gruene.neuburg',
-            '_gk_contact_email'  => 'info@gruene-neuburg.de',
+        'ov-neuburg'        => array(
+            '_gk_contact_insta' => 'gruene.neuburg',
+            '_gk_contact_email' => 'info@gruene-neuburg.de',
         ),
         'ov-schrobenhausen' => array(
-            '_gk_contact_email'  => 'info@gruene-schrobenhausen.de',
-            '_gk_contact_www'    => 'https://gruene-schrobenhausen.de',
+            '_gk_contact_email' => 'info@gruene-schrobenhausen.de',
+            '_gk_contact_www'   => 'https://gruene-schrobenhausen.de',
         ),
-        'ov-weilheim' => array(
+        'ov-weilheim'       => array(
             '_gk_contact_email'    => 'info@gruene-weilheim.de',
             '_gk_contact_facebook' => 'GrueneWeilheim',
             '_gk_contact_insta'    => 'gruene.weilheim',
         ),
-        'ov-landsberg' => array(
+        'ov-landsberg'      => array(
             '_gk_contact_email' => 'info@gruene-landsberg.de',
             '_gk_contact_insta' => 'gruene.landsberg',
         ),
-        'ov-pfaffenhofen' => array(
+        'ov-pfaffenhofen'   => array(
             '_gk_contact_email' => 'info@gruene-pfaffenhofen.de',
         ),
-        'gruene-in-dachau' => array(
+        'gruene-in-dachau'  => array(
             '_gk_contact_email' => 'mitmachen@gruene-dachau.de',
         ),
     );
@@ -934,10 +1096,13 @@ function gk_seed_social_data() {
 
 // ── Site Options ───────────────────────────────────────────────────────────
 
+/**
+ * Seed options.
+ */
 function gk_seed_options() {
     $seeded = array();
 
-    // General settings
+    // General settings.
     update_option( 'blogname', 'GRÜNE Musterkreis' );
     update_option( 'blogdescription', 'BÜNDNIS 90/DIE GRÜNEN Kreisverband Musterkreis' );
     update_option( 'date_format', 'j. F Y' );
@@ -946,7 +1111,7 @@ function gk_seed_options() {
     update_option( 'WPLANG', 'de_DE' );
     update_option( 'posts_per_page', 10 );
 
-    // Permalink structure
+    // Permalink structure.
     update_option( 'permalink_structure', '/%postname%/' );
     $seeded[] = 'Site options';
 
@@ -965,12 +1130,14 @@ function gk_seed_options() {
  */
 function gk_seed_import_image( $filename, $title ) {
     // Check if already imported.
-    $existing = get_posts( array(
-        'post_type'  => 'attachment',
-        'title'      => $title,
-        'numberposts' => 1,
-        'fields'     => 'ids',
-    ) );
+    $existing = get_posts(
+        array(
+			'post_type'   => 'attachment',
+			'title'       => $title,
+			'numberposts' => 1,
+			'fields'      => 'ids',
+        )
+    );
     if ( ! empty( $existing ) ) {
         return $existing[0];
     }
@@ -987,12 +1154,15 @@ function gk_seed_import_image( $filename, $title ) {
         copy( $source, $dest );
     }
 
-    $mime = 'image/svg+xml';
-    $attachment_id = wp_insert_attachment( array(
-        'post_title'     => $title,
-        'post_mime_type' => $mime,
-        'post_status'    => 'inherit',
-    ), $dest );
+    $mime          = 'image/svg+xml';
+    $attachment_id = wp_insert_attachment(
+        array(
+			'post_title'     => $title,
+			'post_mime_type' => $mime,
+			'post_status'    => 'inherit',
+        ),
+        $dest
+    );
 
     if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
         require_once ABSPATH . 'wp-admin/includes/image.php';
@@ -1000,7 +1170,7 @@ function gk_seed_import_image( $filename, $title ) {
         wp_update_attachment_metadata( $attachment_id, $meta );
     }
 
-    return $attachment_id ?: 0;
+    return $attachment_id ? $attachment_id : 0;
 }
 
 /**
@@ -1020,7 +1190,7 @@ function gk_seed_ov_pages() {
 
     // OV landing configurations.
     $ov_configs = array(
-        'ov-musterstadt' => array(
+        'ov-musterstadt'    => array(
             'page_title' => 'OV Musterstadt',
             'page_slug'  => 'ov-musterstadt',
             'settings'   => array(
@@ -1032,7 +1202,7 @@ function gk_seed_ov_pages() {
                 'cta_url'       => '/kontakt/',
             ),
         ),
-        'ov-neuburg' => array(
+        'ov-neuburg'        => array(
             'page_title' => 'OV Neuburg',
             'page_slug'  => 'ov-neuburg',
             'settings'   => array(
@@ -1050,39 +1220,39 @@ function gk_seed_ov_pages() {
             'page_title' => 'OV Schrobenhausen',
             'page_slug'  => 'ov-schrobenhausen',
             'settings'   => array(
-                'landing_mode'       => 'candidate',
-                'hero_title'         => 'Schrobenhausen',
-                'hero_image'         => $img_bright,
-                'candidate_name'     => 'Claudia Sonnenschein',
-                'candidate_role'     => 'Unsere Bürgermeisterkandidatin',
-                'candidate_image'    => $img_candidate,
-                'candidate_quote'    => 'Klimaschutz beginnt vor unserer Haustür — in Schrobenhausen.',
+                'landing_mode'        => 'candidate',
+                'hero_title'          => 'Schrobenhausen',
+                'hero_image'          => $img_bright,
+                'candidate_name'      => 'Claudia Sonnenschein',
+                'candidate_role'      => 'Unsere Bürgermeisterkandidatin',
+                'candidate_image'     => $img_candidate,
+                'candidate_quote'     => 'Klimaschutz beginnt vor unserer Haustür — in Schrobenhausen.',
                 'candidate_cta_label' => 'Mehr erfahren',
-                'candidate_cta_url'  => '/ueber-uns/',
+                'candidate_cta_url'   => '/ueber-uns/',
             ),
         ),
-        'ov-weilheim' => array(
+        'ov-weilheim'       => array(
             'page_title' => 'OV Weilheim',
             'page_slug'  => 'ov-weilheim',
             'settings'   => array(
-                'landing_mode'  => 'news',
-                'hero_title'    => 'Weilheim aktuell',
-                'hero_image'    => $img_dark,
+                'landing_mode' => 'news',
+                'hero_title'   => 'Weilheim aktuell',
+                'hero_image'   => $img_dark,
             ),
         ),
-        'ov-landsberg' => array(
+        'ov-landsberg'      => array(
             'page_title' => 'OV Landsberg',
             'page_slug'  => 'ov-landsberg',
             'settings'   => array(
-                'landing_mode'       => 'fundraising',
-                'hero_title'         => 'Unterstütze grüne Politik in Landsberg',
-                'hero_subtitle'      => 'Mit deiner Spende machen wir Landsberg klimafit.',
-                'hero_image'         => $img_bright,
-                'fundraising_goal'   => '5000',
+                'landing_mode'        => 'fundraising',
+                'hero_title'          => 'Unterstütze grüne Politik in Landsberg',
+                'hero_subtitle'       => 'Mit deiner Spende machen wir Landsberg klimafit.',
+                'hero_image'          => $img_bright,
+                'fundraising_goal'    => '5000',
                 'fundraising_current' => '2350',
             ),
         ),
-        'ov-pfaffenhofen' => array(
+        'ov-pfaffenhofen'   => array(
             'page_title' => 'OV Pfaffenhofen',
             'page_slug'  => 'ov-pfaffenhofen',
             'settings'   => array(
@@ -1091,7 +1261,7 @@ function gk_seed_ov_pages() {
                 'cta_url'      => '/kontakt/',
             ),
         ),
-        'gruene-in-dachau' => array(
+        'gruene-in-dachau'  => array(
             'page_title' => 'Grüne in Dachau',
             'page_slug'  => 'gruene-in-dachau',
             'settings'   => array(
@@ -1112,13 +1282,15 @@ function gk_seed_ov_pages() {
         // Create OV homepage if it doesn't exist.
         $page = get_page_by_path( $config['page_slug'] );
         if ( ! $page ) {
-            $page_id = wp_insert_post( array(
-                'post_type'    => 'page',
-                'post_title'   => $config['page_title'],
-                'post_name'    => $config['page_slug'],
-                'post_content' => '',
-                'post_status'  => 'publish',
-            ) );
+            $page_id = wp_insert_post(
+                array(
+					'post_type'    => 'page',
+					'post_title'   => $config['page_title'],
+					'post_name'    => $config['page_slug'],
+					'post_content' => '',
+					'post_status'  => 'publish',
+                )
+            );
 
             if ( $page_id && ! is_wp_error( $page_id ) ) {
                 // Use werbung template for werbung type, else OV template.
@@ -1149,38 +1321,48 @@ function gk_seed_ov_pages() {
 
 // ── Admin Trigger ──────────────────────────────────────────────────────────
 
-add_action( 'admin_init', function () {
-    if ( ! current_user_can( 'manage_options' ) ) {
-        return;
-    }
+/** Run explicitly requested demo-data seeding after capability and nonce checks. */
+function gk_seed_admin_trigger() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
 
-    // Full seed
-    if ( isset( $_GET['gk_seed'] ) ) {
-        $result = gk_seed_all();
-        $summary = array();
-        foreach ( $result as $section => $items ) {
-            if ( is_array( $items ) && ! empty( $items ) ) {
-                $count = isset( $items['seeded'] ) ? count( $items['seeded'] ) : count( $items );
-                $summary[] = "$section: $count";
-            }
-        }
-        $text = implode( ', ', $summary );
-        add_action( 'admin_notices', function () use ( $text ) {
-            echo '<div class="notice notice-success is-dismissible"><p>';
-            echo '<strong>Seed-Daten erstellt:</strong> ' . esc_html( $text );
-            echo '</p></div>';
-        } );
-        return;
-    }
+		// Full seed.
+	if ( isset( $_GET['gk_seed'] ) ) {
+		check_admin_referer( 'gk_seed' );
+		$result  = gk_seed_all();
+		$summary = array();
+		foreach ( $result as $section => $items ) {
+			if ( is_array( $items ) && ! empty( $items ) ) {
+				$count     = isset( $items['seeded'] ) ? count( $items['seeded'] ) : count( $items );
+				$summary[] = "$section: $count";
+			}
+		}
+		$text = implode( ', ', $summary );
+		add_action(
+			'admin_notices',
+			function () use ( $text ) {
+				echo '<div class="notice notice-success is-dismissible"><p>';
+				echo '<strong>Seed-Daten erstellt:</strong> ' . esc_html( $text );
+				echo '</p></div>';
+			}
+		);
+		return;
+	}
 
-    // Social-only seed (backwards compat)
-    if ( isset( $_GET['gk_seed_social'] ) ) {
-        $result = gk_seed_social_data();
-        $names  = implode( ', ', $result['seeded'] ?? array() );
-        add_action( 'admin_notices', function () use ( $names ) {
-            echo '<div class="notice notice-success is-dismissible"><p>';
-            echo '<strong>Social-Daten geseedet:</strong> ' . esc_html( $names );
-            echo '</p></div>';
-        } );
-    }
-} );
+		// Social-only seed (backwards compat).
+	if ( isset( $_GET['gk_seed_social'] ) ) {
+		check_admin_referer( 'gk_seed_social' );
+		$result = gk_seed_social_data();
+		$names  = implode( ', ', $result['seeded'] ?? array() );
+		add_action(
+			'admin_notices',
+			function () use ( $names ) {
+				echo '<div class="notice notice-success is-dismissible"><p>';
+				echo '<strong>Social-Daten geseedet:</strong> ' . esc_html( $names );
+				echo '</p></div>';
+			}
+		);
+	}
+}
+add_action( 'admin_init', 'gk_seed_admin_trigger' );

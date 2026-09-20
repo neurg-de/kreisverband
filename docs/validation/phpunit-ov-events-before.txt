@@ -1,0 +1,89 @@
+Installing...
+Running as single site... To run multisite, use -c tests/phpunit/multisite.xml
+Not running ajax tests. To execute these, use --group ajax.
+Not running ms-files tests. To execute these, use --group ms-files.
+Not running external-http tests. To execute these, use --group external-http.
+PHPUnit 9.6.36 by Sebastian Bergmann and contributors.
+
+......F.FF.FF                                                     13 / 13 (100%)
+
+Time: 00:00.119, Memory: 44.50 MB
+
+There were 5 failures:
+
+1) EventsTest::test_shortcodes_scope_to_ov_and_combine_category
+Failed asserting that '    <div class="gk-event-list">\n
+            <article class="gk-event-item clearfix">\n
+            <div class="gk-event-item__date">\n
+                <span class="gk-date__day">15</span>\n
+                <span class="gk-date__month">Jun</span>\n
+                <span class="gk-date__year">2099</span>\n
+            </div>\n
+            <div class="gk-event-item__info">\n
+                <h3><a href="http://example.org/?gk_event=alpha-termin">Alpha Termin</a></h3>\n
+                <p class="gk-event-item__meta">\n
+                                                                            </p>\n
+                                    <p class="gk-event-item__desc">Post excerpt 0000026</p>\n
+                            </div>\n
+        </article>\n
+            <article class="gk-event-item clearfix">\n
+            <div class="gk-event-item__date">\n
+                <span class="gk-date__day">15</span>\n
+                <span class="gk-date__month">Jun</span>\n
+                <span class="gk-date__year">2099</span>\n
+            </div>\n
+            <div class="gk-event-item__info">\n
+                <h3><a href="http://example.org/?gk_event=beta-termin">Beta Termin</a></h3>\n
+                <p class="gk-event-item__meta">\n
+                                                                            </p>\n
+                                    <p class="gk-event-item__desc">Post excerpt 0000027</p>\n
+                            </div>\n
+        </article>\n
+        </div>\n
+    ' does not contain "Beta Termin".
+
+/workspace/tests/EventsTest.php:105
+
+2) OrtsverbandTest::test_external_website_is_fallback_for_each_existing_type
+Failed asserting that '    <ul class="ov-liste">\n
+            <li class="ov-liste-item ov-mode-ov">\n
+                    Term 0000030                </li>\n
+            <li class="ov-liste-item ov-mode-ortsgruppe">\n
+                    Term 0000031                </li>\n
+            <li class="ov-liste-item ov-mode-full">\n
+                    <a href="">\n
+                Term 0000032            </a>\n
+                </li>\n
+        </ul>\n
+    ' contains "href="https://ov.example.org/"".
+
+/workspace/tests/OrtsverbandTest.php:27
+
+3) OrtsverbandTest::test_draft_homepage_falls_back_and_legacy_type_never_links_empty
+Failed asserting that '    <ul class="ov-liste">\n
+            <li class="ov-liste-item ov-mode-full">\n
+                    <a href="">\n
+                Term 0000033            </a>\n
+                </li>\n
+        </ul>\n
+    ' does not contain "href=""".
+
+/workspace/tests/OrtsverbandTest.php:33
+
+4) OrtsverbandTest::test_invalid_public_email_is_never_displayed
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-''
++'invalid-address'
+
+/workspace/tests/OrtsverbandTest.php:51
+
+5) OrtsverbandTest::test_legal_pages_use_published_pages_and_safe_kv_fallback
+Failed asserting that 13 is identical to 0.
+
+/workspace/tests/OrtsverbandTest.php:69
+
+FAILURES!
+Tests: 13, Assertions: 26, Failures: 5.

@@ -25,6 +25,8 @@ jobs:
           STYLE_VERSION=$(sed -n 's/^Version: *//p' theme/style.css | tr -d '[:space:]')
           FUNC_VERSION=$(sed -n "s/.*GK_VERSION', *'\([^']*\)'.*/\1/p" theme/functions.php)
           PKG_VERSION=$(grep '"version"' package.json | sed 's/.*": *"//;s/".*//')
+          README_VERSION=$(sed -n 's/^Stable tag: *//p' theme/readme.txt | tr -d '[:space:]')
+          test "$TAG_VERSION" = "$README_VERSION" || { echo "::error::readme.txt version mismatch"; exit 1; }
           echo "Tag: $TAG_VERSION | style.css: $STYLE_VERSION | functions.php: $FUNC_VERSION | package.json: $PKG_VERSION"
           if [[ "$TAG_VERSION" != "$STYLE_VERSION" ]]; then
             echo "::error::Tag $TAG_VERSION does not match style.css version $STYLE_VERSION. Use bin/release.sh to create releases."
@@ -45,8 +47,13 @@ jobs:
       - name: Build theme zip
         run: bin/build-zip.sh
 
+      - name: Compute release checksum
+        run: sha256sum neurg-kreisverband-*.zip > SHA256SUMS
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: neurg-kreisverband-*.zip
+          files: |
+            neurg-kreisverband-*.zip
+            SHA256SUMS
           generate_release_notes: true

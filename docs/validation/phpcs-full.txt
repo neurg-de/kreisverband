@@ -1,0 +1,4 @@
+$ make phpcs
+composer exec phpcs -- --standard=phpcs.xml.dist theme/
+
+Exit code: 0

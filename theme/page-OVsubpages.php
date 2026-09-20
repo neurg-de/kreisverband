@@ -1,4 +1,6 @@
 <?php
+// phpcs:ignoreFile WordPress.Files.FileName.NotHyphenatedLowercase -- Keep existing WordPress template assignments and routes compatible.
+
 /**
  * Template Name: OV-Unterseite
  *
@@ -30,7 +32,11 @@ $ov_home     = $homepage_id ? get_permalink( $homepage_id ) : home_url( '/' );
     </nav>
 
     <div id="main" class="subpage__main" role="main">
-        <?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
+        <?php
+        if ( have_posts() ) :
+			while ( have_posts() ) :
+				the_post();
+				?>
 
             <article id="post-<?php the_ID(); ?>" <?php post_class(); ?> role="article">
                 <?php if ( has_post_thumbnail() ) : ?>
@@ -46,7 +52,10 @@ $ov_home     = $homepage_id ? get_permalink( $homepage_id ) : home_url( '/' );
                 </section>
             </article>
 
-        <?php endwhile; endif; ?>
+					<?php
+        endwhile;
+endif;
+		?>
     </div>
 
 </div></section>

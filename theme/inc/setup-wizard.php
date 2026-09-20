@@ -19,6 +19,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // ── Setup Status ────────────────────────────────────────────────────────────
 
+/**
+ * Setup is complete.
+ */
 function gk_setup_is_complete() {
     $kv = get_option( 'gk_kv_info', array() );
     return ! empty( $kv['name'] )
@@ -29,9 +32,17 @@ function gk_setup_is_complete() {
 
 // ── Admin Notice ────────────────────────────────────────────────────────────
 
+/**
+ * Setup admin notice.
+ */
 function gk_setup_admin_notice() {
-    if ( isset( $_GET['page'] ) && $_GET['page'] === 'gk-setup' ) return;
-    if ( ! current_user_can( 'edit_theme_options' ) ) return;
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view/filter parameter; no state changes occur here and write handlers check their own nonce.
+    if ( isset( $_GET['page'] ) && 'gk-setup' === $_GET['page'] ) {
+		return;
+    }
+    if ( ! current_user_can( 'edit_theme_options' ) ) {
+		return;
+    }
 
     $kv             = get_option( 'gk_kv_info', array() );
     $impressum_id   = ! empty( $kv['impressum_page'] ) ? (int) $kv['impressum_page'] : 0;
@@ -51,10 +62,10 @@ function gk_setup_admin_notice() {
     // Setup complete but legal pages have issues — specific warnings.
     $problems = array();
 
-    if ( ! $impressum_id || get_post_status( $impressum_id ) !== 'publish' ) {
+    if ( ! $impressum_id || 'publish' !== get_post_status( $impressum_id ) ) {
         $problems[] = 'Impressum-Seite ist nicht veröffentlicht';
     }
-    if ( ! $datenschutz_id || get_post_status( $datenschutz_id ) !== 'publish' ) {
+    if ( ! $datenschutz_id || 'publish' !== get_post_status( $datenschutz_id ) ) {
         $problems[] = 'Datenschutz-Seite ist nicht veröffentlicht';
     }
 
@@ -72,6 +83,9 @@ add_action( 'admin_notices', 'gk_setup_admin_notice' );
 
 // ── Setup Page ──────────────────────────────────────────────────────────────
 
+/**
+ * Setup menu.
+ */
 function gk_setup_menu() {
     add_menu_page(
         'Ersteinrichtung',
@@ -85,35 +99,53 @@ function gk_setup_menu() {
 }
 add_action( 'admin_menu', 'gk_setup_menu' );
 
+/**
+ * Register setup settings.
+ */
 function gk_register_setup_settings() {
-    register_setting( 'gk_setup', 'gk_kv_info', array(
-        'type'              => 'array',
-        'sanitize_callback' => 'gk_sanitize_kv_info',
-        'default'           => array(),
-    ) );
+    register_setting(
+        'gk_setup',
+        'gk_kv_info',
+        array(
+			'type'              => 'array',
+			'sanitize_callback' => 'gk_sanitize_kv_info',
+			'default'           => array(),
+        )
+    );
 }
 add_action( 'admin_init', 'gk_register_setup_settings' );
 
+/**
+ * Sanitize kv info.
+ *
+ * @param array $input Input.
+ */
 function gk_sanitize_kv_info( $input ) {
-    if ( ! is_array( $input ) ) return array();
+    if ( ! is_array( $input ) ) {
+		return array();
+    }
+
+    if ( ! empty( $input['email'] ) && ! gk_validate_public_email( $input['email'] ) ) {
+        add_settings_error( 'gk_kv_info', 'invalid_public_email', __( 'Bitte eine gültige öffentliche Kontakt-E-Mail-Adresse eingeben. Die ungültige Adresse wurde nicht gespeichert.', 'neurg-kreisverband' ) );
+    }
 
     $clean = array(
-        'name'              => sanitize_text_field( $input['name'] ?? '' ),
-        'short_name'        => sanitize_text_field( $input['short_name'] ?? '' ),
-        'address'           => sanitize_textarea_field( $input['address'] ?? '' ),
-        'email'             => sanitize_email( $input['email'] ?? '' ),
-        'phone'             => sanitize_text_field( $input['phone'] ?? '' ),
-        'website'           => esc_url_raw( $input['website'] ?? '' ),
-        'impressum_page'    => absint( $input['impressum_page'] ?? 0 ),
-        'datenschutz_page'  => absint( $input['datenschutz_page'] ?? 0 ),
-        'social_facebook'   => sanitize_text_field( $input['social_facebook'] ?? '' ),
-        'social_instagram'  => sanitize_text_field( $input['social_instagram'] ?? '' ),
-        'social_x'          => sanitize_text_field( $input['social_x'] ?? '' ),
-        'social_tiktok'     => sanitize_text_field( $input['social_tiktok'] ?? '' ),
-        'social_threads'    => sanitize_text_field( $input['social_threads'] ?? '' ),
-        'social_mastodon'   => sanitize_text_field( $input['social_mastodon'] ?? '' ),
-        'social_bluesky'    => sanitize_text_field( $input['social_bluesky'] ?? '' ),
-        'social_youtube'    => sanitize_text_field( $input['social_youtube'] ?? '' ),
+        'name'             => sanitize_text_field( $input['name'] ?? '' ),
+        'short_name'       => sanitize_text_field( $input['short_name'] ?? '' ),
+        'address'          => sanitize_textarea_field( $input['address'] ?? '' ),
+        'email'            => gk_validate_public_email( $input['email'] ?? '' ),
+        'phone'            => sanitize_text_field( $input['phone'] ?? '' ),
+        'website'          => esc_url_raw( $input['website'] ?? '' ),
+        'impressum_page'   => gk_public_page_id( $input['impressum_page'] ?? 0 ),
+        'datenschutz_page' => gk_public_page_id( $input['datenschutz_page'] ?? 0 ),
+        'social_facebook'  => sanitize_text_field( $input['social_facebook'] ?? '' ),
+        'social_instagram' => sanitize_text_field( $input['social_instagram'] ?? '' ),
+        'social_x'         => sanitize_text_field( $input['social_x'] ?? '' ),
+        'social_tiktok'    => sanitize_text_field( $input['social_tiktok'] ?? '' ),
+        'social_threads'   => sanitize_text_field( $input['social_threads'] ?? '' ),
+        'social_mastodon'  => sanitize_text_field( $input['social_mastodon'] ?? '' ),
+        'social_bluesky'   => sanitize_text_field( $input['social_bluesky'] ?? '' ),
+        'social_youtube'   => sanitize_text_field( $input['social_youtube'] ?? '' ),
     );
 
     // Sanitize Verbände list.
@@ -123,36 +155,43 @@ function gk_sanitize_kv_info( $input ) {
             $name = sanitize_text_field( $entry['name'] ?? '' );
             $url  = esc_url_raw( $entry['url'] ?? '' );
             if ( $name && $url ) {
-                $verbaende[] = array( 'name' => $name, 'url' => $url );
+                $verbaende[] = array(
+					'name' => $name,
+					'url'  => $url,
+				);
             }
         }
     }
     $clean['verbaende'] = $verbaende;
 
-    // Auto-create Impressum page if requested
+    // Auto-create Impressum page if requested.
     if ( ! empty( $input['create_impressum'] ) && empty( $clean['impressum_page'] ) ) {
-        $page_id = wp_insert_post( array(
-            'post_title'   => 'Impressum',
-            'post_content' => gk_impressum_template( $clean ),
-            'post_status'  => 'publish',
-            'post_type'    => 'page',
-        ) );
+        $page_id = wp_insert_post(
+            array(
+				'post_title'   => 'Impressum',
+				'post_content' => gk_impressum_template( $clean ),
+				'post_status'  => 'publish',
+				'post_type'    => 'page',
+            )
+        );
         if ( ! is_wp_error( $page_id ) ) {
             $clean['impressum_page'] = $page_id;
         }
     }
 
-    // Auto-create Datenschutz page if requested
+    // Auto-create Datenschutz page if requested.
     if ( ! empty( $input['create_datenschutz'] ) && empty( $clean['datenschutz_page'] ) ) {
-        $page_id = wp_insert_post( array(
-            'post_title'   => 'Datenschutzerklärung',
-            'post_content' => '<!-- Bitte ergänze hier deine Datenschutzerklärung -->',
-            'post_status'  => 'draft',
-            'post_type'    => 'page',
-        ) );
+        $page_id = wp_insert_post(
+            array(
+				'post_title'   => 'Datenschutzerklärung',
+				'post_content' => '<!-- Bitte ergänze hier deine Datenschutzerklärung -->',
+				'post_status'  => 'draft',
+				'post_type'    => 'page',
+            )
+        );
         if ( ! is_wp_error( $page_id ) ) {
             $clean['datenschutz_page'] = $page_id;
-            // Set as WordPress privacy page
+            // Set as WordPress privacy page.
             update_option( 'wp_page_for_privacy_policy', $page_id );
         }
     }
@@ -160,23 +199,37 @@ function gk_sanitize_kv_info( $input ) {
     return $clean;
 }
 
+/**
+ * Impressum template.
+ *
+ * @param mixed $kv Kv.
+ */
 function gk_impressum_template( $kv ) {
     $content  = "<h2>Angaben gemäß § 5 TMG</h2>\n";
-    $content .= "<p>" . esc_html( $kv['name'] ) . "<br>\n";
+    $content .= '<p>' . esc_html( $kv['name'] ) . "<br>\n";
     $content .= nl2br( esc_html( $kv['address'] ) ) . "</p>\n\n";
     $content .= "<h3>Kontakt</h3>\n<p>";
-    if ( $kv['phone'] ) $content .= "Telefon: " . esc_html( $kv['phone'] ) . "<br>\n";
-    if ( $kv['email'] ) $content .= "E-Mail: " . esc_html( $kv['email'] );
+    if ( $kv['phone'] ) {
+		$content .= 'Telefon: ' . esc_html( $kv['phone'] ) . "<br>\n";
+    }
+    if ( $kv['email'] ) {
+		$content .= 'E-Mail: ' . esc_html( $kv['email'] );
+    }
     $content .= "</p>\n\n";
     $content .= "<h3>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>\n";
-    $content .= "<p>" . esc_html( $kv['name'] ) . "<br>\n";
+    $content .= '<p>' . esc_html( $kv['name'] ) . "<br>\n";
     $content .= nl2br( esc_html( $kv['address'] ) ) . "</p>\n";
     return $content;
 }
 
 
+/**
+ * Setup page cb.
+ */
 function gk_setup_page_cb() {
-    if ( ! current_user_can( 'edit_theme_options' ) ) return;
+    if ( ! current_user_can( 'edit_theme_options' ) ) {
+		return;
+    }
 
     $kv = get_option( 'gk_kv_info', array() );
 
@@ -185,14 +238,28 @@ function gk_setup_page_cb() {
         $kv['social_x'] = $kv['social_twitter'];
     }
 
-    $kv = wp_parse_args( $kv, array(
-        'name' => '', 'short_name' => '', 'address' => '', 'email' => '',
-        'phone' => '', 'website' => '', 'impressum_page' => 0, 'datenschutz_page' => 0,
-        'social_facebook' => '', 'social_instagram' => '', 'social_x' => '',
-        'social_tiktok' => '', 'social_threads' => '', 'social_mastodon' => '',
-        'social_bluesky' => '', 'social_youtube' => '',
-        'verbaende' => array(),
-    ) );
+    $kv = wp_parse_args(
+        $kv,
+        array(
+			'name'             => '',
+			'short_name'       => '',
+			'address'          => '',
+			'email'            => '',
+			'phone'            => '',
+			'website'          => '',
+			'impressum_page'   => 0,
+			'datenschutz_page' => 0,
+			'social_facebook'  => '',
+			'social_instagram' => '',
+			'social_x'         => '',
+			'social_tiktok'    => '',
+			'social_threads'   => '',
+			'social_mastodon'  => '',
+			'social_bluesky'   => '',
+			'social_youtube'   => '',
+			'verbaende'        => array(),
+        )
+    );
 
     // Pre-fill defaults when empty.
     if ( empty( $kv['verbaende'] ) ) {
@@ -200,7 +267,12 @@ function gk_setup_page_cb() {
     }
 
     $complete = gk_setup_is_complete();
-    $pages = get_pages( array( 'sort_order' => 'ASC', 'sort_column' => 'post_title' ) );
+    $pages    = get_pages(
+        array(
+			'sort_order'  => 'ASC',
+			'sort_column' => 'post_title',
+        )
+    );
     ?>
     <div class="wrap">
         <h1>Kreisverband Ersteinrichtung</h1>
@@ -292,8 +364,8 @@ function gk_setup_page_cb() {
                 <tbody>
                 <?php foreach ( $kv['verbaende'] as $i => $v ) : ?>
                 <tr class="gk-verband-row">
-                    <td><input type="text" name="gk_kv_info[verbaende][<?php echo $i; ?>][name]" value="<?php echo esc_attr( $v['name'] ); ?>" class="regular-text" /></td>
-                    <td><input type="url" name="gk_kv_info[verbaende][<?php echo $i; ?>][url]" value="<?php echo esc_attr( $v['url'] ); ?>" class="regular-text" /></td>
+                    <td><input type="text" name="gk_kv_info[verbaende][<?php echo esc_html( $i ); ?>][name]" value="<?php echo esc_attr( $v['name'] ); ?>" class="regular-text" /></td>
+                    <td><input type="url" name="gk_kv_info[verbaende][<?php echo esc_html( $i ); ?>][url]" value="<?php echo esc_attr( $v['url'] ); ?>" class="regular-text" /></td>
                     <td><button type="button" class="button gk-remove-verband" title="Entfernen">&times;</button></td>
                 </tr>
                 <?php endforeach; ?>
@@ -340,7 +412,7 @@ function gk_setup_page_cb() {
                     <select name="gk_kv_info[impressum_page]" id="gk_impressum">
                         <option value="">-- Seite wählen --</option>
                         <?php foreach ( $pages as $p ) : ?>
-                            <option value="<?php echo $p->ID; ?>" <?php selected( $kv['impressum_page'], $p->ID ); ?>><?php echo esc_html( $p->post_title ); ?></option>
+                            <option value="<?php echo esc_html( $p->ID ); ?>" <?php selected( $kv['impressum_page'], $p->ID ); ?>><?php echo esc_html( $p->post_title ); ?></option>
                         <?php endforeach; ?>
                     </select>
                     <label style="margin-left:1em"><input type="checkbox" name="gk_kv_info[create_impressum]" value="1" /> Neue Impressum-Seite erstellen</label>
@@ -352,7 +424,7 @@ function gk_setup_page_cb() {
                     <select name="gk_kv_info[datenschutz_page]" id="gk_datenschutz">
                         <option value="">-- Seite wählen --</option>
                         <?php foreach ( $pages as $p ) : ?>
-                            <option value="<?php echo $p->ID; ?>" <?php selected( $kv['datenschutz_page'], $p->ID ); ?>><?php echo esc_html( $p->post_title ); ?></option>
+                            <option value="<?php echo esc_html( $p->ID ); ?>" <?php selected( $kv['datenschutz_page'], $p->ID ); ?>><?php echo esc_html( $p->post_title ); ?></option>
                         <?php endforeach; ?>
                     </select>
                     <label style="margin-left:1em"><input type="checkbox" name="gk_kv_info[create_datenschutz]" value="1" /> Neue Datenschutz-Seite erstellen (Entwurf)</label>
@@ -369,30 +441,55 @@ function gk_setup_page_cb() {
 
 // ── Template Tags: Access KV Info ───────────────────────────────────────────
 
+/**
+ * Get kv info.
+ *
+ * @param string $key Key.
+ */
 function gk_get_kv_info( $key = '' ) {
-    $kv = get_option( 'gk_kv_info', array() );
+    $kv          = get_option( 'gk_kv_info', array() );
+    $kv          = is_array( $kv ) ? $kv : array();
+    $kv['email'] = gk_validate_public_email( $kv['email'] ?? '' );
     if ( $key ) {
         return isset( $kv[ $key ] ) ? $kv[ $key ] : '';
     }
     return $kv;
 }
 
+/**
+ * Kv name.
+ */
 function gk_kv_name() {
     return gk_get_kv_info( 'name' );
 }
 
+/**
+ * Kv short name.
+ */
 function gk_kv_short_name() {
     $short = gk_get_kv_info( 'short_name' );
     return $short ? $short : gk_get_kv_info( 'name' );
 }
 
+/**
+ * Verbaende defaults.
+ */
 function gk_verbaende_defaults() {
     return array(
-        array( 'name' => 'Bundesverband',      'url' => 'https://www.gruene.de' ),
-        array( 'name' => 'Bundestagsfraktion', 'url' => 'https://www.gruene-bundestag.de' ),
+        array(
+			'name' => 'Bundesverband',
+			'url'  => 'https://www.gruene.de',
+		),
+        array(
+			'name' => 'Bundestagsfraktion',
+			'url'  => 'https://www.gruene-bundestag.de',
+		),
     );
 }
 
+/**
+ * Get verbaende.
+ */
 function gk_get_verbaende() {
     $verbaende = gk_get_kv_info( 'verbaende' );
     if ( empty( $verbaende ) || ! is_array( $verbaende ) ) {

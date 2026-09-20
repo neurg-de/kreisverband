@@ -1,0 +1,14 @@
+$ docker exec -w /workspace kreisverband-tests vendor/bin/phpcs -p --report=summary theme/inc/blocks.php theme/inc/widgets.php theme/inc/theme-setup.php theme/inc/kreiskarte-generator.php theme/inc/settings.php theme/inc/dev-seed-data.php theme/inc/abteilung-meta.php theme/inc/seo.php theme/inc/meta-boxes.php theme/inc/social-share.php theme/inc/post-types.php theme/inc/social-links.php theme/inc/taurus.php theme/inc/donation.php theme/inc/roles.php theme/inc/role-security.php theme/inc/role-overview.php theme/inc/media-scope.php theme/inc/media-review.php theme/lib/js/block-abteilung.js
+.................... 20 / 20 (100%)
+
+
+Time: 1.4 secs; Memory: 32MB
+
+
+Exit status: 0
+
+$ node --check theme/lib/js/block-abteilung.js
+Exit status: 0
+
+$ node --check theme/lib/js/kreiskarte-generator.js
+Exit status: 0
