@@ -1,10 +1,10 @@
-# Benutzerhandbuch für Flora und die Geschäftsstelle
+# Benutzerhandbuch für Redaktion und Administration
 
 **Neurg Kreisverband · Release 0.7.0 · Stand: 20. September 2026**
 
 Dieses Handbuch erklärt die Arbeit mit der Website des Kreisverbands und seiner Ortsverbände. Es beschreibt den Quellcode für Release 0.7.0. Es bestätigt weder eine Installation auf der Live-Website noch die dortige Einrichtung von Seiten, E-Mail-Versand, Plugins oder Benutzerkonten. Vor dem Einsatz sind die Abläufe auf einer Testkopie mit den tatsächlich vergebenen Rechten zu prüfen.
 
-Das vorhandene Konto **`geschaeftsstelle` bleibt „KV-Autor (mit OV-Zugang)“ (`gk_kvautor_ov`)**. Für die tägliche Redaktion braucht Flora keine Administratorrolle. Änderungen an globalen Einstellungen, Benutzerkonten oder der technischen Installation übernimmt die Administration.
+Die beschriebenen bereichsübergreifenden Redaktionsaufgaben setzen die Rolle **„KV-Autor (mit OV-Zugang)“ (`gk_kvautor_ov`)** voraus. Die tatsächlich zugewiesene Rolle prüft die Administration. Für die tägliche Redaktion sind keine Administratorrechte erforderlich. Änderungen an globalen Einstellungen, Benutzerkonten oder der technischen Installation übernimmt die Administration.
 
 ## Wegweiser
 
@@ -30,7 +30,7 @@ Das vorhandene Konto **`geschaeftsstelle` bleibt „KV-Autor (mit OV-Zugang)“ 
 
 ## 1. Anmelden, Profil und Sicherheit
 
-**Flora selbst.** Die Administration teilt die richtige Anmeldeadresse und den persönlichen Zugang über den vereinbarten sicheren Weg mit.
+**Redaktion.** Die Administration teilt die richtige Anmeldeadresse und den persönlichen Zugang über den vereinbarten sicheren Weg mit.
 
 1. Die bekannte Website über HTTPS öffnen und `/wp-admin/` aufrufen. Bei einem abweichenden Anmeldeweg die von der Administration bestätigte Adresse verwenden.
 2. Benutzername und Passwort eingeben. Ein gegebenenfalls eingerichteter zweiter Faktor gehört zur Installation; das Theme richtet ihn nicht ein.
@@ -67,9 +67,9 @@ Die folgende Matrix beschreibt die Theme-Rollen nach der Aktualisierung auf 0.7.
 
 **OV-Admin ist kein WordPress-Administrator:** In 0.7.0 erhalten die eingeschränkten Theme-Rollen kein `edit_theme_options`; das Rollenupgrade entfernt dieses frühere Recht auch von bestehenden Theme-Rollen. Dadurch bleiben globale Einstellungen, Customizer und der WordPress-Menüeditor bei der Administration. Der OV-Admin kann weiterhin die angebotenen Einstellungen seines eigenen OVs unter **Verband** bearbeiten. Änderungen an Menüs oder Vorlagen lässt auch er durch die Administration vornehmen.
 
-**Medienauswahl ist nicht gleich Bearbeitungsrecht:** OV-Autoren können Medien ihres Bereichs auch dann zur Auswahl sehen, wenn andere Personen sie hochgeladen haben. Das Bearbeiten fremder Medien kann dennoch an den engeren Autorenrechten scheitern. Flora kann bereichsübergreifend auswählen und bearbeiten.
+**Medienauswahl ist nicht gleich Bearbeitungsrecht:** OV-Autoren können Medien ihres Bereichs auch dann zur Auswahl sehen, wenn andere Personen sie hochgeladen haben. Das Bearbeiten fremder Medien kann dennoch an den engeren Autorenrechten scheitern. Die Geschäftsstelle kann bereichsübergreifend auswählen und bearbeiten.
 
-**Bereich ist nicht Autorenschaft:** Die Zuordnung eines Beitrags oder Bilds bestimmt KV/OV. Der Name des ursprünglichen Uploaders ist kein verlässlicher Ersatz. Eingeschränkte KV-/OV-Konten bekommen keinen Zugriff auf unzugeordnete oder mehrfach zugeordnete Altbestände. Flora und die Administration können solche Bestände prüfen. Bei einem OV-Konto muss derzeit der Benutzername genau dem vorhandenen OV-Zuordnungsslug entsprechen; ohne gültigen Treffer bleibt der Bereich gesperrt.
+**Bereich ist nicht Autorenschaft:** Die Zuordnung eines Beitrags oder Bilds bestimmt KV/OV. Der Name des ursprünglichen Uploaders ist kein verlässlicher Ersatz. Eingeschränkte KV-/OV-Konten bekommen keinen Zugriff auf unzugeordnete oder mehrfach zugeordnete Altbestände. Die Geschäftsstelle und die Administration können solche Bestände prüfen. Bei einem OV-Konto muss derzeit der Benutzername genau dem vorhandenen OV-Zuordnungsslug entsprechen; ohne gültigen Treffer bleibt der Bereich gesperrt.
 
 **Keine Vertraulichkeitsfunktion:** Diese Grenzen betreffen die Redaktion. Veröffentlichte Inhalte und direkte öffentliche Medien-URLs bleiben öffentlich erreichbar. Die Mediathek ist kein geschütztes Dokumentenarchiv.
 
@@ -81,11 +81,11 @@ Die folgende Matrix beschreibt die Theme-Rollen nach der Aktualisierung auf 0.7.
 4. **Rolle speichern** betätigen und die Rückmeldung lesen. Bei abgelaufener Sicherheitsprüfung die Seite neu laden.
 5. Danach mit einem passenden Testkonto Beiträge, Seiten, Termine und Medien prüfen.
 
-Die Übersicht erstellt keine Konten, ändert nicht das eigene Konto oder Administratorkonten und vergibt keine Administratorrolle. Für eine OV-Rolle ist eine gültige OV-Zuordnung über den Benutzernamen erforderlich. Die Geschäftsstelle behält in dieser Übersicht `gk_kvautor_ov`. Neue Konten und abweichende Zuordnungskonzepte klärt die Administration separat.
+Die Übersicht erstellt keine Konten, ändert nicht das eigene Konto oder Administratorkonten und vergibt keine Administratorrolle. Für eine OV-Rolle ist eine gültige OV-Zuordnung über den Benutzernamen erforderlich. Für bereichsübergreifende Redaktionsaufgaben ist `gk_kvautor_ov` vorgesehen. Neue Konten und abweichende Zuordnungskonzepte klärt die Administration separat.
 
 ## 3. Dashboard und Navigation
 
-**Flora selbst.** Nach der Anmeldung beginnt die Arbeit im Dashboard. Die linke Navigation enthält je nach Recht **Beiträge**, **Seiten**, **Personen**, **Termine**, **Medien** und **Profil**. Das Theme ordnet Inhaltslisten in Unterpunkte **Kreisverband** und die vorhandenen OV-Namen. Ein sichtbarer Unterpunkt verleiht noch kein zusätzliches Recht; beispielsweise bekommt ein reiner KV-Autor dadurch keinen OV-Zugriff.
+**Redaktion.** Nach der Anmeldung beginnt die Arbeit im Dashboard. Die linke Navigation enthält je nach Recht **Beiträge**, **Seiten**, **Personen**, **Termine**, **Medien** und **Profil**. Das Theme ordnet Inhaltslisten in Unterpunkte **Kreisverband** und die vorhandenen OV-Namen. Ein sichtbarer Unterpunkt verleiht noch kein zusätzliches Recht; beispielsweise bekommt ein reiner KV-Autor dadurch keinen OV-Zugriff.
 
 1. Zuerst den Inhaltstyp und den gewünschten Bereich wählen.
 2. In der Liste nach Titel suchen oder vorhandene Filter einsetzen. Bei scheinbar fehlenden Inhalten zusätzlich Statusfilter wie Entwürfe und Papierkorb prüfen.
@@ -93,15 +93,15 @@ Die Übersicht erstellt keine Konten, ändert nicht das eigene Konto oder Admini
 4. Im Editor die Box **Zuordnung (KV/OV)** kontrollieren. Ein Listenfilter allein ist keine Bestätigung der gespeicherten Zuordnung.
 5. Bei einem OV-Konto zeigt das Dashboard gegebenenfalls **Dein Ortsverband** mit dem zuständigen Bereich an.
 
-**Verband**, **Menüs**, **KV-Setup**, die Benutzerverwaltung und technische Werkzeuge sind kein regulärer Arbeitsweg für Flora. Ein fehlender Menüpunkt wird nicht durch eine Administratorrolle für die Geschäftsstelle behoben. Kommentare sind im Theme aus der Navigation entfernt; dieses Handbuch setzt keine Kommentarverwaltung voraus.
+**Verband**, **Menüs**, **KV-Setup**, die Benutzerverwaltung und technische Werkzeuge sind kein regulärer Arbeitsweg für die Redaktion. Ein fehlender Menüpunkt wird nicht durch eine Administratorrolle für die Geschäftsstelle behoben. Kommentare sind im Theme aus der Navigation entfernt; dieses Handbuch setzt keine Kommentarverwaltung voraus.
 
 ## 4. Beiträge: Entwurf, Veröffentlichung und Papierkorb
 
-### Einen Beitrag erstellen – Flora selbst
+### Einen Beitrag erstellen – Redaktion
 
 1. **Beiträge → Kreisverband** oder den passenden OV öffnen und einen neuen Beitrag anlegen.
 2. Einen aussagekräftigen Titel und den Text eingeben. Im Blockeditor gliedern Überschriften, Absätze, Listen und Bilder den Inhalt. Den Seitentitel nicht nochmals als größte Überschrift wiederholen.
-3. **Zuordnung (KV/OV)** auf genau den beabsichtigten Bereich setzen. Flora kontrolliert dies ausdrücklich, weil ihr Konto alle Bereiche bearbeiten darf.
+3. **Zuordnung (KV/OV)** auf genau den beabsichtigten Bereich setzen. Die Geschäftsstelle kontrolliert dies ausdrücklich, weil ihr Konto alle Bereiche bearbeiten darf.
 4. Eine vorhandene Kategorie und bei Bedarf Schlagwörter auswählen. Eine fehlende Kategorie von der Administration anlegen lassen.
 5. Ein Beitragsbild auswählen und, soweit im Editor vorhanden, einen kurzen **Textauszug** schreiben. Bildrechte und öffentliche Freigabe prüfen.
 6. **Entwurf speichern** wählen. Anschließend die **Vorschau** öffnen und Text, Links, Bildausschnitt, Mobilansicht und Zuordnung prüfen.
@@ -131,7 +131,7 @@ Revisionen können frühere Textstände wiederherstellen, ersetzen aber weder ei
 
 ## 5. Seiten und Menüs
 
-### Eine Seite bearbeiten oder anlegen – Flora selbst
+### Eine Seite bearbeiten oder anlegen – Redaktion
 
 Seiten enthalten länger gültige Informationen, etwa Kontakt, Mitmachen und OV-Vorstellung. Eine Seite kann anderen Seiten untergeordnet sein; diese Hierarchie ist etwas anderes als ein Navigationsmenü.
 
@@ -143,7 +143,7 @@ Seiten enthalten länger gültige Informationen, etwa Kontakt, Mitmachen und OV-
 
 ### Vorlagen – Auswahl mit der Administration abstimmen
 
-Eine *Vorlage* beziehungsweise ein *Template* bestimmt das Layout. Vorlagenwechsel können zusätzliche Rechte verlangen und die Darstellung stark ändern. Flora bearbeitet die Inhalte; die Administration wählt nötigenfalls die Vorlage in den Seiteneinstellungen und prüft das Ergebnis.
+Eine *Vorlage* beziehungsweise ein *Template* bestimmt das Layout. Vorlagenwechsel können zusätzliche Rechte verlangen und die Darstellung stark ändern. Die Geschäftsstelle bearbeitet die Inhalte; die Administration wählt nötigenfalls die Vorlage in den Seiteneinstellungen und prüft das Ergebnis.
 
 | Vorlage im Theme | Verwendung |
 |---|---|
@@ -168,11 +168,11 @@ Die zentrale Seite mit dem Slug `termine` erhält über `page-termine.php` eine 
 4. Menü speichern und in der Theme-Menüseite dem richtigen Hauptmenü-/Footer-Platz zuweisen. Ein gespeichertes Menü ist ohne Platzzuweisung nicht automatisch sichtbar.
 5. Hauptnavigation, mobile Navigation und Footer im betreffenden KV-/OV-Kontext testen. Auch Datenschutz und Impressum über ihre tatsächlichen Links öffnen.
 
-Jede Zuordnung hat eigene Menüplätze. Gemeinsam verwendete Menüobjekte können mehrere Stellen beeinflussen; die Administration sollte für unterschiedliche Bereiche getrennte Menüs verwenden. Flora kann Seiten ändern, erhält dadurch aber keine Menürechte.
+Jede Zuordnung hat eigene Menüplätze. Gemeinsam verwendete Menüobjekte können mehrere Stellen beeinflussen; die Administration sollte für unterschiedliche Bereiche getrennte Menüs verwenden. Die Geschäftsstelle kann Seiten ändern, erhält dadurch aber keine Menürechte.
 
 ## 6. Kreisverband, Ortsverbände und externe Websites
 
-**Flora:** Beiträge, Seiten, Personen und Termine im passenden Bereich pflegen und Änderungswünsche melden. **Administration:** KV-Stammdaten, OV-Anlage, Typ, Name, Slug und Homepage-Zuweisung. **OV-Admin:** die angebotenen Kontakt- und Darstellungsfelder des eigenen OVs.
+**Redaktion:** Beiträge, Seiten, Personen und Termine im passenden Bereich pflegen und Änderungswünsche melden. **Administration:** KV-Stammdaten, OV-Anlage, Typ, Name, Slug und Homepage-Zuweisung. **OV-Admin:** die angebotenen Kontakt- und Darstellungsfelder des eigenen OVs.
 
 Die KV-Stammdaten liegen unter **KV-Setup**: Name, Kurzname, Anschrift, öffentliche E-Mail, Telefon, Website, Social-Media-Angaben, Verbandslinks und Pflichtseiten. Dieser Einrichtungsweg legt keine E-Mail-Postfächer an. Ein ausgefülltes Setup ist auch keine inhaltliche Prüfung der Rechtstexte.
 
@@ -205,7 +205,7 @@ Karte und mobile Gemeindeliste verwenden dieselbe Zielauflösung. Ein aktuelles 
 
 ### Gemeinde anklicken funktioniert nicht, direkte OV-Adresse schon
 
-Eine funktionierende direkte Adresse wie `/ov-beispielort/` beweist noch nicht, dass Karte, Gemeindeliste oder Menü auf diese Adresse zeigen. Flora kann das mit folgender Prüfung eingrenzen; die Administration korrigiert anschließend die Konfiguration.
+Eine funktionierende direkte Adresse wie `/ov-beispielort/` beweist noch nicht, dass Karte, Gemeindeliste oder Menü auf diese Adresse zeigen. Die Geschäftsstelle kann das mit folgender Prüfung eingrenzen; die Administration korrigiert anschließend die Konfiguration.
 
 1. In der öffentlichen OV-Liste die Gemeinde suchen, den Link öffnen und die tatsächlich erreichte URL notieren. Bei fehlendem Ziel keine vermeintliche Homepage erfinden.
 2. Dieselbe Gemeinde in der Desktop-Kreiskarte auswählen. Stimmen Ziel und sichtbarer OV-Name mit der direkten Adresse überein?
@@ -220,7 +220,7 @@ Eine funktionierende direkte Adresse wie `/ov-beispielort/` beweist noch nicht, 
 
 ## 7. Termine und iCal
 
-### Einen Termin erstellen – Flora und berechtigte OV-Nutzer
+### Einen Termin erstellen – Redaktion und berechtigte OV-Nutzer
 
 1. **Termine → passender Bereich → Neuer Termin** öffnen.
 2. Einen Titel und eine Beschreibung eingeben: Was findet statt, für wen, mit welcher Anmeldung und gegebenenfalls welcher Barrierefreiheit?
@@ -233,7 +233,7 @@ Eine funktionierende direkte Adresse wie `/ov-beispielort/` beweist noch nicht, 
 9. Veröffentlichen und die öffentliche Terminseite sowie die passende Liste kontrollieren.
 10. Für Korrekturen den bestehenden Termin bearbeiten und aktualisieren. Nicht als neuen Termin duplizieren, wenn nur Zeit oder Ort falsch sind.
 
-Termine verwenden die in WordPress eingestellte Zeitzone. Bei Zeitverschiebungen die Administration die Website-Zeitzone prüfen lassen; Flora soll Uhrzeiten nicht durch willkürliche Zuschläge „reparieren“. Das Theme bietet keine bedienbare Serienverwaltung: Wiederkehrende Sitzungen als einzelne Termine mit jeweils geprüftem Datum anlegen.
+Termine verwenden die in WordPress eingestellte Zeitzone. Bei Zeitverschiebungen die Administration die Website-Zeitzone prüfen lassen; die Geschäftsstelle soll Uhrzeiten nicht durch willkürliche Zuschläge „reparieren“. Das Theme bietet keine bedienbare Serienverwaltung: Wiederkehrende Sitzungen als einzelne Termine mit jeweils geprüftem Datum anlegen.
 
 Für eine Absage können Titel und Beschreibung zunächst deutlich **Abgesagt** kennzeichnen. Eine automatische Absage-Nachricht an Kalenderabonnenten oder Teilnehmer wird dadurch nicht versandt. Soll der Termin verschwinden, ihn nach Abschnitt 4 zurücknehmen oder in den Papierkorb legen; eine Löschung entfernt bereits importierte Kalenderkopien nicht zuverlässig.
 
@@ -261,13 +261,13 @@ Auf einer OV-Seite übernimmt die Terminausgabe den OV-Kontext und darf nicht du
 | `/termine/ical/?zuordnung=kreisverband` | nur KV |
 | `/termine/ical/?zuordnung=ov-beispielort` | nur dieser OV |
 
-Das Theme exportiert bis zu 200 Termine mit Startdatum ab drei Monaten vor dem aktuellen Datum. Dies ist kein vollständiges Langzeitarchiv. Ganztagstermine werden mit dem technisch exklusiven Folgetag als iCal-Ende exportiert; Flora trägt im Editor weiterhin den letzten Veranstaltungstag ein. Uhrzeiten werden für den Export aus der Website-Zeitzone nach UTC umgerechnet. Ein Kalenderimport, eine Benachrichtigung und ein Kalenderabonnement sind drei verschiedene Vorgänge.
+Das Theme exportiert bis zu 200 Termine mit Startdatum ab drei Monaten vor dem aktuellen Datum. Dies ist kein vollständiges Langzeitarchiv. Ganztagstermine werden mit dem technisch exklusiven Folgetag als iCal-Ende exportiert; die Geschäftsstelle trägt im Editor weiterhin den letzten Veranstaltungstag ein. Uhrzeiten werden für den Export aus der Website-Zeitzone nach UTC umgerechnet. Ein Kalenderimport, eine Benachrichtigung und ein Kalenderabonnement sind drei verschiedene Vorgänge.
 
 ## 8. Personen, Abteilungen und Zuordnungen
 
 Eine Person ist ein eigener öffentlicher Inhalt. Eine *Abteilung* gruppiert Personen, etwa Vorstand, Gemeinderat oder Kandidierendenliste. Eine Person kann mehrere Abteilungen haben, gehört redaktionell aber zu genau einem KV-/OV-Bereich.
 
-### Person pflegen – Flora selbst
+### Person pflegen – Redaktion
 
 1. **Personen → Bereich** öffnen, die Person suchen und erst bei fehlendem Eintrag neu anlegen.
 2. Den Namen als Titel, eine freigegebene Beschreibung und ein geeignetes Portrait als Beitragsbild eintragen.
@@ -280,29 +280,29 @@ Eine Person ist ein eigener öffentlicher Inhalt. Eine *Abteilung* gruppiert Per
 
 Bei einem Amtswechsel eine alte Abteilungszugehörigkeit und Funktionsbezeichnung gezielt entfernen oder ändern; eine Person muss nicht allein deshalb gelöscht werden. Ob ein historisches Profil weiter öffentlich bleiben soll, wird redaktionell und mit den Verantwortlichen für Datenschutz entschieden.
 
-Neue Abteilungen oder globale Umbenennungen übernimmt die Administration. Ein Abteilungs-Slug kann in Shortcodes stecken und darf nicht ohne Prüfung geändert werden. Falls die Begriffsverwaltung wegen der nach Bereichen umgebauten Seitenleiste nicht sichtbar ist, soll die Administration den WordPress-Bildschirm der betreffenden Taxonomie öffnen; Flora braucht dafür kein zusätzliches Menü.
+Neue Abteilungen oder globale Umbenennungen übernimmt die Administration. Ein Abteilungs-Slug kann in Shortcodes stecken und darf nicht ohne Prüfung geändert werden. Falls die Begriffsverwaltung wegen der nach Bereichen umgebauten Seitenleiste nicht sichtbar ist, soll die Administration den WordPress-Bildschirm der betreffenden Taxonomie öffnen; die Geschäftsstelle braucht dafür kein zusätzliches Menü.
 
 **Listen darstellen:** Für neue Inhalte den Block **Abteilung** oder `[abteilung slug="…"]` verwenden. Der Block begrenzt auf OV-Seiten automatisch auf den Seitenbereich. Ein allein stehender Shortcode ohne `zuordnung` kann Personen aus mehreren Bereichen mit Filterreitern zeigen; bei einer OV-Liste deshalb den OV-Slug ausdrücklich setzen.
 
 ## 9. Medien, Beitragsbilder und Altbestand
 
-### Ein neues Bild verwenden – Flora selbst
+### Ein neues Bild verwenden – Redaktion
 
 1. Vor dem Upload Bildrechte, Freigaben abgebildeter Personen und gewünschte öffentliche Nutzung klären. Ein sinnvoller Dateiname erleichtert die spätere Suche.
 2. Möglichst den bereits korrekt zugeordneten Beitrag, Termin oder die Seite öffnen und dort hochladen. Ein Upload mit eindeutig zugeordnetem Elterninhalt kann dessen Bereich übernehmen.
-3. Unter **Medien** beziehungsweise in den Mediendetails **Zuordnung (KV/OV)** kontrollieren. Bei Flora wird ein unabhängiger neuer Upload sonst grundsätzlich dem KV zugeordnet; eine geöffnete OV-Liste allein ist keine ausreichende Garantie.
+3. Unter **Medien** beziehungsweise in den Mediendetails **Zuordnung (KV/OV)** kontrollieren. Bei einem KV-Autorenkonto mit OV-Zugang wird ein unabhängiger neuer Upload sonst grundsätzlich dem KV zugeordnet; eine geöffnete OV-Liste allein ist keine ausreichende Garantie.
 4. Einen **Alternativtext** eintragen, der den relevanten Bildinhalt erklärt. Bei rein dekorativen Bildern den Alternativtext bewusst leer lassen. Bildnachweis und Bildunterschrift nach redaktioneller Vorgabe pflegen.
 5. Als **Beitragsbild** auswählen oder an der gewünschten Textstelle einfügen. Das Beitragsbild dient oft der Übersicht und der Vorschau in sozialen Netzwerken; es ist nicht dasselbe wie ein Bild mitten im Text.
 6. Speichern und die öffentliche Darstellung auf großem und kleinem Bildschirm prüfen.
 
-OV-Konten erhalten bei neuen Uploads ihren eigenen Bereich. Ein reiner KV-Autor sieht eindeutig zugeordnete KV-Medien. Flora sieht bereichsübergreifend alle Medien. Bei eingeschränkten Konten ist eine neue Auswahl eines Bilds aus einem fremden Bereich gesperrt. Bereits gespeicherte Beitragsbild-Verweise werden durch die neue Auswahlbegrenzung nicht automatisch ersetzt oder gelöscht.
+OV-Konten erhalten bei neuen Uploads ihren eigenen Bereich. Ein reiner KV-Autor sieht eindeutig zugeordnete KV-Medien. Die Geschäftsstelle sieht bereichsübergreifend alle Medien. Bei eingeschränkten Konten ist eine neue Auswahl eines Bilds aus einem fremden Bereich gesperrt. Bereits gespeicherte Beitragsbild-Verweise werden durch die neue Auswahlbegrenzung nicht automatisch ersetzt oder gelöscht.
 
 ### Warum ein älteres Bild fehlt
 
 Frühere Medienauswahl orientierte sich unter anderem am Autor; fehlende Zuordnungen konnten zudem pauschal beim KV landen. Der aktuelle Bereichsfilter arbeitet mit der gespeicherten `gk_zuordnung`. Ein Bild kann deshalb noch öffentlich in einem Beitrag erscheinen, obwohl es einem OV-Konto nicht mehr zur neuen Auswahl angeboten wird.
 
 1. Filter, Suchtext, Bereich und Papierkorb prüfen.
-2. Flora oder die Administration die Bild-ID, die bisherige Verwendung und die aktuelle Zuordnung prüfen lassen.
+2. Die Bild-ID, die bisherige Verwendung und die aktuelle Zuordnung durch die Geschäftsstelle oder die Administration prüfen lassen.
 3. Ein unzugeordnetes, mehrfach zugeordnetes oder widersprüchliches Bild nicht als „verloren“ behandeln und nicht vorschnell neu hochladen.
 4. Für gemeinsame Verwendung mit mehreren OVs eine redaktionelle Entscheidung treffen. Die Auswahl folgt genau einem Bereich; es gibt keine allgemeine Freigabegruppe „alle OVs“ für eingeschränkte Konten.
 
@@ -331,7 +331,7 @@ Die eingeschränkten Rollen dürfen auch Medien nicht endgültig löschen. Bei f
 
 ## 10. Datenschutz und Impressum
 
-**Flora:** freigegebene Texte auf berechtigten Seiten bearbeiten und Links prüfen. **Administration beziehungsweise eigener OV-Admin:** die passenden Pflichtseiten auswählen. Inhaltliche Rechtsprüfung erfolgt durch die zuständige Stelle, nicht durch das Theme.
+**Redaktion:** freigegebene Texte auf berechtigten Seiten bearbeiten und Links prüfen. **Administration beziehungsweise eigener OV-Admin:** die passenden Pflichtseiten auswählen. Inhaltliche Rechtsprüfung erfolgt durch die zuständige Stelle, nicht durch das Theme.
 
 ### KV-Seiten festlegen – Administration
 
@@ -359,7 +359,7 @@ Das Anfrageformular verwendet die konfigurierte KV-Datenschutzseite mit Rückfal
 
 ### Was das Newsletterformular macht
 
-`[newsletter_anfrage]` übermittelt die angegebene E-Mail-Adresse und den Hinweis auf den Kontaktwunsch fest an **info@gruene-starnberg.de**. Es legt **kein Abonnement**, kein WordPress-Benutzerkonto und keine Newsletterliste an. Es versendet auch keine automatische Bestätigungsnachricht an die interessierte Person.
+`[newsletter_anfrage]` übermittelt die angegebene E-Mail-Adresse und den Hinweis auf den Kontaktwunsch an die **fest im Theme konfigurierte Empfängeradresse**. Die Administration prüft diese Adresse vor dem Einsatz. Es legt **kein Abonnement**, kein WordPress-Benutzerkonto und keine Newsletterliste an. Es versendet auch keine automatische Bestätigungsnachricht an die interessierte Person.
 
 Die Pflichtbestätigungen betreffen die Bearbeitung der Anfrage und die Kontaktaufnahme zur Newsletteraufnahme. Sie sind noch kein technisch verifizierter Nachweis einer Newsletter-Anmeldung. Die Website prüft die Schreibweise einer E-Mail-Adresse, nicht die Inhaberschaft des Postfachs.
 
@@ -367,7 +367,7 @@ Die Pflichtbestätigungen betreffen die Bearbeitung der Anfrage und die Kontakta
 
 **Variante A – Administration:** Die gewünschte Seite bearbeiten und als Vorlage **Mach mit – Newsletteranfrage** (`page-templates/mach-mit.php`) auswählen. Die Vorlage gibt den Seiteninhalt aus und ergänzt das Anfrageformular. Enthält der Seiteninhalt bereits `[newsletter_anfrage]`, wird es nicht zusätzlich angehängt.
 
-**Variante B – Flora:** Auf einer berechtigten Seite einen WordPress-Block **Shortcode** einfügen und genau Folgendes eintragen:
+**Variante B – Redaktion:** Auf einer berechtigten Seite einen WordPress-Block **Shortcode** einfügen und genau Folgendes eintragen:
 
 ```text
 [newsletter_anfrage]
@@ -420,12 +420,12 @@ Eine Erfolgsmeldung bedeutet nur, dass `wp_mail()` den Versandauftrag ohne gemel
 
 Das Theme **provisioniert keine Postfächer, Weiterleitungen oder Konten**. WordPress-Anmeldung, öffentliche Kontaktadresse und E-Mail-Postfach sind getrennte Dinge.
 
-1. Flora sammelt den benötigten Funktionsnamen, KV/OV, gewünschte öffentliche Adresse, verantwortliche Person, Beginn/Ende der Zuständigkeit und den Bedarf an Postfach, Alias oder Weiterleitung. Keine Passwörter in die Anforderung aufnehmen.
+1. Die Geschäftsstelle sammelt den benötigten Funktionsnamen, KV/OV, gewünschte öffentliche Adresse, verantwortliche Person, Beginn/Ende der Zuständigkeit und den Bedarf an Postfach, Alias oder Weiterleitung. Keine Passwörter in die Anforderung aufnehmen.
 2. Die Anfrage geht über den intern vereinbarten Weg an die zuständige E-Mail-/IT-Administration des Verbands beziehungsweise dessen Mailanbieter. Welche Stelle dies konkret übernimmt, muss der Kreisverband benennen; das Handbuch erfindet keinen Anbieter.
 3. Die zuständige Stelle prüft Freigabe, Namensschema, Zugriffsberechtigung, Vertretung und Aufbewahrung. Sie richtet die Mailfunktion außerhalb von WordPress ein.
 4. Zugang und gegebenenfalls zweiter Faktor werden persönlich über einen sicheren Kanal übergeben. Ein initiales Passwort bei Übergabe ändern; Zugangsdaten niemals in öffentliche Theme-Felder übernehmen.
 5. Senden und Empfangen einschließlich Antworten testen. Erst dann die öffentliche Adresse im **KV-Setup** durch die Administration beziehungsweise unter **Verband → OV → Öffentliche Kontakt-E-Mail** durch Administration/OV-Admin eintragen.
-6. Flora aktualisiert freigegebene Adressen in Seiten und Personenprofilen und prüft die öffentliche Ausgabe.
+6. Die Geschäftsstelle aktualisiert freigegebene Adressen in Seiten und Personenprofilen und prüft die öffentliche Ausgabe.
 7. Beim Rollenwechsel Zugriffe neu zuweisen, aktive Sitzungen und gegebenenfalls Geheimnisse durch die zuständige Stelle erneuern. Öffentlich angezeigte Kontakte und WordPress-Rechte separat aktualisieren.
 8. Beim Ausscheiden Zugriff zeitnah entziehen, Vertretung und notwendige Aufbewahrung klären und die Mailfunktion nach Freigabe deaktivieren oder überführen. Keine automatische unbegrenzte Weiterleitung an Privatadressen einrichten.
 
@@ -435,7 +435,7 @@ Die öffentliche Kontakt-E-Mail wird auf gültiges E-Mail-Format geprüft. Das b
 
 ### Homepage-Einstellungen – Administration
 
-Flora liefert Texte, freigegebene Bilder und Ziel-URLs. Die Administration öffnet **Verband → Startseite** und bearbeitet dort die fest verwendete Variante **Neue Energie**; eine freie Auswahl beliebiger Homepage-Varianten bietet die aktuelle Oberfläche nicht.
+Die Geschäftsstelle liefert Texte, freigegebene Bilder und Ziel-URLs. Die Administration öffnet **Verband → Startseite** und bearbeitet dort die fest verwendete Variante **Neue Energie**; eine freie Auswahl beliebiger Homepage-Varianten bietet die aktuelle Oberfläche nicht.
 
 1. Bisherige Einstellungen dokumentieren und einen passenden **Landing-Modus** wählen.
 2. Die eingeblendeten Felder ausfüllen. *Hero* bezeichnet den großen Einstiegsbereich; *CTA* einen Handlungslink wie „Mitmachen“.
@@ -454,7 +454,7 @@ Flora liefert Texte, freigegebene Bilder und Ziel-URLs. Die Administration öffn
 
 Die WordPress-Zuweisung der eigentlichen Startseite unter **Einstellungen → Lesen** ist ein zusätzlicher Administrationsschritt. OV-Darstellung wird separat in **Verband → OV bearbeiten** mit Header, angebotenem Hero-Modus und Bereichen gepflegt. Ein KV-Homepagewechsel setzt nicht automatisch alle OV-Seiten um.
 
-### Kreiskarte anzeigen – Flora selbst
+### Kreiskarte anzeigen – Redaktion
 
 Auf einer berechtigten Seite einen Shortcode-Block einfügen:
 
@@ -533,7 +533,7 @@ Die Abteilungsauswahl eines OV-Blocks kann auf Abteilungen mit Personen dieses O
 
 ## 15. SEO, Social Media und Vorschaubilder
 
-*SEO* hilft Suchmaschinen, Seiten einzuordnen. *Open Graph* und *Twitter Cards* liefern Titel, Beschreibung und Bild für Linkvorschauen. Das Theme erzeugt diese Angaben weitgehend automatisch und bietet kein separates SEO-Eingabemenü für Flora.
+*SEO* hilft Suchmaschinen, Seiten einzuordnen. *Open Graph* und *Twitter Cards* liefern Titel, Beschreibung und Bild für Linkvorschauen. Das Theme erzeugt diese Angaben weitgehend automatisch und bietet kein separates SEO-Eingabemenü für die Redaktion.
 
 1. Einen klaren Titel und einen verständlichen ersten Absatz schreiben.
 2. Bei Beiträgen, Seiten und Terminen den vorhandenen Textauszug sinnvoll ausfüllen. Ohne Auszug leitet das Theme die Beschreibung aus ungefähr 30 Wörtern des Inhalts ab; reine Shortcode-Seiten brauchen besonders sorgfältige Prüfung.
@@ -549,10 +549,10 @@ Logo, globale Darstellung, Dark-Mode-Vorgabe und **The Taurus**-Einstellungen li
 
 ## 16. Spenden und Cookie-Hinweis
 
-### Spenden – Flora pflegt Inhalte, Administration konfiguriert
+### Spenden – Redaktion pflegt Inhalte, Administration konfiguriert
 
 1. Die Administration prüft unter **Verband → Spenden** Aktivierung, freigegebene Bankverbindung, Verwendungszweck, Twingle-/PayPal-URL und Buttontext mit der zuständigen Kasse.
-2. Flora fügt auf einer berechtigten Seite nach Freigabe `[spenden]` ein und prüft die Vorschau.
+2. Die Geschäftsstelle fügt auf einer berechtigten Seite nach Freigabe `[spenden]` ein und prüft die Vorschau.
 3. Alle Buttons öffnen und Bankangaben zeichenweise gegen die Freigabe prüfen. Ein Test benötigt keine echte Zahlung.
 4. Für eine Fortschrittsanzeige Ziel und Stand mit der Kasse abstimmen; `[spendenbalken]` oder der Homepage-Modus lesen keinen tatsächlichen Kontostand aus.
 
@@ -567,14 +567,14 @@ Der Banner enthält **Verstanden** und merkt sich die Bestätigung im Cookie `gk
 1. Vor Freigabe prüft die Administration die tatsächlich verwendeten Plugins, Zahlungsformulare, Karten, Videos, Analyse- und Drittanbieterressourcen.
 2. Der Bannertext muss zur realen Installation passen. Sein Satz über ausschließlich notwendige Cookies beweist nicht, dass kein Plugin Tracking verwendet.
 3. Wenn zusätzliche Dienste eine Einwilligung oder technische Blockierung erfordern, muss die Administration dafür ein passendes Verfahren einrichten. Der Theme-Banner erledigt dies nicht.
-4. Flora kann `[cookie_einstellungen]` auf einer berechtigten Seite einfügen. Der Link entfernt ausschließlich die gespeicherte Bannerbestätigung und zeigt den Hinweis erneut.
+4. Die Geschäftsstelle kann `[cookie_einstellungen]` auf einer berechtigten Seite einfügen. Der Link entfernt ausschließlich die gespeicherte Bannerbestätigung und zeigt den Hinweis erneut.
 5. Der Link widerruft keine Newslettereinwilligung, löscht keine Plugin-Cookies und deaktiviert keine externen Zahlungsformulare. Newsletterwiderrufe werden nach Abschnitt 11 bearbeitet.
 
-Es gibt im Theme kein Cookie-Kategorienmenü für Flora. Die Bezeichnung „Cookie-Consent“ in älteren Beschreibungen darf nicht als Zusage eines websiteweiten Consent-Managers gelesen werden.
+Es gibt im Theme kein Cookie-Kategorienmenü für die Redaktion. Die Bezeichnung „Cookie-Consent“ in älteren Beschreibungen darf nicht als Zusage eines websiteweiten Consent-Managers gelesen werden.
 
 ## 17. Fehler, Rücknahme und Hilfe
 
-| Beobachtung | Flora prüft selbst | Administration einschalten, wenn … |
+| Beobachtung | Die Geschäftsstelle prüft selbst | Administration einschalten, wenn … |
 |---|---|---|
 | Inhalt fehlt in einer Liste | Bereich, Suche, Entwurf, Papierkorb und Veröffentlichungsdatum | Zuordnung falsch/mehrdeutig oder Rechte unerwartet sind |
 | „Keine Berechtigung“ | richtiges Konto, richtiger Bereich, eigene/fremde Autorenschaft | der zulässige Bereich gesperrt bleibt; keine Administratorrolle als Abkürzung vergeben |
@@ -593,7 +593,7 @@ Es gibt im Theme kein Cookie-Kategorienmenü für Flora. Die Bezeichnung „Cook
 
 **Bei falscher Veröffentlichung:** Inhalt zuerst auf Entwurf setzen, Betroffene intern informieren und die Korrektur abstimmen. War eine vertrauliche Datei öffentlich, zusätzlich die Administration einschalten: Papierkorb oder geänderte Zuordnung sind keine Garantie, dass eine Datei oder zwischengespeicherte Kopie nicht mehr erreichbar ist.
 
-**Bei technischen Fehlern nach einem Update:** Keine Theme-Dateien auf der Live-Seite überschreiben. Die Administration verwendet den vorab getesteten Rollback für Dateien und Datenbank. Flora dokumentiert den Fehler und prüft nach Wiederherstellung die betroffenen öffentlichen Abläufe.
+**Bei technischen Fehlern nach einem Update:** Keine Theme-Dateien auf der Live-Seite überschreiben. Die Administration verwendet den vorab getesteten Rollback für Dateien und Datenbank. Die Geschäftsstelle dokumentiert den Fehler und prüft nach Wiederherstellung die betroffenen öffentlichen Abläufe.
 
 ## 18. Aufnahmeplan für Screenshots
 
@@ -602,15 +602,15 @@ Die folgenden Einträge sind **reproduzierbare Platzhalter, keine bereits angefe
 | Platzhalter / vorgeschlagener Dateiname | Konto und konkrete Aufnahme | Bildunterschrift / zu prüfender Zustand |
 |---|---|---|
 | S01 `01-dashboard.png` | Testkonto mit `gk_kvautor_ov`; Dashboard öffnen, linke Inhaltsnavigation sichtbar | „Die Geschäftsstelle wählt Inhaltstyp und KV-/OV-Bereich.“ |
-| S02 `02-beitrag-entwurf.png` | Flora-Testrolle; Testbeitrag als Entwurf, Titel und Box Zuordnung sichtbar | „Vor Veröffentlichung die Zuordnung prüfen.“ |
+| S02 `02-beitrag-entwurf.png` | Redaktions-Testrolle; Testbeitrag als Entwurf, Titel und Box Zuordnung sichtbar | „Vor Veröffentlichung die Zuordnung prüfen.“ |
 | S03 `03-papierkorb.png` | denselben Testbeitrag in Papierkorb legen, Listenfilter öffnen | „Wiederherstellen ist verfügbar; dauerhaftes Löschen gehört nicht zur Redaktionsrolle.“ |
 | S04 `04-theme-rollen.png` | Administrator; Benutzer → Theme-Rollen mit synthetischen Konten | „Rolle und Zuständigkeit ohne Passwörter oder E-Mail-Liste.“ |
 | S05 `05-ov-website.png` | Administrator; Test-OV unter Verband öffnen, Startseiten- und Websitefeld aufnehmen | „Lokale Startseite und externe Website sind getrennte Angaben.“ |
 | S06 `06-ov-pflichtseiten.png` | Administrator/OV-Admin; Impressum & Datenschutz mit KV-Rückfallauswahl | „Eigene veröffentlichte Seite oder bewusst KV-Seite übernehmen.“ |
-| S07 `07-termin-editor.png` | Flora-Testrolle; fiktiver Termin mit Datum, Zeit, Ort und Zuordnung | „Termin-Details und Bereich vor Veröffentlichung prüfen.“ |
+| S07 `07-termin-editor.png` | Redaktions-Testrolle; fiktiver Termin mit Datum, Zeit, Ort und Zuordnung | „Termin-Details und Bereich vor Veröffentlichung prüfen.“ |
 | S08 `08-termin-kalender.png` | öffentliche Test-Terminseite und separat geöffneter Test-iCal-Import | „Editor und Kalender zeigen denselben Zeitpunkt.“ |
-| S09 `09-person-abteilungen.png` | Flora-Testrolle; synthetische Person, Abteilungenbox nach erster Speicherung | „Nr. verstecken blendet nur die Nummer aus.“ |
-| S10 `10-medien-bereiche.png` | getrennte Aufnahmen als Flora und als OV-Testkonto, jeweils Medienliste | „Flora sieht alle Bereiche; das OV-Konto nur eindeutige eigene Zuordnungen.“ |
+| S09 `09-person-abteilungen.png` | Redaktions-Testrolle; synthetische Person, Abteilungenbox nach erster Speicherung | „Nr. verstecken blendet nur die Nummer aus.“ |
+| S10 `10-medien-bereiche.png` | getrennte Aufnahmen mit der Rolle KV-Autor mit OV-Zugang und als OV-Testkonto, jeweils Medienliste | „Die Geschäftsstelle sieht alle Bereiche; das OV-Konto nur eindeutige eigene Zuordnungen.“ |
 | S11 `11-medien-pruefung.png` | Administrator; Medien → Zuordnung prüfen vor einer Änderung | „Vorschau und geprüfte Einzelübernahme; kein automatischer Umbau.“ |
 | S12 `12-newsletter.png` | öffentliche Testseite mit `[newsletter_anfrage]`, leeres Formular | „Anfrage an die Geschäftsstelle, noch kein Abonnement.“ |
 | S13 `13-newsletter-meldung.png` | Test-Mailtransport abfangen; Testanfrage senden, Erfolg-/Fehlerzustand separat aufnehmen | „Die Rückmeldung ist keine Zustell- oder Abonnementbestätigung.“ |
@@ -629,9 +629,9 @@ Vor jeder Aufnahme den Schritt aus dem zugehörigen Kapitel ausführen und die B
 | Punkt | Zuständige Stelle / benötigter Nachweis |
 |---|---|
 | Live-Installation 0.7.0 | Administration: installierte Version, getestetes ZIP, Backup und Rollback |
-| Rolle der bestehenden Geschäftsstelle | Administration: `geschaeftsstelle` bleibt `gk_kvautor_ov`, tatsächlicher Anmelde-/Rechtetest |
+| Rolle der Geschäftsstelle | Administration: passende Theme-Rolle und Zuständigkeit prüfen; tatsächlichen Anmelde-/Rechtetest durchführen |
 | Mach-mit-Seite | Seiten-URL, Vorlage oder Shortcode, Menüplatz und veröffentlichte Datenschutzerklärung |
-| Mailtransport | tatsächlicher Eingang einer kontrollierten Testanfrage bei `info@gruene-starnberg.de` |
+| Mailtransport | tatsächlicher Eingang einer kontrollierten Testanfrage bei der konfigurierten Empfängeradresse |
 | Newsletterbetrieb | verantwortliche Person/Vertretung, getrennte Adress- und Einwilligungsprüfung, Verteiler, Nachweis- und Löschkonzept |
 | Vorstands-Mailadressen | benannte Mailadministration, sicherer Übergabeweg, geregelter Entzug beim Ausscheiden |
 | Altmedien | geprüfte Zuordnungen, dokumentierte Einzelübernahmen, erfolgreicher Rücknahmetest, keine automatisch als korrekt angenommene Migration |
