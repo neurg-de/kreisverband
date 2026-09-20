@@ -1,0 +1,2 @@
+$ docker exec kreisverband-tests php -d short_open_tag=0 vendor/bin/phpcs --standard=phpcs.xml.dist theme/
+Exit code: 0

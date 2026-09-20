@@ -1,0 +1,10 @@
+{
+  "source": "released-candidate ZIP on isolated staging",
+  "viewport": 390,
+  "open": true,
+  "close": true,
+  "navigate": "http://localhost:8083/termine/",
+  "httpStatus": 200,
+  "heading": "Termine",
+  "javascriptErrors": []
+}

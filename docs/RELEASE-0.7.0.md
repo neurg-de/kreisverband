@@ -41,6 +41,8 @@ Es wurde keine Live-Installation verändert und keine Nachricht an Dritte versen
   größeren Diff. Drei generierte Sass-Dateien und ausschließlich der moderne
   Karten-Generator-JavaScriptcode sind begründet von PHPCS ausgenommen;
   Sass-Build, Node-Syntaxprüfung und Verhaltenstests prüfen diese Dateien.
+  Bei den statischen HTML-Demovorlagen ist ausschließlich die PHP-Parsermeldung
+  „kein PHP-Code gefunden“ ausgenommen; alle tatsächlichen Regeln bleiben aktiv.
 - Der ZIP-Build prüft alle vier Versionsangaben und die Verzeichnisstruktur.
   Das Theme startet auch ohne die absichtlich nicht ausgelieferte Demo-Datei
   bei `WP_DEBUG=true`. CI prüft PHP, PHPUnit, PHPCS, JavaScript und ZIP-Build.
@@ -70,6 +72,11 @@ Getestet wird mit PHP 8.3.31, WordPress 6.9.4 und separaten Testdatenbanken:
   Hier wird das ZIP regulär installiert, ohne Bind-Mount zum Quellverzeichnis.
 - Lokaler Mail-Interceptor verhindert sämtliche externen Testmails.
 
+Die erste GitHub-Prüfung bestand PHPUnit, PHP-Syntax und ZIP-Build; PHPCS meldete
+wegen deaktivierter PHP-Kurztags die zwölf reinen HTML-Demovorlagen. Die präzise
+Parser-Ausnahme wurde mit derselben PHP-Einstellung nachgeprüft, ohne Theme-Dateien
+oder das bereits geprüfte ZIP zu verändern.
+
 Die tatsächlichen Befehlsausgaben stehen unter [validation/](validation/).
 Baseline-Dateien dokumentieren absichtlich den fehlerhaften Zustand vor der
 Korrektur; maßgeblich sind die abschließenden Ergebnisse. Temporäre Test-Nonces
@@ -80,6 +87,7 @@ werden in gespeicherten Fehlermeldungen geschwärzt.
 | PHPUnit: **97 Tests, 413 Assertions, PASS** | [phpunit-final.txt](validation/phpunit-final.txt) |
 | `make phpcs`: **0 Fehler, 0 Warnungen** | [phpcs-full.txt](validation/phpcs-full.txt) |
 | PHP- und JavaScript-Syntax | [php-syntax.txt](validation/php-syntax.txt), [javascript-syntax.txt](validation/javascript-syntax.txt) |
+| Mobile Hauptnavigation im installierten ZIP: **PASS, 390 px, Ziel HTTP 200** | [stage-mobile-navigation.json](validation/stage-mobile-navigation.json) |
 | Sass / `make zip` | [css-build.txt](validation/css-build.txt), [build.txt](validation/build.txt) |
 | Authentifizierte HTTP-Lebenszyklen und Zuständigkeiten | [http-lifecycle.txt](validation/http-lifecycle.txt) |
 | Alle konfigurierten Gemeinden: direkte Route, HTTP-Status, OV-Kontext | [http-map-routes.json](validation/http-map-routes.json) |

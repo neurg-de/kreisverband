@@ -34,6 +34,13 @@
     <config name="testVersion" value="8.1-"/>
     <rule ref="PHPCompatibilityWP"/>
 
+    <!-- These static HTML partials deliberately contain no PHP. PHPCS emits
+         this parser warning only when short_open_tag is disabled (as in CI).
+         Keep all actual coding/security rules enabled for the same files. -->
+    <rule ref="Internal.NoCodeFound">
+        <exclude-pattern>*/template-parts/kitchen-sink/*.php</exclude-pattern>
+    </rule>
+
     <!-- Set text domain -->
     <config name="text_domain" value="neurg-kreisverband"/>
     <config name="minimum_wp_version" value="6.4"/>

@@ -49,7 +49,9 @@ PHPCS checks PHP and the compatible source assets. Three generated minified Sass
 outputs are checked through the Sass build. The map generator's modern JavaScript
 is excluded from PHPCS 3 because its tokenizer corrupts template literals and
 modern operators; `make js-check` checks every JavaScript file, and browser smoke
-tests cover the generator and map behavior.
+tests cover the generator and map behavior. The parser-only `Internal.NoCodeFound`
+warning is excluded for the static HTML kitchen-sink partials; those files
+intentionally contain no PHP. All actual coding/security rules remain enabled.
 
 `bin/smoke-local.py` exercises authenticated WordPress REST requests against an
 isolated loopback demo site with synthetic accounts and `gk_seed_all()` data.
