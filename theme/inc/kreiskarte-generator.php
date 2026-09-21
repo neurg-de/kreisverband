@@ -257,7 +257,7 @@ function gk_ajax_update_kreiskarte_mappings() {
 
             // Link field only for the 'link' type.
             if ( 'link' === $type ) {
-                $link = esc_url_raw( $m['link'] ?? '' );
+                $link = gk_public_website_url( $m['link'] ?? '' );
                 if ( $link ) {
                     $muni['link'] = $link;
                 } else {

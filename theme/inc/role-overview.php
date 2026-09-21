@@ -52,6 +52,44 @@ function gk_register_role_overview() {
 }
 add_action( 'admin_menu', 'gk_register_role_overview' );
 
+/**
+ * Read actual object capabilities for an OV account without changing its login.
+ *
+ * @param WP_User $user Account to inspect.
+ * @return array Capability results and counts, without private content.
+ */
+function gk_ov_access_report( $user ) {
+    $scope = gk_user_scope( $user );
+    if ( ! $scope || ! array_intersect( array( 'gk_ovadmin', 'gk_ovautor' ), $user->roles ) ) {
+        return array();
+    }
+    $report = array(
+        'upload'           => user_can( $user, 'upload_files' ),
+        'page_templates'   => user_can( $user, 'edit_pages' ),
+        'global_design'    => user_can( $user, 'edit_theme_options' ),
+        'global_settings'  => user_can( $user, 'manage_options' ),
+        'own_editable'     => 0,
+        'foreign_editable' => 0,
+        'checked'          => 0,
+    );
+    $ids    = get_posts(
+        array(
+			'post_type'      => gk_scoped_post_types(),
+			'post_status'    => array( 'publish', 'draft', 'pending', 'private', 'future', 'inherit' ),
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+        )
+    );
+    foreach ( $ids as $id ) {
+        ++$report['checked'];
+        if ( user_can( $user, 'edit_post', $id ) ) {
+            $key = gk_object_in_scope( $id, $user ) ? 'own_editable' : 'foreign_editable';
+            ++$report[ $key ];
+        }
+    }
+    return $report;
+}
+
 /** Show only login, theme role and responsibility; no email or credential fields. */
 function gk_render_role_overview() {
     if ( ! gk_can_manage_editorial_roles() ) {
@@ -93,6 +131,25 @@ function gk_render_role_overview() {
             echo '</form>';
         }
         echo '</td></tr>';
+        if ( $scope && array_intersect( array( 'gk_ovadmin', 'gk_ovautor' ), $user->roles ) ) {
+            echo '<tr><td colspan="4"><details><summary>' . esc_html__( 'Tatsächliche OV-Rechte prüfen', 'neurg-kreisverband' ) . '</summary>';
+            $report = gk_ov_access_report( $user );
+            $labels = array(
+                'upload'           => __( 'Medien hochladen', 'neurg-kreisverband' ),
+                'page_templates'   => __( 'Seitenvorlagen verwenden', 'neurg-kreisverband' ),
+                'global_design'    => __( 'Globales Design bearbeiten', 'neurg-kreisverband' ),
+                'global_settings'  => __( 'Globale Einstellungen bearbeiten', 'neurg-kreisverband' ),
+                'own_editable'     => __( 'Bearbeitbare eigene Inhalte', 'neurg-kreisverband' ),
+                'foreign_editable' => __( 'Bearbeitbare fremde Inhalte (erwartet: 0)', 'neurg-kreisverband' ),
+                'checked'          => __( 'Geprüfte Inhalte', 'neurg-kreisverband' ),
+            );
+            echo '<ul>';
+            foreach ( $report as $key => $value ) {
+                $display = is_bool( $value ) ? ( $value ? __( 'Ja', 'neurg-kreisverband' ) : __( 'Nein', 'neurg-kreisverband' ) ) : (string) $value;
+                echo '<li>' . esc_html( $labels[ $key ] . ': ' . $display ) . '</li>';
+            }
+            echo '</ul></details></td></tr>';
+        }
     }
     echo '</tbody></table></div>';
 }

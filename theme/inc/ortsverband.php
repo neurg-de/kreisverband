@@ -201,8 +201,19 @@ function gk_public_website_url( $value ) {
     if ( ! is_string( $value ) ) {
         return '';
     }
-    $url = esc_url_raw( trim( $value ), array( 'http', 'https' ) );
-    return wp_parse_url( $url, PHP_URL_HOST ) ? $url : '';
+    $value = trim( $value );
+    if ( ! preg_match( '~^https?://~i', $value ) || preg_match( '/\s/', $value ) ) {
+        return '';
+    }
+    $parts = wp_parse_url( $value );
+    if ( ! $parts || empty( $parts['host'] ) || isset( $parts['user'] ) || isset( $parts['pass'] ) || str_ends_with( $value, '#' ) ) {
+        return '';
+    }
+    $host = strtolower( rtrim( $parts['host'], '.' ) );
+    if ( preg_match( '/^(www\.)?example\.(com|org|net)$/', $host ) || ! str_contains( $host, '.' ) ) {
+        return '';
+    }
+    return esc_url_raw( $value, array( 'http', 'https' ) );
 }
 
 /**
@@ -236,12 +247,115 @@ add_action( 'init', 'gk_register_public_contact_meta' );
  * @param int $term_id Term id.
  */
 function gk_get_ov_url( $term_id ) {
+    $term = get_term( $term_id, 'gk_zuordnung' );
+    if ( ! $term || is_wp_error( $term ) || 'kreisverband' === $term->slug ) {
+        return '';
+    }
+    $map          = gk_get_kreiskarte_data();
+    $municipality = $map['municipalities'][ $term->slug ] ?? array();
+    if ( 'link' === ( $municipality['type'] ?? '' ) ) {
+        $external = gk_public_website_url( $municipality['link'] ?? '' );
+        if ( $external ) {
+            return $external;
+        }
+    }
     $page_id = gk_get_ov_public_homepage_id( $term_id );
     if ( $page_id ) {
         return get_permalink( $page_id );
     }
     return 'werbung' === gk_get_ov_type( $term_id ) ? '' : gk_public_website_url( get_term_meta( $term_id, '_gk_contact_www', true ) );
 }
+
+/**
+ * Public navigation always offers an OV page, website or useful information.
+ *
+ * @param int $term_id OV term ID.
+ * @return string Navigation URL.
+ */
+function gk_get_ov_navigation_url( $term_id ) {
+    $term = get_term( $term_id, 'gk_zuordnung' );
+    if ( ! $term || is_wp_error( $term ) || 'kreisverband' === $term->slug ) {
+        return '';
+    }
+    $url = gk_get_ov_url( $term_id );
+    return $url ? $url : gk_ov_info_url( $term->slug );
+}
+
+/**
+ * Link to a server-rendered information page; also works without JavaScript.
+ *
+ * @param string $slug OV or municipality slug.
+ * @return string URL.
+ */
+function gk_ov_info_url( $slug ) {
+    return add_query_arg( 'gk_ov_info', sanitize_title( $slug ), home_url( '/' ) );
+}
+
+/**
+ * Resolve the enclosing OV before nested person queries change global state.
+ *
+ * @return string OV slug or empty for a general overview.
+ */
+function gk_embedded_ov_context() {
+    $slug = get_query_var( 'gk_ov_context' );
+    if ( ! $slug ) {
+        $slug = gk_get_post_zuordnung_slug( get_the_ID() );
+    }
+    if ( ! $slug && is_singular() ) {
+        $slug = gk_get_post_zuordnung_slug( get_queried_object_id() );
+    }
+    return $slug && 'kreisverband' !== $slug ? $slug : '';
+}
+
+/**
+ * Register the fallback page without requiring a permalink flush.
+ *
+ * @param string[] $vars Public query variables.
+ * @return string[] Query variables.
+ */
+function gk_register_ov_info_query_var( $vars ) {
+    $vars[] = 'gk_ov_info';
+    return $vars;
+}
+add_filter( 'query_vars', 'gk_register_ov_info_query_var' );
+
+/** Return validated fallback context, never arbitrary user-provided names. */
+function gk_ov_info_context() {
+    $slug = get_query_var( 'gk_ov_info' );
+    if ( ! is_string( $slug ) || ! $slug ) {
+        return null;
+    }
+    $term         = gk_get_ov_term( $slug );
+    $map          = gk_get_kreiskarte_data();
+    $municipality = $map['municipalities'][ $slug ] ?? null;
+    return $term || $municipality ? array(
+		'name' => $term ? $term->name : $municipality['name'],
+		'term' => $term,
+	) : null;
+}
+
+/**
+ * Serve the information page for configured municipalities only.
+ *
+ * @param string $template Current template.
+ * @return string Template path.
+ */
+function gk_ov_info_template( $template ) {
+    return gk_ov_info_context() ? GK_DIR . '/page-ov-info.php' : $template;
+}
+add_filter( 'template_include', 'gk_ov_info_template', 99 );
+
+/**
+ * Name the information page in the browser tab.
+ *
+ * @param string $title Existing document title.
+ * @return string Public document title.
+ */
+function gk_ov_info_document_title( $title ) {
+    $context = gk_ov_info_context();
+    return $context ? $context['name'] . ' – ' . __( 'Kontakt', 'neurg-kreisverband' ) . ' – ' . get_bloginfo( 'name' ) : $title;
+}
+add_filter( 'pre_get_document_title', 'gk_ov_info_document_title', 20 );
 
 /**
  * Resolve an explicit homepage or a published legacy page at the OV slug.
@@ -706,12 +820,15 @@ function gk_shortcode_ortsverband_liste( $atts ) {
 			continue;
         }
 
-        $link = gk_get_ov_url( $term->term_id );
+        $link = gk_get_ov_navigation_url( $term->term_id );
 		?>
         <li class="ov-liste-item ov-mode-<?php echo esc_attr( $type ); ?>">
         <?php if ( $link ) : ?>
             <a href="<?php echo esc_url( $link ); ?>">
                 <?php echo esc_html( $term->name ); ?>
+                <?php if ( str_contains( $link, 'gk_ov_info=' ) ) : ?>
+                    <em><?php esc_html_e( 'Im Aufbau', 'neurg-kreisverband' ); ?></em>
+                <?php endif; ?>
             </a>
         <?php else : ?>
             <span class="ov-placeholder">

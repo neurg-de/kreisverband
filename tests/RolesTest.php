@@ -1,6 +1,46 @@
 <?php
 /** Role capability regression tests. */
 class RolesTest extends WP_UnitTestCase {
+    public function test_ov_admin_can_use_page_templates_and_patterns_within_scope() {
+        $term = self::factory()->term->create( array( 'taxonomy' => 'gk_zuordnung', 'slug' => 'ov-layout' ) );
+        $user = self::factory()->user->create( array( 'role' => 'gk_ovadmin', 'user_login' => 'ov-layout' ) );
+        $own = self::factory()->post->create( array( 'post_type' => 'page' ) );
+        $foreign = self::factory()->post->create( array( 'post_type' => 'page' ) );
+        wp_set_object_terms( $own, array( $term ), 'gk_zuordnung' );
+        wp_set_current_user( $user );
+        $this->assertTrue( current_user_can( 'edit_pages' ) );
+        foreach ( array( 'page-OV.php', 'page-OVsubpages.php' ) as $template ) {
+            $request = new WP_REST_Request( 'POST', '/wp/v2/pages/' . $own );
+            $request->set_param( 'template', $template );
+            $this->assertSame( 200, rest_do_request( $request )->get_status() );
+            $this->assertSame( $template, get_page_template_slug( $own ) );
+            $request = new WP_REST_Request( 'POST', '/wp/v2/pages/' . $foreign );
+            $request->set_param( 'template', $template );
+            $this->assertSame( 403, rest_do_request( $request )->get_status() );
+        }
+        foreach ( array( 'introduction', 'priorities', 'participation' ) as $pattern ) {
+            $this->assertTrue( WP_Block_Patterns_Registry::get_instance()->is_registered( 'gk/' . $pattern ) );
+        }
+        $this->assertFalse( current_user_can( 'edit_theme_options' ) );
+        $report = gk_ov_access_report( wp_get_current_user() );
+        $this->assertTrue( $report['upload'] );
+        $this->assertTrue( $report['page_templates'] );
+        $this->assertGreaterThanOrEqual( 1, $report['own_editable'] );
+        $this->assertSame( 0, $report['foreign_editable'] );
+        $this->assertFalse( $report['global_settings'] );
+    }
+    public function test_upgrade_repairs_legacy_upload_capabilities_without_global_access() {
+        foreach ( array( 'gk_ovadmin', 'gk_ovautor' ) as $name ) {
+            get_role( $name )->remove_cap( 'upload_files' );
+        }
+        gk_upgrade_editorial_roles();
+        foreach ( array( 'gk_ovadmin', 'gk_ovautor' ) as $name ) {
+            $role = get_role( $name );
+            $this->assertTrue( $role->has_cap( 'upload_files' ) );
+            $this->assertFalse( $role->has_cap( 'edit_theme_options' ) );
+            $this->assertFalse( $role->has_cap( 'manage_options' ) );
+        }
+    }
     public function set_up(): void {
         parent::set_up();
         gk_upgrade_editorial_roles();

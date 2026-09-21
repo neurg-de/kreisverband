@@ -7,6 +7,36 @@
 
 /** Regression coverage for public OV configuration. */
 class OrtsverbandTest extends WP_UnitTestCase {
+    public function test_fallback_page_uses_configured_contact_and_rejects_unknown_places() {
+        $id = $this->ov();
+        $term = get_term( $id );
+        update_option( 'gk_kv_info', array( 'email' => 'kontakt@example.org', 'phone' => '01234 567890' ) );
+        $this->go_to( gk_ov_info_url( $term->slug ) );
+        $this->assertSame( $term->name, gk_ov_info_context()['name'] );
+        $this->assertStringContainsString( $term->name, gk_ov_info_document_title( '' ) );
+        ob_start();
+        include GK_DIR . '/page-ov-info.php';
+        $html = ob_get_clean();
+        $this->assertStringContainsString( 'mailto:kontakt@example.org', $html );
+        $this->assertStringContainsString( 'tel:01234567890', $html );
+        $this->go_to( gk_ov_info_url( 'not-a-configured-place' ) );
+        $this->assertNull( gk_ov_info_context() );
+    }
+    public function test_public_website_rejects_placeholders_and_malformed_urls() {
+        foreach ( array( '#', 'https://example.com/', 'https://www.example.com/path', 'https://example.org/', 'https://example.net/', 'javascript:alert(1)', '//www.gruene.de/', 'https://', 'https://user:password@www.gruene.de/', 'https://www.gruene.de/#' ) as $url ) {
+            $this->assertSame( '', gk_public_website_url( $url ), $url );
+        }
+        $this->assertSame( 'https://www.gruene.de/', gk_public_website_url( 'https://www.gruene.de/' ) );
+    }
+
+    public function test_municipality_without_page_has_a_useful_consistent_target() {
+        $data = gk_get_kreiskarte_data();
+        $slug = array_key_first( $data['municipalities'] );
+        $url = gk_get_municipality_url( $slug, $data['municipalities'][ $slug ], array() );
+        $this->assertNotEmpty( $url );
+        $this->assertStringContainsString( 'gk_ov_info=', $url );
+        $this->assertStringContainsString( esc_url( $url ), gk_render_kreiskarte_responsive() );
+    }
     /**
      * Create an OV fixture.
      *
@@ -435,8 +465,12 @@ class OrtsverbandTest extends WP_UnitTestCase {
                 $this->assertSame( $url, $node->getAttribute( 'href' ) );
             }
         }
-        $this->assertSame( 0, $xpath->query( '//a[@data-ov-slug="' . $slugs[2] . '"]' )->length );
-        $placeholder = $xpath->query( '//div[@data-ov-slug="' . $slugs[2] . '"]' )->item( 0 );
+        $fallbacks = $xpath->query( '//a[@data-ov-slug="' . $slugs[2] . '"]' );
+        $this->assertSame( 2, $fallbacks->length );
+        foreach ( $fallbacks as $fallback ) {
+            $this->assertSame( gk_ov_info_url( $slugs[2] ), $fallback->getAttribute( 'href' ) );
+        }
+        $placeholder = $fallbacks->item( 0 );
         $this->assertNotNull( $placeholder );
         // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMNode provides this standard read-only property.
         $this->assertStringContainsString( 'Im Aufbau', $placeholder->textContent );
@@ -482,14 +516,14 @@ class OrtsverbandTest extends WP_UnitTestCase {
         $this->assertInstanceOf( WP_Term::class, get_term( $foreign, 'gk_zuordnung' ) );
     }
     /**
-     * Map-only external targets are validated and inactive types remain inert.
+     * Map-only external targets are validated; missing targets offer information.
      */
     public function test_map_configuration_rejects_unsafe_and_inactive_targets() {
         $this->assertSame( 'ov', gk_municipality_link_type( home_url( '/ov-fixture/' ), 'link' ) );
         $this->assertSame( 'link', gk_municipality_link_type( 'https://external.example.org/', 'ov' ) );
         $this->assertSame( 'werbung', gk_municipality_link_type( '', 'ov' ) );
         $this->assertSame(
-            '',
+            gk_ov_info_url( 'fixture' ),
             gk_get_municipality_url(
                 'fixture',
                 array(
@@ -524,7 +558,7 @@ class OrtsverbandTest extends WP_UnitTestCase {
         foreach ( array( 'keine', 'werbung' ) as $type ) {
             $this->assertSame( get_permalink( $page ), gk_get_municipality_url( $slug, array( 'type' => $type ), $ov_data ) );
             $this->assertSame(
-                '',
+                gk_ov_info_url( 'fixture' ),
                 gk_get_municipality_url(
                     'fixture',
                     array(

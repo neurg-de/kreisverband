@@ -4,7 +4,7 @@ Contributors: severinkistner
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.7.0
+Stable tag: 0.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,13 @@ Als Administrator unter Verband einen Ortsverband anlegen und eine lokale Starts
 Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Theme integriert.
 
 == Changelog ==
+
+= 0.7.1 =
+* Gemeinden ohne Website erhalten eine erreichbare Informationsseite mit Kontaktmöglichkeit.
+* Explizite externe Kartenziele, OV-Liste und Dialog nutzen konsistente Navigation; Platzhalter werden verworfen.
+* Eingebettete Personenlisten berücksichtigen automatisch den umgebenden OV.
+* Bestehende OV-Rollen erhalten fehlende Upload-Rechte beim Update nachgetragen.
+* Inhaltsvorlagen und Gestaltungshilfe sind ohne globale Designrechte erreichbar.
 
 = 0.7.0 =
 * Rollen- und Bereichsprüfung für Redaktion und Medien; geschützter Papierkorb.

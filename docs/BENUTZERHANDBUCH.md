@@ -1,8 +1,8 @@
 # Benutzerhandbuch für Redaktion und Administration
 
-**Neurg Kreisverband · Release 0.7.0 · Stand: 20. September 2026**
+**Neurg Kreisverband · Release 0.7.1 · Stand: 22. September 2026**
 
-Dieses Handbuch erklärt die Arbeit mit der Website des Kreisverbands und seiner Ortsverbände. Es beschreibt den Quellcode für Release 0.7.0. Es bestätigt weder eine Installation auf der Live-Website noch die dortige Einrichtung von Seiten, E-Mail-Versand, Plugins oder Benutzerkonten. Vor dem Einsatz sind die Abläufe auf einer Testkopie mit den tatsächlich vergebenen Rechten zu prüfen.
+Dieses Handbuch erklärt die Arbeit mit der Website des Kreisverbands und seiner Ortsverbände. Es beschreibt den Quellcode für Release 0.7.1. Es bestätigt weder eine Installation auf der Live-Website noch die dortige Einrichtung von Seiten, E-Mail-Versand, Plugins oder Benutzerkonten. Vor dem Einsatz sind die Abläufe auf einer Testkopie mit den tatsächlich vergebenen Rechten zu prüfen.
 
 Die beschriebenen bereichsübergreifenden Redaktionsaufgaben setzen die Rolle **„KV-Autor (mit OV-Zugang)“ (`gk_kvautor_ov`)** voraus. Die tatsächlich zugewiesene Rolle prüft die Administration. Für die tägliche Redaktion sind keine Administratorrechte erforderlich. Änderungen an globalen Einstellungen, Benutzerkonten oder der technischen Installation übernimmt die Administration.
 
@@ -65,7 +65,7 @@ Die folgende Matrix beschreibt die Theme-Rollen nach der Aktualisierung auf 0.7.
 | Kreiskarte erzeugen, Medienmigration, Theme-Rollenübersicht | ja | nein | nein | nein | nein |
 | Plugins, Updates, Backups, Benutzerverwaltung | Administration | nein | nein | nein | nein |
 
-**OV-Admin ist kein WordPress-Administrator:** In 0.7.0 erhalten die eingeschränkten Theme-Rollen kein `edit_theme_options`; das Rollenupgrade entfernt dieses frühere Recht auch von bestehenden Theme-Rollen. Dadurch bleiben globale Einstellungen, Customizer und der WordPress-Menüeditor bei der Administration. Der OV-Admin kann weiterhin die angebotenen Einstellungen seines eigenen OVs unter **Verband** bearbeiten. Änderungen an Menüs oder Vorlagen lässt auch er durch die Administration vornehmen.
+**OV-Admin ist kein WordPress-Administrator:** In 0.7.0 erhalten die eingeschränkten Theme-Rollen kein `edit_theme_options`; das Rollenupgrade entfernt dieses frühere Recht auch von bestehenden Theme-Rollen. Dadurch bleiben globale Einstellungen, Customizer und der WordPress-Menüeditor bei der Administration. Der OV-Admin kann weiterhin die angebotenen Einstellungen seines eigenen OVs unter **Verband** bearbeiten. Globale Menüs bearbeitet die Administration. Seitenvorlagen kann der OV-Admin auf seinen berechtigten Seiten selbst auswählen. Unter **Seiten → Vorlagen & Gestaltung** findet er eine Anleitung; im Blockeditor stehen unter **Vorlagen → Verband: Inhalte** drei anpassbare Inhaltsvorlagen bereit.
 
 **Medienauswahl ist nicht gleich Bearbeitungsrecht:** OV-Autoren können Medien ihres Bereichs auch dann zur Auswahl sehen, wenn andere Personen sie hochgeladen haben. Das Bearbeiten fremder Medien kann dennoch an den engeren Autorenrechten scheitern. Die Geschäftsstelle kann bereichsübergreifend auswählen und bearbeiten.
 
@@ -141,9 +141,11 @@ Seiten enthalten länger gültige Informationen, etwa Kontakt, Mitmachen und OV-
 4. Entwurf speichern und Vorschau öffnen. Eine OV-Unterseite kann ihr Layout durch die übergeordnete OV-Seite erhalten.
 5. Veröffentlichen beziehungsweise aktualisieren. Für die Aufnahme ins Menü der Administration Seiten-URL, gewünschte Beschriftung und Position mitteilen.
 
-### Vorlagen – Auswahl mit der Administration abstimmen
+### Seitenvorlagen und Inhaltsvorlagen verwenden
 
-Eine *Vorlage* beziehungsweise ein *Template* bestimmt das Layout. Vorlagenwechsel können zusätzliche Rechte verlangen und die Darstellung stark ändern. Die Geschäftsstelle bearbeitet die Inhalte; die Administration wählt nötigenfalls die Vorlage in den Seiteneinstellungen und prüft das Ergebnis.
+Eine *Seitenvorlage* beziehungsweise ein *Template* bestimmt das Layout. Auf einer bearbeitbaren Seite lässt sie sich rechts in den Seiteneinstellungen unter **Template** auswählen. OV-Admins können so **OV-Startseite** und **OV-Unterseite** verwenden. Vor dem Veröffentlichen die Vorschau prüfen.
+
+*Inhaltsvorlagen* fügen bearbeitbare Blöcke ein: Über das Plus-Zeichen im Editor unter **Vorlagen → Verband: Inhalte** stehen **Vorstellung mit Bild und Text**, **Unsere Themen** und **Mitmachen und Kontakt** bereit. Texte und Bilder anschließend durch eigene Inhalte ersetzen. Das verleiht keine Rechte an globalem Design oder fremden Seiten.
 
 | Vorlage im Theme | Verwendung |
 |---|---|
@@ -184,7 +186,7 @@ Die KV-Stammdaten liegen unter **KV-Setup**: Name, Kurzname, Anschrift, öffentl
 4. Bei lokaler Website eine passende veröffentlichte Seite als **Startseite** zuweisen. Bei externer Website unter **Kontaktdaten → Website** die vollständige HTTP-/HTTPS-Adresse eintragen und aufrufen.
 5. Öffentliche Kontakt-E-Mail, Telefon, Anschrift und freigegebene Social-Media-Profile ergänzen. Zugangsdaten gehören in keines dieser Felder.
 6. Speichern; anschließend gegebenenfalls Impressum und Datenschutz nach Abschnitt 10 auswählen.
-7. Die öffentliche OV-Liste und die Kreiskarte getrennt prüfen. Die Karte kann eigene Link-Zuordnungen besitzen.
+7. Die öffentliche OV-Liste und die Kreiskarte prüfen. Ein ausdrücklich konfiguriertes externes Kartenziel gilt für beide.
 
 ### Welches Linkziel erscheint?
 
@@ -192,16 +194,17 @@ Für `[ortsverband_liste]` gilt:
 
 | Vorhandene Konfiguration | Ausgabe |
 |---|---|
-| veröffentlichte, nicht passwortgeschützte lokale Homepage | Link zur lokalen Homepage |
+| ausdrücklich als externer Kartenlink konfigurierte gültige Website | Link zu dieser Website |
+| sonst veröffentlichte, nicht passwortgeschützte lokale Homepage | Link zur lokalen Homepage |
 | keine nutzbare lokale Homepage, gültige externe Website | Link zur externen Website aus dem OV-Kontaktfeld |
-| weder lokale Homepage noch gültige externe Website | Name ohne irreführenden Homepage-Link |
-| Typ `werbung` ohne nutzbare lokale Homepage | Name mit **Im Aufbau**, ohne normalen OV-Link |
+| weder lokale Homepage noch gültige externe Website | Informationsseite mit Kontaktmöglichkeit |
+| Typ `werbung` ohne nutzbare lokale Homepage | **Im Aufbau**, mit Link zur Informationsseite |
 
-Eine nur als Entwurf vorhandene Homepage hat keinen Vorrang vor einer gültigen externen Website. Der Altwert `full` wird als `ov` behandelt. Das OV-Verzeichnis öffnet seine Links im selben Fenster. Auch die Namenslinks in `[gliederungen]` und `[arbeitsgemeinschaften]` verwenden die Auflösung lokale Homepage vor externer Website. Eine veröffentlichte lokale Homepage hat auch bei alten Typangaben wie `werbung` Vorrang; ohne solche Homepage bleibt `werbung` im Aufbau. Zusätzliche Kontakt-Website-Symbole dieser älteren Ansichten separat prüfen.
+Eine nur als Entwurf vorhandene Homepage hat keinen Vorrang vor einer gültigen externen Website. Der Altwert `full` wird als `ov` behandelt. Das OV-Verzeichnis öffnet seine Links im selben Fenster. Auch die Namenslinks in `[gliederungen]` und `[arbeitsgemeinschaften]` verwenden dieselbe Auflösung. Eine veröffentlichte lokale Homepage wird auch bei alten Typangaben wie `werbung` erkannt; ohne solche Homepage bleibt `werbung` im Aufbau und bietet eine Informationsseite. Zusätzliche Kontakt-Website-Symbole dieser älteren Ansichten separat prüfen.
 
 Vorhandene veröffentlichte Seiten unter dem OV-Slug, beispielsweise `/ov-beispielort/`, werden auch ohne ältere Startseiten-Zuweisung erkannt, wenn sie diesem OV zugeordnet sind. Eine unzugeordnete Altseite muss dafür die Vorlage **OV-Startseite** besitzen. Die ausdrückliche Startseiten-Auswahl bleibt der übersichtlichste Einrichtungsweg; eine fremd zugeordnete Seite wird nicht anhand ihres Namens übernommen.
 
-Karte und mobile Gemeindeliste verwenden dieselbe Zielauflösung. Ein aktuelles nutzbares OV-Ziel hat Vorrang vor veralteten Typangaben in der Karte. Erst wenn es kein OV-Ziel gibt, wird ein ausdrücklich konfigurierter eigener Kartenlink verwendet. „Im Aufbau“ bleibt ohne Link. Auf kleinen Bildschirmen öffnet ein Antippen der Karte zunächst die Gemeindeansicht; deren Button führt zum OV. Mit Escape lässt sich diese Ansicht schließen, der Fokus kehrt zum Ausgangspunkt zurück.
+Karte und mobile Gemeindeliste verwenden dieselbe Zielauflösung. Ein ausdrücklich konfigurierter gültiger externer Kartenlink hat Vorrang. Andernfalls wird die veröffentlichte interne OV-Seite oder die gültige externe Kontakt-Website verwendet. „Im Aufbau“ führt zu einer Informationsseite: Sie zeigt den OV-Kontakt oder ersatzweise den Kontakt der Geschäftsstelle. Diese Kontaktdaten müssen in der Installation gepflegt sein. Leere Ziele, `#` und Platzhalter wie `example.com` werden nicht als Website übernommen. Auf kleinen Bildschirmen öffnet ein Antippen der Karte zunächst die Gemeindeansicht; deren Button führt zum OV. Mit Escape lässt sich diese Ansicht schließen, der Fokus kehrt zum Ausgangspunkt zurück.
 
 ### Gemeinde anklicken funktioniert nicht, direkte OV-Adresse schon
 
@@ -487,10 +490,10 @@ Ein *Shortcode* ist ein Platzhalter in eckigen Klammern. Im Blockeditor dafür d
 | `[personenliste slug="vorstand"]` | Alias von `[abteilung]`, gleiche Attribute |
 | `[vorstand]`, `[team]`, `[glv]`, `[mandate]`, `[landesliste]`, `[kontakt]` | ältere Personenansichten; `person="12,34"`, `slug` und `abteilung` werden angenommen; `slug` hat Vorrang vor `abteilung`. Sortierung nach älteren Positionsfeldern, kein eigenes `zuordnung`-Attribut; neue Bereichslisten vorzugsweise mit `[abteilung]` erstellen |
 | `[ortsverband_liste]` | `mode="ov"`, `mode="ortsgruppe"` oder `mode="werbung"`; leer = alle; `full` wird als alter Wert für `ov` erkannt |
-| `[gliederungen]` | `type` filtert den OV-Typ (`full` als Altwert für `ov`); Kontakt- und Social-Links; Namenslink zur lokalen Homepage, sonst zur externen Website |
-| `[arbeitsgemeinschaften]` | `type` filtert ebenfalls OV-Begriffe (`full` als Altwert für `ov`); keine eigene Arbeitsgemeinschaften-Datenbank; Namenslink zur lokalen Homepage, sonst zur externen Website |
+| `[gliederungen]` | `type` filtert den OV-Typ (`full` als Altwert für `ov`); Kontakt- und Social-Links; Namenslink mit gemeinsamer Auflösung einschließlich Informationsseite |
+| `[arbeitsgemeinschaften]` | `type` filtert ebenfalls OV-Begriffe (`full` als Altwert für `ov`); keine eigene Arbeitsgemeinschaften-Datenbank; Namenslink mit gemeinsamer Auflösung einschließlich Informationsseite |
 
-`[kontakt]` zeigt Personenkontakte, **kein Kontaktformular**. Bei `[abteilung]` bedeutet leeres `zuordnung` eine bereichsübergreifende Liste mit möglichen OV-Filterreitern. Auch `zuordnung="kreisverband"` setzt in dieser Personenfunktion keinen strengen Nur-KV-Filter; das ist anders als bei Terminen. Für die Liste eines konkreten OVs den echten OV-Slug setzen. `limit` begrenzt die Gesamtmenge vor der Anzeige der Reiter.
+`[kontakt]` zeigt Personenkontakte, **kein Kontaktformular**. Auf OV-Seiten berücksichtigen `[abteilung]`, `[personenliste]` und die älteren Personen-Shortcodes automatisch den umgebenden OV. Außerhalb von OV-Seiten bedeutet bei `[abteilung]` leeres `zuordnung` eine bereichsübergreifende Liste mit möglichen OV-Filterreitern. Auch `zuordnung="kreisverband"` setzt in dieser Personenfunktion keinen strengen Nur-KV-Filter; das ist anders als bei Terminen. Für die Liste eines konkreten OVs den echten OV-Slug setzen. `limit` begrenzt die Gesamtmenge vor der Anzeige der Reiter.
 
 ### Termine, Anfragen, Karte und Spenden
 

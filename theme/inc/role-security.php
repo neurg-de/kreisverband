@@ -70,6 +70,7 @@ function gk_upgrade_editorial_roles() {
     gk_register_roles();
     foreach ( gk_editorial_roles() as $name ) {
         $role = get_role( $name );
+        $role->add_cap( 'upload_files' );
         $role->add_cap( 'delete_published_posts' );
         $role->remove_cap( 'edit_theme_options' );
         if ( in_array( $name, array( 'gk_kvautor_ov', 'gk_ovadmin' ), true ) ) {
@@ -78,12 +79,12 @@ function gk_upgrade_editorial_roles() {
             }
         }
     }
-    update_option( 'gk_editorial_roles_version', '2', false );
+    update_option( 'gk_editorial_roles_version', '3', false );
 }
 
 /** Apply upgrade once on existing installations as well as activation. */
 function gk_maybe_upgrade_editorial_roles() {
-    if ( '2' !== get_option( 'gk_editorial_roles_version' ) ) {
+    if ( '3' !== get_option( 'gk_editorial_roles_version' ) ) {
         gk_upgrade_editorial_roles();
     }
 }
