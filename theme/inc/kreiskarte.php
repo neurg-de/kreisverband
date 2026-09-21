@@ -293,7 +293,7 @@ function gk_get_ov_terms_by_slug() {
 
     foreach ( $ov_terms as $term ) {
         $homepage_id  = gk_get_ov_public_homepage_id( $term->term_id );
-        $homepage_url = gk_get_ov_url( $term->term_id );
+        $homepage_url = gk_get_ov_navigation_url( $term->term_id );
 
         $terms[ $term->slug ] = (object) array(
             'term'         => $term,
@@ -318,14 +318,17 @@ function gk_get_ov_terms_by_slug() {
 function gk_get_municipality_url( $slug, $municipality, $ov_data ) {
     $type = $municipality['type'] ?? 'ov';
     $ov   = $ov_data[ $slug ] ?? null;
+    if ( 'link' === $type ) {
+        $external = gk_public_website_url( $municipality['link'] ?? '' );
+        if ( $external ) {
+            return $external;
+        }
+    }
     // Current published OV pages/contact targets take precedence over old map flags.
     if ( $ov && $ov->homepage_url ) {
         return $ov->homepage_url;
     }
-    if ( in_array( $type, array( 'keine', 'werbung' ), true ) || ( $ov && 'werbung' === $ov->type ) ) {
-        return '';
-    }
-    return 'link' === $type ? gk_public_website_url( $municipality['link'] ?? '' ) : '';
+    return gk_ov_info_url( $slug );
 }
 
 /**
@@ -336,7 +339,7 @@ function gk_get_municipality_url( $slug, $municipality, $ov_data ) {
  * @return string Display type for map colors and list badges.
  */
 function gk_municipality_link_type( $url, $type ) {
-    if ( ! $url ) {
+    if ( ! $url || str_contains( $url, 'gk_ov_info=' ) ) {
         return 'werbung';
     }
     if ( ! str_starts_with( $url, trailingslashit( home_url() ) ) ) {

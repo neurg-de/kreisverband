@@ -7,6 +7,27 @@
 
 class ShortcodesTest extends WP_UnitTestCase {
 
+    public function test_ov_page_scopes_embedded_person_shortcodes() {
+        $own = self::factory()->term->create( array( 'taxonomy' => 'gk_zuordnung', 'slug' => 'ov-musterort' ) );
+        $other = self::factory()->term->create( array( 'taxonomy' => 'gk_zuordnung', 'slug' => 'ov-nachbarort' ) );
+        $board = self::factory()->term->create( array( 'taxonomy' => 'abteilung', 'slug' => 'muster-vorstand' ) );
+        foreach ( array( $own => 'Eigener Vorstand', $other => 'Fremder Vorstand' ) as $scope => $title ) {
+            $person = self::factory()->post->create( array( 'post_type' => 'person', 'post_title' => $title ) );
+            wp_set_object_terms( $person, array( $scope ), 'gk_zuordnung' );
+            wp_set_object_terms( $person, array( $board ), 'abteilung' );
+            update_post_meta( $person, 'kr8mb_pers_pos_sortierung', '1' );
+        }
+        $page = self::factory()->post->create( array( 'post_type' => 'page' ) );
+        wp_set_object_terms( $page, array( $own ), 'gk_zuordnung' );
+        $this->go_to( get_permalink( $page ) );
+        foreach ( array( '[abteilung slug="muster-vorstand"]', '[vorstand slug="muster-vorstand"]' ) as $shortcode ) {
+            $html = do_shortcode( $shortcode );
+            $this->assertStringContainsString( 'Eigener Vorstand', $html );
+            $this->assertStringNotContainsString( 'Fremder Vorstand', $html );
+            $this->assertStringNotContainsString( 'data-filter="all"', $html );
+        }
+    }
+
     public function test_legacy_person_shortcode_honors_abteilung_and_slug_alias() {
         $term = self::factory()->term->create( array( 'taxonomy' => 'abteilung', 'slug' => 'test-board' ) );
         $included = self::factory()->post->create( array( 'post_type' => 'person', 'post_title' => 'Visible Board Person' ) );

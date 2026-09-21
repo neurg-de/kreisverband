@@ -45,8 +45,7 @@
                 "text": "Andechs",
                 "transform": "translate(96.17 318)"
             },
-            "type": "link",
-            "link": "https:\/\/example.com"
+            "type": "ov"
         },
         "ov-seefeld": {
             "name": "Seefeld",

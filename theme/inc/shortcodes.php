@@ -44,7 +44,8 @@ add_post_type_support( 'page', 'excerpt' );
  * @param mixed $variant Variant.
  */
 function gk_person_shortcode( $atts, $template_part, $section_class, $sort_key = 'kr8mb_pers_pos_sortierung', $variant = 'team' ) {
-    $atts = shortcode_atts(
+    $context = gk_embedded_ov_context();
+    $atts    = shortcode_atts(
         array(
 			'person'    => '',
 			'abteilung' => '',
@@ -81,6 +82,16 @@ function gk_person_shortcode( $atts, $template_part, $section_class, $sort_key =
         );
     }
 
+    if ( $context ) {
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- The enclosing OV defines the public content scope.
+        $args['tax_query'] = array(
+			array(
+				'taxonomy' => 'gk_zuordnung',
+				'field'    => 'slug',
+				'terms'    => $context,
+			),
+		);
+    }
     $wp_query->query( $args );
     ob_start();
     ?>
@@ -206,7 +217,8 @@ function gk_shortcode_abteilung( $atts ) {
     }
 
     // Query persons in this abteilung, optionally filtered by zuordnung.
-    $zuordnung  = $atts['zuordnung'];
+    $context    = gk_embedded_ov_context();
+    $zuordnung  = $context ? $context : $atts['zuordnung'];
     $query_args = array(
         'post_type'      => 'person',
         'abteilung'      => $abt_slug,
@@ -459,7 +471,7 @@ function gk_shortcode_gliederungen( $atts ) {
         }
         $contact      = gk_get_ov_contact( $term->term_id );
         $homepage_id  = gk_get_ov_public_homepage_id( $term->term_id );
-        $homepage_url = gk_get_ov_url( $term->term_id );
+        $homepage_url = gk_get_ov_navigation_url( $term->term_id );
 		?>
     <article class="clearfix">
         <?php if ( $homepage_id && has_post_thumbnail( $homepage_id ) ) : ?>
@@ -531,7 +543,7 @@ function gk_shortcode_arbeitsgemeinschaften( $atts ) {
         }
         $contact      = gk_get_ov_contact( $term->term_id );
         $homepage_id  = gk_get_ov_public_homepage_id( $term->term_id );
-        $homepage_url = gk_get_ov_url( $term->term_id );
+        $homepage_url = gk_get_ov_navigation_url( $term->term_id );
 		?>
     <article class="clearfix">
         <?php if ( $homepage_id && has_post_thumbnail( $homepage_id ) ) : ?>
