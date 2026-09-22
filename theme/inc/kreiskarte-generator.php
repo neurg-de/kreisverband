@@ -67,10 +67,8 @@ add_action(
  * Kreiskarte generator page.
  */
 function gk_kreiskarte_generator_page() {
-    $filesystem = gk_kreiskarte_filesystem();
-    $json_path  = GK_DIR . '/lib/data/kreiskarte.json';
-    $has_map    = file_exists( $json_path );
-    $json_data  = $has_map && $filesystem ? $filesystem->get_contents( $json_path ) : '';
+    $map_data = gk_get_kreiskarte_data();
+    $has_map  = is_array( $map_data ) && ! empty( $map_data['municipalities'] );
     ?>
     <div class="wrap gk-kreiskarte-generator">
 
@@ -141,8 +139,9 @@ function gk_kreiskarte_generator_page() {
 
             <h2>Gemeinden konfigurieren</h2>
             <p class="description">
-                W&auml;hle f&uuml;r jede Gemeinde den Typ, ordne sie einem bestehenden Ortsverband zu
-                oder setze einen eigenen Link.
+                W&auml;hle f&uuml;r jede Gemeinde den Typ und das gew&uuml;nschte Ziel. Die Spalte
+                &bdquo;Klickziel auf der Website&ldquo; zeigt den aktuell gespeicherten Stand.
+                &Auml;nderungen werden erst nach &bdquo;Speichern&ldquo; &ouml;ffentlich.
             </p>
 
             <div id="gk-config-table"></div>
@@ -155,7 +154,7 @@ function gk_kreiskarte_generator_page() {
                     Markierte Eintr&auml;ge anlegen
                 </button>
             </div>
-            <div id="gk-config-status"></div>
+            <div id="gk-config-status" role="status" aria-live="polite"></div>
 
             <hr />
             <details class="gk-reload-section">
@@ -181,7 +180,7 @@ function gk_kreiskarte_generator_page() {
     </div>
 
     <script>
-        window.gkExistingKreiskarte = <?php echo wp_json_encode( $has_map ? json_decode( $json_data, true ) : null, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>;
+        window.gkExistingKreiskarte = <?php echo wp_json_encode( $has_map ? $map_data : null, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>;
     </script>
     <?php
 }
@@ -204,19 +203,8 @@ function gk_ajax_save_kreiskarte() {
         wp_send_json_error( 'Ungültige Kartendaten.' );
     }
 
-    $dir = GK_DIR . '/lib/data';
-    if ( ! is_dir( $dir ) ) {
-        wp_mkdir_p( $dir );
-    }
-
-    $json    = wp_json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
-    $written = gk_write_kreiskarte_json( $dir . '/kreiskarte.json', $json );
-
-    if ( false === $written ) {
-        wp_send_json_error( 'Datei konnte nicht geschrieben werden. Prüfe die Schreibrechte für ' . $dir );
-    }
-
-    wp_send_json_success( array( 'bytes' => $written ) );
+    update_option( 'gk_kreiskarte_data', $data, false );
+    wp_send_json_success( array( 'bytes' => strlen( wp_json_encode( $data ) ) ) );
 }
 
 /**
@@ -228,13 +216,7 @@ function gk_ajax_update_kreiskarte_mappings() {
         wp_send_json_error( 'Keine Berechtigung.' );
     }
 
-    $json_path = GK_DIR . '/lib/data/kreiskarte.json';
-    if ( ! file_exists( $json_path ) ) {
-        wp_send_json_error( 'Keine Kreiskarte vorhanden.' );
-    }
-
-    $filesystem = gk_kreiskarte_filesystem();
-    $data       = json_decode( $filesystem ? $filesystem->get_contents( $json_path ) : '', true );
+    $data = gk_get_kreiskarte_data();
     if ( ! is_array( $data ) || empty( $data['municipalities'] ) || ! is_array( $data['municipalities'] ) ) {
         wp_send_json_error( 'Ungültige Kartendaten.' );
     }
@@ -251,8 +233,11 @@ function gk_ajax_update_kreiskarte_mappings() {
             continue;
         }
         if ( isset( $mappings[ $slug ] ) && is_array( $mappings[ $slug ] ) ) {
-            $m            = $mappings[ $slug ];
-            $type         = sanitize_text_field( $m['type'] ?? $muni['type'] ?? 'ov' );
+            $m    = $mappings[ $slug ];
+            $type = sanitize_text_field( $m['type'] ?? $muni['type'] ?? 'ov' );
+            if ( ! in_array( $type, array( 'ov', 'ortsgruppe', 'werbung', 'link', 'keine' ), true ) ) {
+                wp_send_json_error( 'Ungültiger Gemeindetyp.' );
+            }
             $muni['type'] = $type;
 
             // Link field only for the 'link' type.
@@ -261,30 +246,32 @@ function gk_ajax_update_kreiskarte_mappings() {
                 if ( $link ) {
                     $muni['link'] = $link;
                 } else {
-                    unset( $muni['link'] );
+                    wp_send_json_error( sprintf( 'Für %s fehlt eine gültige externe Website.', sanitize_text_field( $muni['name'] ?? $slug ) ) );
                 }
             } else {
                 unset( $muni['link'] );
             }
 
-            // Slug remapping only for WP types that have an OV assignment.
-            $needs_wp                                   = in_array( $type, array( 'ov', 'ortsgruppe', 'werbung' ), true );
-            $new_slug                                   = $needs_wp ? sanitize_title( $m['ovSlug'] ?? '' ) : '';
-            $new_munis[ $new_slug ? $new_slug : $slug ] = $muni;
+            // Keep the municipality key stable; multiple municipalities may share one OV.
+            $needs_wp = in_array( $type, array( 'ov', 'ortsgruppe', 'werbung' ), true );
+            $ov_slug  = $needs_wp ? sanitize_title( $m['ovSlug'] ?? '' ) : '';
+            if ( $ov_slug ) {
+                if ( ! get_term_by( 'slug', $ov_slug, 'gk_zuordnung' ) ) {
+                    wp_send_json_error( sprintf( 'Der zugeordnete Ortsverband für %s existiert nicht.', sanitize_text_field( $muni['name'] ?? $slug ) ) );
+                }
+                $muni['ovSlug'] = $ov_slug;
+            } else {
+                unset( $muni['ovSlug'] );
+            }
+            $new_munis[ $slug ] = $muni;
         } else {
             $new_munis[ $slug ] = $muni;
         }
     }
     $data['municipalities'] = $new_munis;
 
-    $json    = wp_json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
-    $written = gk_write_kreiskarte_json( $json_path, $json );
-
-    if ( false === $written ) {
-        wp_send_json_error( 'Datei konnte nicht geschrieben werden.' );
-    }
-
-    wp_send_json_success( array( 'bytes' => $written ) );
+    update_option( 'gk_kreiskarte_data', $data, false );
+    wp_send_json_success( array( 'bytes' => strlen( wp_json_encode( $data ) ) ) );
 }
 
 /**
@@ -393,7 +380,37 @@ function gk_ajax_get_ortsverbaende() {
             'type'  => gk_get_ov_type( $term->term_id ),
         );
     }
-    wp_send_json_success( $result );
+    $map     = gk_get_kreiskarte_data();
+    $targets = array();
+    if ( is_array( $map ) && ! empty( $map['municipalities'] ) ) {
+        $ov_data = gk_get_ov_terms_by_slug();
+        foreach ( $map['municipalities'] as $slug => $municipality ) {
+            $url  = gk_get_municipality_url( $slug, $municipality, $ov_data );
+            $kind = 'keine' === ( $municipality['type'] ?? '' ) ? 'Ohne Link' : 'Im Aufbau';
+            if ( $url ) {
+                if ( 'link' === ( $municipality['type'] ?? '' ) ) {
+                    $kind = 'Externe Website';
+                } elseif ( str_contains( $url, 'gk_ov_info=' ) ) {
+                    $kind = 'Kontaktseite';
+                } elseif ( str_starts_with( $url, trailingslashit( home_url() ) ) ) {
+                    $kind = 'Lokale OV-Seite';
+                } else {
+                    $kind = 'OV-Website';
+                }
+            }
+            $targets[ $slug ] = array(
+                'url'  => $url,
+                'kind' => $kind,
+            );
+        }
+    }
+    wp_send_json_success(
+        array(
+            'ovs'     => $result,
+            'map'     => $map,
+            'targets' => $targets,
+        )
+    );
 }
 
 /**
@@ -416,27 +433,4 @@ function gk_sanitize_kreiskarte_json( $raw ) {
 			return is_string( $value ) ? sanitize_text_field( $value ) : $value;
 		}
     );
-}
-
-/**
- * Initialize the WordPress filesystem without exposing filesystem credentials.
- *
- * @return WP_Filesystem_Base|false
- */
-function gk_kreiskarte_filesystem() {
-    global $wp_filesystem;
-    require_once ABSPATH . 'wp-admin/includes/file.php';
-    return WP_Filesystem( false, GK_DIR, true ) ? $wp_filesystem : false;
-}
-
-/**
- * Persist map JSON through WordPress filesystem APIs.
- *
- * @param string $path Local map file path.
- * @param string $json Encoded map data.
- * @return int|false Written byte count or failure.
- */
-function gk_write_kreiskarte_json( $path, $json ) {
-    $filesystem = gk_kreiskarte_filesystem();
-    return $filesystem && is_string( $json ) && $filesystem->put_contents( $path, $json, FS_CHMOD_FILE ) ? strlen( $json ) : false;
 }
