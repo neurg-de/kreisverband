@@ -217,7 +217,7 @@ function gk_zuordnung_meta_box_cb( $post ) {
 
     echo '<select name="gk_zuordnung_select" style="width:100%;max-width:100%;box-sizing:border-box">';
     echo '<option value="">' . esc_html__( '— Bitte wählen —', 'neurg-kreisverband' ) . '</option>';
-    foreach ( $terms as $term ) {
+    foreach ( gk_terms_for_content( $terms, $post->post_type ) as $term ) {
         printf(
             '<option value="%d"%s>%s</option>',
             absint( $term->term_id ),

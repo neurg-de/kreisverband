@@ -247,10 +247,12 @@ Eine externe Website oder eine Ortsgruppe kann ebenfalls Termine im gemeinsamen 
 
 1. Als Administration **Verband → Kreiskarte → Gemeinden konfigurieren** öffnen.
 2. Bei der Gemeinde **Im Terminmenü anzeigen** aktivieren. Falls mehrere Gemeinden denselben Verband nutzen, den bestehenden Verband auswählen.
-3. **Speichern**. Bei Bedarf wird eine interne Zuordnung angelegt, jedoch keine lokale Unterseite. Kartenaktion und externe Zieladresse bleiben bestehen.
+3. **Speichern**. Bei Bedarf wird eine interne Zuordnung **Nur Termine** angelegt. Sie erscheint ausschließlich in der Terminverwaltung, nicht als eigener Bereich für Seiten, Beiträge, Personen, Medien, Menüs oder in der allgemeinen OV-Verwaltung. Kartenaktion und externe Zieladresse bleiben bestehen.
 4. Über **Termine verwalten** oder **Termine → gewünschter Verband** einen Termin anlegen. Vor der Veröffentlichung die Zuordnung prüfen, danach den gemeinsamen Kalender und den passenden Filter kontrollieren.
 
 Abwählen blendet den Eintrag im gemeinsamen Terminmenü aus. Vorhandene Termine, Zuordnungen und ihre öffentliche Anzeige bleiben erhalten. OV-Konten behalten ihren eigenen Bereich; die Einstellung erweitert keine Benutzerrechte. Bei gemeinsam genutzten Zuordnungen bleibt der Menüeintrag sichtbar, solange mindestens eine Gemeinde ihn aktiviert hat.
+
+Der Karteneditor kennzeichnet reine Terminzuordnungen mit **Nur Termine**. Unter **Verwendung ändern** kann die Administration die Kennzeichnung ausdrücklich ändern. Ein bestehender vollständiger OV wird durch den Termin-Haken nicht umgestellt. Für eine Umstellung auf **Nur Termine** dürfen keine lokale Startseite oder anderen zugeordneten Inhalte vorhanden sein; Termine bleiben bestehen. Das ausdrückliche Anlegen einer lokalen Unterseite im Karteneditor erweitert eine reine Terminzuordnung zum vollständigen OV-Bereich.
 
 ### Listen richtig eingrenzen
 

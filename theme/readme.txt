@@ -4,7 +4,7 @@ Contributors: severinkistner
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.7.4
+Stable tag: 0.7.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ Als Administrator unter Verband einen Ortsverband anlegen und eine lokale Starts
 Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Theme integriert.
 
 == Changelog ==
+
+= 0.7.5 =
+* Reine Terminzuordnungen erscheinen ausschliesslich in der Terminverwaltung, nicht als Bereiche fuer Seiten, Beitraege, Personen, Medien oder Menues.
+* Karteneditor kennzeichnet "Nur Termine" ausdruecklich. Bestehende vollstaendige OV-Bereiche bleiben unveraendert.
+* Zuordnungsauswahl in klassischem Editor und Blockeditor folgt dem Inhaltstyp; bestehende Termine und Kartenlinks bleiben erhalten.
 
 = 0.7.4 =
 * Terminmenue je Gemeinde unabhaengig von Kartenlink und lokaler OV-Unterseite aktivieren.

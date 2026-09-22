@@ -129,7 +129,7 @@ function gk_save_scope_selection( $post_id ) {
     $scope = gk_user_scope();
     $id    = absint( $_POST['gk_zuordnung_select'] );
     $term  = get_term( $id, 'gk_zuordnung' );
-    if ( $id && $term && ! is_wp_error( $term ) && ( null === $scope || $scope === $id ) ) {
+    if ( $id && $term && ! is_wp_error( $term ) && ( 'gk_event' === get_post_type( $post_id ) || ! gk_is_event_only_term( $id ) ) && ( null === $scope || $scope === $id ) ) {
         wp_set_object_terms( $post_id, array( $id ), 'gk_zuordnung' );
     }
 }

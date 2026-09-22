@@ -147,7 +147,7 @@ function gk_render_media_review() {
             echo '<button class="button" name="gk_media_action" value="rollback">' . esc_html__( 'Letzte Zuordnung rückgängig machen', 'neurg-kreisverband' ) . '</button>';
         } else {
             echo '<label class="screen-reader-text" for="gk-media-' . esc_attr( $post->ID ) . '">' . esc_html__( 'Geprüfte Zielzuordnung', 'neurg-kreisverband' ) . '</label><select name="gk_media_term" id="gk-media-' . esc_attr( $post->ID ) . '"><option value="0">' . esc_html__( 'Bitte prüfen und auswählen', 'neurg-kreisverband' ) . '</option>';
-            foreach ( $terms as $term ) {
+            foreach ( gk_terms_for_content( $terms ) as $term ) {
                 // Deliberately no automatic selection: even a proposal requires review.
                 echo '<option value="' . esc_attr( $term->term_id ) . '">' . esc_html( $term->name ) . '</option>';
             }

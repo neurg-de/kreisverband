@@ -92,4 +92,69 @@ class EventAdministrationTest extends WP_UnitTestCase {
             $pagenow = $previous_page;
         }
     }
+    public function test_event_only_assignments_do_not_create_other_editorial_areas() {
+        global $submenu;
+        wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+        set_current_screen( 'dashboard' );
+        $data = gk_ensure_map_event_scopes( array( 'municipalities' => array(
+            'ov-only-events' => array( 'name' => 'Kalenderort', 'type' => 'link', 'eventsEnabled' => true ),
+        ) ) );
+        update_option( 'gk_kreiskarte_data', $data );
+        $term = get_term_by( 'slug', 'ov-only-events', 'gk_zuordnung' );
+        $this->assertTrue( gk_is_event_only_term( $term->term_id ) );
+        $this->assertNotContains( $term->term_id, wp_list_pluck( gk_get_ov_terms(), 'term_id' ) );
+        $this->assertContains( $term->term_id, wp_list_pluck( gk_get_ov_terms( array( 'include_event_only' => true ) ), 'term_id' ) );
+        $full = self::factory()->term->create( array( 'taxonomy' => 'gk_zuordnung', 'slug' => 'ov-full-editorial' ) );
+        $previous_submenu = $submenu;
+        gk_register_zuordnung_submenus();
+        gk_menus_admin_page();
+        foreach ( array( 'edit.php', 'edit.php?post_type=page', 'edit.php?post_type=person', 'upload.php', 'gk-menus' ) as $menu ) {
+            $this->assertStringNotContainsString( 'ov-only-events', wp_json_encode( $submenu[$menu] ?? array() ) );
+            $this->assertStringContainsString( 'ov-full-editorial', wp_json_encode( $submenu[$menu] ?? array() ) );
+        }
+        $this->assertStringContainsString( 'ov-only-events', wp_json_encode( $submenu['edit.php?post_type=gk_event'] ) );
+        $submenu = $previous_submenu;
+        gk_register_zuordnung_nav_menus();
+        $this->assertArrayNotHasKey( 'nav-ov-only-events', get_registered_nav_menus() );
+        foreach ( array( 'post', 'page', 'person', 'attachment', 'gk_event' ) as $type ) {
+            $post = self::factory()->post->create_and_get( array( 'post_type' => $type ) );
+            ob_start(); gk_zuordnung_meta_box_cb( $post ); $html = ob_get_clean();
+            if ( 'gk_event' === $type ) {
+                $this->assertStringContainsString( 'OV Kalenderort', $html );
+            } else {
+                $this->assertStringNotContainsString( 'OV Kalenderort', $html );
+            }
+        }
+    }
+
+    public function test_event_only_rest_choices_and_writes_are_content_specific() {
+        wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+        $only = self::factory()->term->create( array( 'taxonomy' => 'gk_zuordnung' ) );
+        $full = self::factory()->term->create( array( 'taxonomy' => 'gk_zuordnung' ) );
+        update_term_meta( $only, '_gk_event_only', '1' );
+        $request = new WP_REST_Request( 'GET', '/wp/v2/gk_zuordnung' );
+        $args = array( 'taxonomy' => 'gk_zuordnung', 'hide_empty' => false );
+        $ids = wp_list_pluck( get_terms( gk_event_only_rest_terms( $args, $request ) ), 'term_id' );
+        $this->assertNotContains( $only, $ids );
+        $this->assertContains( $full, $ids );
+        $request->set_param( 'gk_content_type', 'gk_event' );
+        $this->assertContains( $only, wp_list_pluck( get_terms( gk_event_only_rest_terms( $args, $request ) ), 'term_id' ) );
+        foreach ( array( 'posts', 'pages', 'person', 'media', 'gk_event' ) as $rest_type ) {
+            $request = new WP_REST_Request( 'POST', '/wp/v2/' . $rest_type );
+            $request->set_param( 'gk_zuordnung', array( $only ) );
+            $result = gk_validate_editorial_rest( (object) array(), $request );
+            if ( 'gk_event' === $rest_type ) {
+                $this->assertNotWPError( $result );
+            } else {
+                $this->assertWPError( $result );
+                $this->assertSame( 'gk_event_only', $result->get_error_code() );
+            }
+        }
+        $this->assertTrue( gk_validate_event_only_term( $full ) );
+        $page = self::factory()->post->create( array( 'post_type' => 'page' ) );
+        wp_set_object_terms( $page, array( $full ), 'gk_zuordnung' );
+        $this->assertWPError( gk_validate_event_only_term( $full ) );
+        $this->assertFalse( gk_is_event_only_term( $full ) );
+    }
+
 }

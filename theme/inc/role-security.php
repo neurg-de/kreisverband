@@ -218,6 +218,13 @@ function gk_validate_editorial_rest( $prepared, $request ) {
     }
     $scope = gk_user_scope();
     $terms = $request->get_param( 'gk_zuordnung' );
+    if ( ! preg_match( '#^/wp/v2/gk_event(?:/|$)#', $request->get_route() ) ) {
+        foreach ( (array) $terms as $term_id ) {
+            if ( gk_is_event_only_term( (int) $term_id ) ) {
+                return new WP_Error( 'gk_event_only', __( 'Diese Zuordnung ist ausschließlich für Termine vorgesehen.', 'neurg-kreisverband' ), array( 'status' => 400 ) );
+            }
+        }
+    }
     if ( 0 === $scope || ( null !== $terms && ( 1 !== count( (array) $terms ) || ( null !== $scope && array( $scope ) !== array_map( 'intval', (array) $terms ) ) ) ) ) {
         return new WP_Error( 'gk_scope_forbidden', __( 'Bitte nur den eigenen Zuständigkeitsbereich wählen.', 'neurg-kreisverband' ), array( 'status' => 403 ) );
     }

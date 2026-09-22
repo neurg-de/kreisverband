@@ -47,7 +47,7 @@ function gk_get_ov_terms( $args = array() ) {
     );
 
     $terms = get_terms( wp_parse_args( $args, $defaults ) );
-    return is_wp_error( $terms ) ? array() : $terms;
+    return is_wp_error( $terms ) ? array() : ( ! empty( $args['include_event_only'] ) ? $terms : gk_terms_for_content( $terms ) );
 }
 
 /**
@@ -1112,7 +1112,7 @@ function gk_migrate_create_nav_menus() {
     $skipped   = 0;
     $locations = get_nav_menu_locations();
 
-    foreach ( $terms as $term ) {
+    foreach ( gk_terms_for_content( $terms ) as $term ) {
         $location    = 'nav-' . $term->slug;
         $homepage_id = (int) get_term_meta( $term->term_id, '_gk_homepage_id', true );
 

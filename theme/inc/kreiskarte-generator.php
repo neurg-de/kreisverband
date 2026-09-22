@@ -312,6 +312,7 @@ function gk_ensure_map_event_scopes( $data ) {
                 return new WP_Error( 'gk_event_scope', sprintf( 'Terminzuordnung für %s konnte nicht angelegt werden: %s', $name, $result->get_error_message() ) );
             }
             $created[] = (int) $result['term_id'];
+            update_term_meta( $result['term_id'], '_gk_event_only', '1' );
             update_term_meta( $result['term_id'], '_gk_ov_type', $is_group ? 'ortsgruppe' : 'ov' );
         }
         $municipality['ovSlug'] = $ov_slug;
@@ -404,6 +405,7 @@ function gk_ajax_create_ortsverbaende() {
             } else {
                 wp_set_object_terms( $page_id, array( $term_id ), 'gk_zuordnung' );
                 update_term_meta( $term_id, '_gk_homepage_id', $page_id );
+                delete_term_meta( $term_id, '_gk_event_only' );
             }
         }
 
@@ -429,12 +431,14 @@ function gk_ajax_get_ortsverbaende() {
     }
 
     $result = array();
-    foreach ( gk_get_ov_terms() as $term ) {
+    foreach ( gk_get_ov_terms( array( 'include_event_only' => true ) ) as $term ) {
         $result[] = array(
             'id'        => $term->term_id,
             'slug'      => $term->slug,
             'title'     => $term->name,
             'type'      => gk_get_ov_type( $term->term_id ),
+            'eventOnly' => gk_is_event_only_term( $term->term_id ),
+            'editUrl'   => admin_url( 'admin.php?page=gk-settings&action=edit&term_id=' . $term->term_id ),
             'eventsUrl' => admin_url( 'edit.php?post_type=gk_event&gk_zuordnung=' . $term->slug ),
             'hasPage'   => (bool) ( gk_get_ov_homepage_id( $term->term_id ) || gk_get_ov_public_homepage_id( $term->term_id ) ),
         );

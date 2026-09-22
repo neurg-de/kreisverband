@@ -314,7 +314,7 @@
             .join('');
 
         const ovOpts = existingOVs.map(ov =>
-            `<option value="${esc(ov.slug)}">${esc(ov.title)}</option>`
+            `<option value="${esc(ov.slug)}">${esc(ov.title)}${ov.eventOnly ? ' (nur Termine)' : ''}</option>`
         ).join('');
 
         let html = '<table class="widefat gk-mapping-table"><thead><tr>' +
@@ -405,8 +405,8 @@
         const saved = savedMappings[slug];
         const dirty = saved && (saved.type !== m.type || saved.ovSlug !== m.ovSlug || saved.link !== m.link || saved.eventsEnabled !== m.eventsEnabled);
         row.querySelector('.gk-events-status').innerHTML = m.eventsEnabled && !exists
-            ? 'Beim Speichern: Terminzuordnung ohne Unterseite anlegen.'
-            : (assignedOV ? `<a href="${esc(assignedOV.eventsUrl)}">Termine verwalten</a>` : 'Keine Terminzuordnung vorhanden.');
+            ? 'Beim Speichern: Zuordnung nur für Termine anlegen.'
+            : (assignedOV ? `${assignedOV.eventOnly ? 'Nur Termine · ' : ''}<a href="${esc(assignedOV.eventsUrl)}">Termine verwalten</a>${assignedOV.eventOnly ? `<br><a href="${esc(assignedOV.editUrl)}">Verwendung ändern</a>` : ''}` : 'Keine Terminzuordnung vorhanden.');
         const target = liveTargets[slug];
         let html = '';
         if (dirty) html += '<span class="gk-badge gk-badge--warn">Noch nicht gespeichert</span><br><small>Derzeit öffentlich:</small><br>';

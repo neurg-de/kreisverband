@@ -74,7 +74,7 @@ function gk_zuordnung_submenu( $menu_slug, $capability ) {
         );
 
         if ( ! is_wp_error( $ov_terms ) ) {
-            foreach ( $ov_terms as $term ) {
+            foreach ( gk_terms_for_content( $ov_terms, 'edit.php?post_type=gk_event' === $menu_slug ? 'gk_event' : '' ) as $term ) {
                 if ( 'edit.php?post_type=gk_event' === $menu_slug && ! gk_ov_in_event_menu( $term ) ) {
                     continue;
                 }
@@ -89,7 +89,7 @@ function gk_zuordnung_submenu( $menu_slug, $capability ) {
         }
     } elseif ( $is_ov ) {
         $term = get_term_by( 'slug', $user->user_login, 'gk_zuordnung' );
-        if ( $term ) {
+        if ( $term && ( 'edit.php?post_type=gk_event' === $menu_slug || ! gk_is_event_only_term( $term->term_id ) ) ) {
             add_submenu_page(
                 $menu_slug,
                 $term->name,
@@ -278,6 +278,20 @@ function gk_ortsverband_handle_save() {
 		return;
     }
 
+    if ( $is_admin && ! empty( $_POST['ov_event_only'] ) ) {
+        $valid = gk_validate_event_only_term( $term_id );
+        if ( absint( $_POST['ov_homepage_id'] ?? 0 ) || is_wp_error( $valid ) ) {
+            wp_die(
+                esc_html( is_wp_error( $valid ) ? $valid->get_error_message() : 'Eine lokale Startseite benötigt einen vollständigen OV-Bereich.' ),
+                '',
+                array(
+					'response'  => 400,
+					'back_link' => true,
+                )
+            );
+        }
+    }
+
     if ( $term_id ) {
         // Update existing term. OV-Admins cannot change name/slug.
         if ( $is_admin ) {
@@ -303,6 +317,11 @@ function gk_ortsverband_handle_save() {
 			return;
         }
         $term_id = $result['term_id'];
+    }
+
+    // Usage is explicit; existing full OVs are never inferred from map settings.
+    if ( $is_admin ) {
+        update_term_meta( $term_id, '_gk_event_only', empty( $_POST['ov_event_only'] ) ? '0' : '1' );
     }
 
     // Save type (admin only).
@@ -659,6 +678,11 @@ function gk_ortsverband_edit_page() {
                     <th><label for="ov_slug">Slug</label></th>
                     <td><input type="text" name="ov_slug" id="ov_slug" value="<?php echo esc_attr( $slug ); ?>" class="regular-text" />
                     <p class="description">URL-Slug (z.B. "ov-starnberg"). Wird automatisch generiert wenn leer.</p></td>
+                </tr>
+                <tr>
+                    <th>Verwendung</th>
+                    <td><label><input type="checkbox" name="ov_event_only" value="1" <?php checked( gk_is_event_only_term( $term_id ) ); ?> /> Nur Termine</label>
+                    <p class="description">Nur in der Terminverwaltung verwenden. Kein eigener Bereich für Seiten, Beiträge, Personen, Medien oder Menüs. Kartenlinks bleiben unverändert.</p></td>
                 </tr>
                 <tr>
                     <th>Typ</th>
@@ -1148,7 +1172,7 @@ function gk_register_zuordnung_nav_menus() {
     }
 
     $locations = array();
-    foreach ( $terms as $term ) {
+    foreach ( gk_terms_for_content( $terms ) as $term ) {
         $locations[ 'nav-' . $term->slug ]             = $term->name . ' — Hauptmenü';
         $locations[ 'nav-' . $term->slug . '-footer' ] = $term->name . ' — Footer';
     }
@@ -1199,7 +1223,7 @@ function gk_menus_admin_page() {
 					return strcmp( $a->name, $b->name );
 				}
             );
-            foreach ( $terms as $term ) {
+            foreach ( gk_terms_for_content( $terms ) as $term ) {
                 add_submenu_page(
                     'gk-menus',
                     $term->name . ' — Men&uuml;s',

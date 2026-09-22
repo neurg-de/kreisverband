@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'GK_VERSION', '0.7.4' );
+define( 'GK_VERSION', '0.7.5' );
 define( 'GK_DIR', get_template_directory() );
 define( 'GK_URI', get_template_directory_uri() );
 define( 'GK_IMAGE_DIR', GK_URI . '/lib/images/' );
@@ -53,6 +53,7 @@ require_once GK_DIR . '/inc/settings.php';
 
 // Events system: event CPT, scheduling, iCal, OV integration.
 require_once GK_DIR . '/inc/events.php';
+require_once GK_DIR . '/inc/event-scopes.php';
 
 // Setup wizard: first-run config, Impressum, Datenschutz, KV details.
 require_once GK_DIR . '/inc/setup-wizard.php';
