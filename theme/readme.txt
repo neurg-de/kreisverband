@@ -4,7 +4,7 @@ Contributors: severinkistner
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.7.2
+Stable tag: 0.7.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ Als Administrator unter Verband einen Ortsverband anlegen und eine lokale Starts
 Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Theme integriert.
 
 == Changelog ==
+
+= 0.7.3 =
+* Karteneditor zeigt das gespeicherte öffentliche Klickziel je Gemeinde und markiert ungespeicherte Änderungen.
+* Gewählter Kartentyp bestimmt das Klickverhalten in Karte und OV-Listen; fehlende oder ungültige Ziele erzeugen keinen Schein-Link.
+* Kartendaten bleiben nach Theme-Updates in der WordPress-Datenbank erhalten. Mehrere Gemeinden können einem OV zugeordnet werden.
 
 = 0.7.2 =
 * Sponsoring, externe Compliance-Werbung sowie zugehöriges Badge, Widget und Editor-Block entfernt.

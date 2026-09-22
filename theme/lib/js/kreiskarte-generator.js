@@ -20,13 +20,16 @@
     let currentData = null;   // the saved kreiskarte data
     let existingOVs = [];
     let mappings = {};
+    let savedMappings = {};
+    let liveTargets = {};
+    let savedMap = null;
 
     const MUNI_TYPES = {
-        ov:         { label: 'Ortsverband',   desc: 'Seite + Zuordnungs-Term. Personen, Termine und Beiträge können zugeordnet werden. Grün auf der Karte.' },
-        ortsgruppe: { label: 'Ortsgruppe',    desc: 'Wie Ortsverband, aber als Ortsgruppe benannt. Eigene Seite und Zuordnung. Hellgrün auf der Karte.' },
-        werbung:    { label: 'Werbeseite',    desc: 'Nur Zuordnungs-Term, keine eigene Seite. Für Gemeinden ohne aktiven Verband. Neutral mit gestricheltem Rand.' },
-        link:       { label: 'Externer Link', desc: 'Verlinkt auf eine beliebige URL. Keine WordPress-Inhalte. Weiß auf der Karte.' },
-        keine:      { label: 'Nur Karte',     desc: 'Wird auf der Karte angezeigt, aber nicht verlinkt. Keine WordPress-Inhalte. Grau und ausgegraut.' },
+        ov:         { label: 'Ortsverband',   desc: 'Klick zur lokalen OV-Seite oder zur OV-Website. Fehlt beides, erscheint Im Aufbau ohne Link.' },
+        ortsgruppe: { label: 'Ortsgruppe',    desc: 'Wie Ortsverband, aber als Ortsgruppe dargestellt.' },
+        werbung:    { label: 'Kontaktseite', desc: 'Klick zur Kontaktseite. Keine eigene OV-Unterseite über die Karte.' },
+        link:       { label: 'Externer Link', desc: 'Klick genau zur angegebenen Website. Eine gültige URL ist erforderlich.' },
+        keine:      { label: 'Ohne Link',     desc: 'Auf Karte und Liste sichtbar, aber nicht anklickbar (Im Aufbau).' },
     };
 
 
@@ -297,6 +300,7 @@
         const entries = Object.entries(data.municipalities);
 
         mappings = {};
+        savedMappings = {};
 
         const typeOpts = Object.entries(MUNI_TYPES)
             .map(([val, t]) => `<option value="${val}">${esc(t.label)}</option>`)
@@ -307,28 +311,32 @@
         ).join('');
 
         let html = '<table class="widefat gk-mapping-table"><thead><tr>' +
-            '<th>Gemeinde</th><th>Typ</th><th>Details</th><th class="gk-col-create">Anlegen</th><th></th>' +
+            '<th>Gemeinde</th><th>Typ</th><th>Details</th><th class="gk-col-create">Anlegen</th><th>Klickziel auf der Website</th>' +
             '</tr></thead><tbody>';
 
         for (const [slug, muni] of entries) {
             const type = muni.type || 'ov';
             const link = muni.link || '';
-            const linkedOV = existingOVs.find(ov => ov.slug === slug);
+            const linkedOV = existingOVs.find(ov => ov.slug === (muni.ovSlug || slug));
 
-            mappings[slug] = { type, ovSlug: linkedOV ? linkedOV.slug : '', link };
+            mappings[slug] = { type, ovSlug: muni.ovSlug || (linkedOV ? linkedOV.slug : ''), link };
+            savedMappings[slug] = { ...mappings[slug] };
+
+            const missingOV = muni.ovSlug && !linkedOV
+                ? `<option value="${esc(muni.ovSlug)}" disabled>OV fehlt: ${esc(muni.ovSlug)}</option>` : '';
 
             html += `<tr data-slug="${esc(slug)}">` +
                 `<td><strong>${esc(muni.name)}</strong></td>` +
                 `<td>` +
-                    `<select class="gk-type-select">${typeOpts}</select>` +
+                    `<select class="gk-type-select" aria-label="Aktion für ${esc(muni.name)}">${typeOpts}</select>` +
                     `<p class="gk-type-desc description"></p>` +
                 `</td>` +
                 `<td class="gk-details-cell">` +
-                    `<select class="gk-ov-select"><option value="">— Neu erstellen —</option>${ovOpts}</select>` +
-                    `<input type="url" class="gk-link-input" placeholder="https://example.com" value="${esc(link)}" />` +
+                    `<select class="gk-ov-select" aria-label="Ortsverband für ${esc(muni.name)}"><option value="">— Neu erstellen —</option>${ovOpts}${missingOV}</select>` +
+                    `<input type="url" class="gk-link-input" aria-label="Externe Website für ${esc(muni.name)}" placeholder="https://example.com" value="${esc(link)}" />` +
                 `</td>` +
-                `<td class="gk-col-create"><input type="checkbox" class="gk-create-check" /></td>` +
-                `<td class="gk-badge-cell"></td>` +
+                `<td class="gk-col-create"><input type="checkbox" class="gk-create-check" aria-label="Eintrag für ${esc(muni.name)} anlegen" /></td>` +
+                `<td class="gk-target-cell" aria-live="polite"></td>` +
                 '</tr>';
         }
 
@@ -359,11 +367,12 @@
         const ovSelect = row.querySelector('.gk-ov-select');
         const linkInput = row.querySelector('.gk-link-input');
         const createCheck = row.querySelector('.gk-create-check');
-        const badge = row.querySelector('.gk-badge-cell');
+        const targetCell = row.querySelector('.gk-target-cell');
         const descEl = row.querySelector('.gk-type-desc');
 
         const needsWP = m.type === 'ov' || m.type === 'ortsgruppe' || m.type === 'werbung';
-        const exists = needsWP && (!!existingOVs.find(ov => ov.slug === slug) || !!m.ovSlug);
+        const exists = needsWP && !!existingOVs.find(ov => ov.slug === (m.ovSlug || slug));
+        const missingOV = needsWP && !!m.ovSlug && !existingOVs.some(ov => ov.slug === m.ovSlug);
 
         // Type description
         descEl.textContent = MUNI_TYPES[m.type]?.desc || '';
@@ -377,23 +386,64 @@
         createCheck.style.display = canCreate ? '' : 'none';
         if (!canCreate) createCheck.checked = false;
 
-        // Badge
-        if (m.type === 'keine') {
-            badge.innerHTML = '<span class="gk-badge gk-badge--muted">nur Karte</span>';
-        } else if (m.type === 'link') {
-            badge.innerHTML = m.link
-                ? '<span class="gk-badge gk-badge--ok">verlinkt</span>'
-                : '<span class="gk-badge gk-badge--warn">URL fehlt</span>';
-        } else if (exists) {
-            badge.innerHTML = '<span class="gk-badge gk-badge--ok">zugeordnet</span>';
+        const invalidLink = m.type === 'link' && !validPublicUrl(m.link);
+        linkInput.setAttribute('aria-invalid', invalidLink ? 'true' : 'false');
+        const saved = savedMappings[slug];
+        const dirty = saved && (saved.type !== m.type || saved.ovSlug !== m.ovSlug || saved.link !== m.link);
+        const target = liveTargets[slug];
+        let html = '';
+        if (dirty) html += '<span class="gk-badge gk-badge--warn">Noch nicht gespeichert</span><br><small>Derzeit öffentlich:</small><br>';
+        if (missingOV) html += '<span class="gk-link-error">Zugeordneter OV fehlt. Bitte neu auswählen.</span><br>';
+        if (invalidLink) html += '<span class="gk-link-error">Gültige externe URL eingeben.</span><br>';
+        if (target) {
+            html += `<span class="gk-badge ${target.url ? 'gk-badge--ok' : 'gk-badge--muted'}">${esc(target.kind)}</span>`;
+            if (target.url) html += `<br><a href="${esc(target.url)}" target="_blank" rel="noopener noreferrer">${esc(target.url)}</a>`;
         } else {
-            badge.innerHTML = '<span class="gk-badge gk-badge--warn">nicht angelegt</span>';
+            html += '<span class="gk-badge gk-badge--warn">Ziel konnte nicht geladen werden</span>';
         }
+        targetCell.innerHTML = html;
+    }
+
+    function validPublicUrl(value) {
+        if (!value || /\s/.test(value) || value.endsWith('#')) return false;
+        try {
+            const url = new URL(value);
+            return ['http:', 'https:'].includes(url.protocol) &&
+                !!url.hostname && url.hostname.includes('.') &&
+                !url.username && !url.password &&
+                !/^(www\.)?example\.(com|org|net)$/i.test(url.hostname);
+        } catch (_) {
+            return false;
+        }
+    }
+
+    function firstInvalidLink() {
+        return Array.from(document.querySelectorAll('#gk-config-table tr[data-slug]'))
+            .find(row => mappings[row.dataset.slug]?.type === 'link' && !validPublicUrl(mappings[row.dataset.slug].link));
+    }
+
+    function firstMissingOV() {
+        return Array.from(document.querySelectorAll('#gk-config-table tr[data-slug]'))
+            .find(row => ['ov', 'ortsgruppe', 'werbung'].includes(mappings[row.dataset.slug]?.type) &&
+                mappings[row.dataset.slug].ovSlug &&
+                !existingOVs.some(ov => ov.slug === mappings[row.dataset.slug].ovSlug));
     }
 
     async function doSaveMappings() {
         const btn = document.getElementById('gk-save-btn');
         const statusEl = document.getElementById('gk-config-status');
+        const invalid = firstInvalidLink();
+        if (invalid) {
+            statusEl.innerHTML = '<div class="notice notice-error inline"><p>Bitte die markierte externe Website korrigieren, bevor du speicherst.</p></div>';
+            invalid.querySelector('.gk-link-input').focus();
+            return;
+        }
+        const missingOV = firstMissingOV();
+        if (missingOV) {
+            statusEl.innerHTML = '<div class="notice notice-error inline"><p>Bitte den fehlenden Ortsverband neu zuordnen.</p></div>';
+            missingOV.querySelector('.gk-ov-select').focus();
+            return;
+        }
         btn.disabled = true;
         statusEl.innerHTML = '<p>Speichere...</p>';
 
@@ -410,6 +460,9 @@
             const result = await resp.json();
             if (!result.success) throw new Error(result.data || 'Speichern fehlgeschlagen');
 
+            await loadExistingOVs();
+            currentData = savedMap || currentData;
+            renderConfigTable(currentData);
             statusEl.innerHTML = '<div class="notice notice-success inline"><p>Gespeichert.</p></div>';
         } catch (err) {
             statusEl.innerHTML = `<div class="notice notice-error inline"><p>${esc(err.message)}</p></div>`;
@@ -422,6 +475,18 @@
 
         const btn = document.getElementById('gk-create-btn');
         const statusEl = document.getElementById('gk-config-status');
+        const invalid = firstInvalidLink();
+        if (invalid) {
+            statusEl.innerHTML = '<div class="notice notice-error inline"><p>Bitte zuerst die markierte externe Website korrigieren.</p></div>';
+            invalid.querySelector('.gk-link-input').focus();
+            return;
+        }
+        const missingOV = firstMissingOV();
+        if (missingOV) {
+            statusEl.innerHTML = '<div class="notice notice-error inline"><p>Bitte den fehlenden Ortsverband neu zuordnen.</p></div>';
+            missingOV.querySelector('.gk-ov-select').focus();
+            return;
+        }
 
         // Collect checked rows
         const toCreate = [];
@@ -446,7 +511,7 @@
 
         try {
             // Save mappings first
-            await fetch(gkKreiskarte.ajaxUrl, {
+            const saveResponse = await fetch(gkKreiskarte.ajaxUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({
@@ -455,6 +520,8 @@
                     mappings: JSON.stringify(mappings),
                 }),
             });
+            const savedResult = await saveResponse.json();
+            if (!savedResult.success) throw new Error(savedResult.data || 'Speichern fehlgeschlagen');
 
             const resp = await fetch(gkKreiskarte.ajaxUrl, {
                 method: 'POST',
@@ -475,6 +542,7 @@
 
                 // Refresh table to update badges
                 await loadExistingOVs();
+                currentData = savedMap || currentData;
                 renderConfigTable(currentData);
             } else {
                 throw new Error(result.data || 'Erstellen fehlgeschlagen');
@@ -501,10 +569,16 @@
                 }),
             });
             const result = await resp.json();
-            if (result.success) existingOVs = result.data;
+            if (result.success) {
+                existingOVs = result.data.ovs || [];
+                liveTargets = result.data.targets || {};
+                savedMap = result.data.map || null;
+            }
         } catch (e) {
             console.warn('Could not load existing OVs:', e);
             existingOVs = [];
+            liveTargets = {};
+            savedMap = null;
         }
     }
 

@@ -3,7 +3,7 @@
  * Kreiskarte (District Map) Component
  *
  * Renders an interactive SVG map of Landkreis Starnberg.
- * Geographic polygon data is stored in lib/data/kreiskarte.json.
+ * Bundled polygons are defaults; edited map data is stored in a WordPress option.
  * Links are resolved dynamically from gk_zuordnung taxonomy terms.
  *
  * Usage:
@@ -263,23 +263,24 @@ function gk_get_municipality_labels( $data ) {
  * Check if kreiskarte data exists.
  */
 function gk_has_kreiskarte_data() {
-    return file_exists( GK_DIR . '/lib/data/kreiskarte.json' );
+    $saved = get_option( 'gk_kreiskarte_data' );
+    return ( is_array( $saved ) && ! empty( $saved['municipalities'] ) ) || file_exists( GK_DIR . '/lib/data/kreiskarte.json' );
 }
 
 /**
  * Load the geographic data from the JSON config.
  */
 function gk_get_kreiskarte_data() {
-    static $data = null;
-    if ( null === $data ) {
-        if ( ! gk_has_kreiskarte_data() ) {
-            return null;
-        }
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reads a checked local theme JSON file, never a remote URL; an HTTP request would be inappropriate.
-        $json = file_get_contents( GK_DIR . '/lib/data/kreiskarte.json' );
-        $data = json_decode( $json, true );
+    $saved = get_option( 'gk_kreiskarte_data' );
+    if ( is_array( $saved ) && ! empty( $saved['municipalities'] ) ) {
+        return $saved;
     }
-    return $data;
+    if ( ! file_exists( GK_DIR . '/lib/data/kreiskarte.json' ) ) {
+        return null;
+    }
+    // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reads the bundled local default, never a remote URL.
+    $json = file_get_contents( GK_DIR . '/lib/data/kreiskarte.json' );
+    return json_decode( $json, true );
 }
 
 /**
@@ -293,7 +294,7 @@ function gk_get_ov_terms_by_slug() {
 
     foreach ( $ov_terms as $term ) {
         $homepage_id  = gk_get_ov_public_homepage_id( $term->term_id );
-        $homepage_url = gk_get_ov_navigation_url( $term->term_id );
+        $homepage_url = gk_get_ov_url( $term->term_id );
 
         $terms[ $term->slug ] = (object) array(
             'term'         => $term,
@@ -316,33 +317,39 @@ function gk_get_ov_terms_by_slug() {
  * @return string Safe URL, or empty for an area still in preparation.
  */
 function gk_get_municipality_url( $slug, $municipality, $ov_data ) {
-    $type = $municipality['type'] ?? 'ov';
-    $ov   = $ov_data[ $slug ] ?? null;
-    if ( 'link' === $type ) {
-        $external = gk_public_website_url( $municipality['link'] ?? '' );
-        if ( $external ) {
-            return $external;
-        }
+    $type    = $municipality['type'] ?? 'ov';
+    $ov_slug = $municipality['ovSlug'] ?? $slug;
+    $ov      = $ov_data[ $ov_slug ] ?? null;
+    if ( 'keine' === $type ) {
+        return '';
     }
-    // Current published OV pages/contact targets take precedence over old map flags.
+    if ( 'link' === $type ) {
+        return gk_public_website_url( $municipality['link'] ?? '' );
+    }
+    if ( 'werbung' === $type ) {
+        return gk_ov_info_url( $slug );
+    }
     if ( $ov && $ov->homepage_url ) {
         return $ov->homepage_url;
     }
-    return gk_ov_info_url( $slug );
+    return '';
 }
 
 /**
- * Describe the resolved target instead of stale map-only status flags.
+ * Describe the resolved target according to the saved map action.
  *
  * @param string $url Resolved public URL.
- * @param string $type Current OV type.
+ * @param string $type Saved municipality action.
  * @return string Display type for map colors and list badges.
  */
 function gk_municipality_link_type( $url, $type ) {
-    if ( ! $url || str_contains( $url, 'gk_ov_info=' ) ) {
+    if ( 'keine' === $type || ! $url ) {
+        return 'keine';
+    }
+    if ( 'werbung' === $type ) {
         return 'werbung';
     }
-    if ( ! str_starts_with( $url, trailingslashit( home_url() ) ) ) {
+    if ( 'link' === $type ) {
         return 'link';
     }
     return 'ortsgruppe' === $type ? 'ortsgruppe' : 'ov';
@@ -586,7 +593,7 @@ function gk_render_kreiskarte( $args = array() ) {
                     $type = $muni['type'] ?? 'ov';
 
                     $link       = gk_get_municipality_url( $slug, $muni, $ov_data );
-                    $type       = gk_municipality_link_type( $link, $ov_data[ $slug ]->type ?? $type );
+                    $type       = gk_municipality_link_type( $link, $type );
                     $type_class = 'ov-' . sanitize_html_class( $type );
 					?>
                     <?php if ( $link ) : ?>
@@ -672,7 +679,7 @@ function gk_render_kreiskarte_responsive( $args = array() ) {
         foreach ( $data['municipalities'] as $slug => $muni ) {
             $type = $muni['type'] ?? 'ov';
             $link = gk_get_municipality_url( $slug, $muni, $ov_data );
-            $type = gk_municipality_link_type( $link, $ov_data[ $slug ]->type ?? $type );
+            $type = gk_municipality_link_type( $link, $type );
 
             $ov_items[] = array(
                 'slug' => $slug,

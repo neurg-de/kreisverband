@@ -29,13 +29,11 @@ class OrtsverbandTest extends WP_UnitTestCase {
         $this->assertSame( 'https://www.gruene.de/', gk_public_website_url( 'https://www.gruene.de/' ) );
     }
 
-    public function test_municipality_without_page_has_a_useful_consistent_target() {
+    public function test_municipality_without_page_is_not_a_false_link() {
         $data = gk_get_kreiskarte_data();
         $slug = array_key_first( $data['municipalities'] );
-        $url = gk_get_municipality_url( $slug, $data['municipalities'][ $slug ], array() );
-        $this->assertNotEmpty( $url );
-        $this->assertStringContainsString( 'gk_ov_info=', $url );
-        $this->assertStringContainsString( esc_url( $url ), gk_render_kreiskarte_responsive() );
+        $this->assertSame( '', gk_get_municipality_url( $slug, array( 'type' => 'ov' ), array() ) );
+        $this->assertStringContainsString( 'Im Aufbau', gk_render_kreiskarte_responsive() );
     }
     /**
      * Create an OV fixture.
@@ -465,12 +463,10 @@ class OrtsverbandTest extends WP_UnitTestCase {
                 $this->assertSame( $url, $node->getAttribute( 'href' ) );
             }
         }
-        $fallbacks = $xpath->query( '//a[@data-ov-slug="' . $slugs[2] . '"]' );
-        $this->assertSame( 2, $fallbacks->length );
-        foreach ( $fallbacks as $fallback ) {
-            $this->assertSame( gk_ov_info_url( $slugs[2] ), $fallback->getAttribute( 'href' ) );
-        }
-        $placeholder = $fallbacks->item( 0 );
+        $this->assertSame( 0, $xpath->query( '//a[@data-ov-slug="' . $slugs[2] . '"]' )->length );
+        $placeholders = $xpath->query( '//*[@data-ov-slug="' . $slugs[2] . '"]' );
+        $this->assertSame( 2, $placeholders->length );
+        $placeholder = $placeholders->item( 0 );
         $this->assertNotNull( $placeholder );
         // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMNode provides this standard read-only property.
         $this->assertStringContainsString( 'Im Aufbau', $placeholder->textContent );
@@ -515,15 +511,14 @@ class OrtsverbandTest extends WP_UnitTestCase {
         }
         $this->assertInstanceOf( WP_Term::class, get_term( $foreign, 'gk_zuordnung' ) );
     }
-    /**
-     * Map-only external targets are validated; missing targets offer information.
-     */
+    /** Map actions determine the public destination without hidden fallbacks. */
     public function test_map_configuration_rejects_unsafe_and_inactive_targets() {
-        $this->assertSame( 'ov', gk_municipality_link_type( home_url( '/ov-fixture/' ), 'link' ) );
-        $this->assertSame( 'link', gk_municipality_link_type( 'https://external.example.org/', 'ov' ) );
-        $this->assertSame( 'werbung', gk_municipality_link_type( '', 'ov' ) );
+        $this->assertSame( 'link', gk_municipality_link_type( home_url( '/ov-fixture/' ), 'link' ) );
+        $this->assertSame( 'ov', gk_municipality_link_type( 'https://external.example.org/', 'ov' ) );
+        $this->assertSame( 'keine', gk_municipality_link_type( '', 'ov' ) );
+        $this->assertSame( 'keine', gk_municipality_link_type( '', 'keine' ) );
         $this->assertSame(
-            gk_ov_info_url( 'fixture' ),
+            '',
             gk_get_municipality_url(
                 'fixture',
                 array(
@@ -555,20 +550,62 @@ class OrtsverbandTest extends WP_UnitTestCase {
         $slug = get_term( $term )->slug;
         $this->assertSame( get_permalink( $page ), gk_get_ov_url( $term ) );
         $ov_data = gk_get_ov_terms_by_slug();
-        foreach ( array( 'keine', 'werbung' ) as $type ) {
-            $this->assertSame( get_permalink( $page ), gk_get_municipality_url( $slug, array( 'type' => $type ), $ov_data ) );
-            $this->assertSame(
-                gk_ov_info_url( 'fixture' ),
-                gk_get_municipality_url(
-                    'fixture',
-                    array(
-						'type' => $type,
-						'link' => 'https://external.example.org/',
-                    ),
-                    array()
-                )
-            );
+        $this->assertSame( get_permalink( $page ), gk_get_municipality_url( $slug, array( 'type' => 'ov' ), $ov_data ) );
+        $this->assertSame( '', gk_get_municipality_url( $slug, array( 'type' => 'keine' ), $ov_data ) );
+        $this->assertSame( gk_ov_info_url( $slug ), gk_get_municipality_url( $slug, array( 'type' => 'werbung' ), $ov_data ) );
+        $this->assertSame( '', gk_get_municipality_url( 'fixture', array( 'type' => 'ov' ), array() ) );
+        $this->assertSame( '', gk_get_municipality_url( 'fixture', array( 'type' => 'keine' ), array() ) );
+    }
+
+    /** Saved map settings take precedence over bundled defaults and affect list and SVG together. */
+    public function test_saved_map_actions_control_list_and_svg() {
+        $data = gk_get_kreiskarte_data();
+        $slug = array_key_first( $data['municipalities'] );
+        $data['municipalities'][ $slug ]['type'] = 'keine';
+        update_option( 'gk_kreiskarte_data', $data );
+        $this->assertSame( 'keine', gk_get_kreiskarte_data()['municipalities'][ $slug ]['type'] );
+        $this->assertSame( '', gk_get_municipality_url( $slug, gk_get_kreiskarte_data()['municipalities'][ $slug ], array() ) );
+        $html = gk_render_kreiskarte_responsive();
+        $this->assertStringContainsString( 'gk-ov-chip--inactive', $html );
+        $this->assertStringContainsString( 'ov-inactive ov-keine', $html );
+        $data['municipalities'][ $slug ]['type'] = 'link';
+        $data['municipalities'][ $slug ]['link'] = 'https://external.example.org/';
+        update_option( 'gk_kreiskarte_data', $data );
+        $html = gk_render_kreiskarte_responsive();
+        $this->assertStringContainsString( 'href="https://external.example.org/"', $html );
+        $this->assertStringContainsString( 'class="ov-link"', $html );
+    }
+
+    /** Two municipality rows may resolve through one OV without losing either row. */
+    public function test_shared_ov_assignment_keeps_both_municipalities() {
+        $term = $this->ov();
+        $page = self::factory()->post->create( array( 'post_type' => 'page', 'post_status' => 'publish' ) );
+        update_term_meta( $term, '_gk_homepage_id', $page );
+        $ov_slug = get_term( $term )->slug;
+        $data = gk_get_kreiskarte_data();
+        $slugs = array_slice( array_keys( $data['municipalities'] ), 0, 2 );
+        foreach ( $slugs as $slug ) {
+            $data['municipalities'][ $slug ]['type'] = 'ov';
+            $data['municipalities'][ $slug ]['ovSlug'] = $ov_slug;
         }
+        update_option( 'gk_kreiskarte_data', $data );
+        $this->assertCount( count( $data['municipalities'] ), gk_get_kreiskarte_data()['municipalities'] );
+        foreach ( $slugs as $slug ) {
+            $this->assertSame( get_permalink( $page ), gk_get_municipality_url( $slug, $data['municipalities'][ $slug ], gk_get_ov_terms_by_slug() ) );
+        }
+    }
+
+    /** An explicit no-link action also applies to the public OV directory. */
+    public function test_no_link_action_does_not_leave_ov_directory_linked() {
+        $data = gk_get_kreiskarte_data();
+        $slug = array_key_first( $data['municipalities'] );
+        $term = self::factory()->term->create( array( 'taxonomy' => 'gk_zuordnung', 'slug' => $slug ) );
+        $page = self::factory()->post->create( array( 'post_type' => 'page', 'post_status' => 'publish' ) );
+        update_term_meta( $term, '_gk_homepage_id', $page );
+        $data['municipalities'][ $slug ]['type'] = 'keine';
+        update_option( 'gk_kreiskarte_data', $data );
+        $this->assertSame( '', gk_get_ov_navigation_url( $term ) );
+        $this->assertStringNotContainsString( 'href="' . esc_url( get_permalink( $page ) ) . '"', gk_shortcode_ortsverband_liste( array() ) );
     }
     /**
      * Reject a new foreign image while retaining existing legacy references.

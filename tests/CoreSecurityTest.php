@@ -54,15 +54,13 @@ class CoreSecurityTest extends WP_UnitTestCase {
         $this->assertSame( "O'Reilly", $clean['municipalities']['ov-test']['label']['text'] );
     }
 
-    public function test_wordpress_filesystem_map_writer_writes_exact_json_to_temporary_file() {
-        $path = wp_tempnam( 'gk-map-test.json' );
-        $json = wp_json_encode( array( 'municipalities' => array( 'name' => 'Test' ) ) );
-        try {
-            $this->assertSame( strlen( $json ), gk_write_kreiskarte_json( $path, $json ) );
-            $this->assertSame( $json, file_get_contents( $path ) );
-        } finally {
-            unlink( $path );
-        }
+    public function test_saved_map_data_survives_default_file_changes() {
+        $saved = gk_get_kreiskarte_data();
+        $slug = array_key_first( $saved['municipalities'] );
+        $saved['municipalities'][ $slug ]['type'] = 'keine';
+        update_option( 'gk_kreiskarte_data', $saved );
+        $this->assertSame( $saved, gk_get_kreiskarte_data() );
+        $this->assertTrue( gk_has_kreiskarte_data() );
     }
 
     public function test_admin_seed_trigger_requires_nonce_before_any_mutation() {

@@ -194,17 +194,18 @@ Für `[ortsverband_liste]` gilt:
 
 | Vorhandene Konfiguration | Ausgabe |
 |---|---|
-| ausdrücklich als externer Kartenlink konfigurierte gültige Website | Link zu dieser Website |
-| sonst veröffentlichte, nicht passwortgeschützte lokale Homepage | Link zur lokalen Homepage |
-| keine nutzbare lokale Homepage, gültige externe Website | Link zur externen Website aus dem OV-Kontaktfeld |
-| weder lokale Homepage noch gültige externe Website | Informationsseite mit Kontaktmöglichkeit |
-| Typ `werbung` ohne nutzbare lokale Homepage | **Im Aufbau**, mit Link zur Informationsseite |
+| Kartentyp **Externer Link** mit gültiger Website | Link genau zu dieser Website |
+| Kartentyp **Ortsverband** oder **Ortsgruppe**, veröffentlichte lokale Homepage | Link zur lokalen Homepage |
+| Kartentyp **Ortsverband** oder **Ortsgruppe**, keine lokale Homepage, gültige OV-Website | Link zur OV-Website aus dem Kontaktfeld |
+| Kartentyp **Ortsverband** oder **Ortsgruppe**, kein nutzbares Ziel | **Im Aufbau**, ohne Link |
+| Kartentyp **Kontaktseite** | Link zur Informationsseite mit Kontaktmöglichkeit |
+| Kartentyp **Ohne Link** | **Im Aufbau**, ohne Link |
 
 Eine nur als Entwurf vorhandene Homepage hat keinen Vorrang vor einer gültigen externen Website. Der Altwert `full` wird als `ov` behandelt. Das OV-Verzeichnis öffnet seine Links im selben Fenster. Auch die Namenslinks in `[gliederungen]` und `[arbeitsgemeinschaften]` verwenden dieselbe Auflösung. Eine veröffentlichte lokale Homepage wird auch bei alten Typangaben wie `werbung` erkannt; ohne solche Homepage bleibt `werbung` im Aufbau und bietet eine Informationsseite. Zusätzliche Kontakt-Website-Symbole dieser älteren Ansichten separat prüfen.
 
 Vorhandene veröffentlichte Seiten unter dem OV-Slug, beispielsweise `/ov-beispielort/`, werden auch ohne ältere Startseiten-Zuweisung erkannt, wenn sie diesem OV zugeordnet sind. Eine unzugeordnete Altseite muss dafür die Vorlage **OV-Startseite** besitzen. Die ausdrückliche Startseiten-Auswahl bleibt der übersichtlichste Einrichtungsweg; eine fremd zugeordnete Seite wird nicht anhand ihres Namens übernommen.
 
-Karte und mobile Gemeindeliste verwenden dieselbe Zielauflösung. Ein ausdrücklich konfigurierter gültiger externer Kartenlink hat Vorrang. Andernfalls wird die veröffentlichte interne OV-Seite oder die gültige externe Kontakt-Website verwendet. „Im Aufbau“ führt zu einer Informationsseite: Sie zeigt den OV-Kontakt oder ersatzweise den Kontakt der Geschäftsstelle. Diese Kontaktdaten müssen in der Installation gepflegt sein. Leere Ziele, `#` und Platzhalter wie `example.com` werden nicht als Website übernommen. Auf kleinen Bildschirmen öffnet ein Antippen der Karte zunächst die Gemeindeansicht; deren Button führt zum OV. Mit Escape lässt sich diese Ansicht schließen, der Fokus kehrt zum Ausgangspunkt zurück.
+Karte und mobile Gemeindeliste verwenden dieselbe gespeicherte Aktion. Die Spalte **Klickziel auf der Website** im Karteneditor zeigt die derzeit öffentliche Zieladresse oder **Im Aufbau**. Eine Änderung am Typ oder Ziel ist erst nach **Speichern** öffentlich. **Kontaktseite** ist eine ausdrückliche Wahl; die Seite zeigt den OV-Kontakt oder ersatzweise den Kontakt der Geschäftsstelle. Diese Kontaktdaten müssen in der Installation gepflegt sein. Leere Ziele, `#` und Platzhalter wie `example.com` werden nicht als Website übernommen. Auf kleinen Bildschirmen öffnet ein Antippen der Karte zunächst die Gemeindeansicht; deren Button führt zum OV. Mit Escape lässt sich diese Ansicht schließen, der Fokus kehrt zum Ausgangspunkt zurück.
 
 ### Gemeinde anklicken funktioniert nicht, direkte OV-Adresse schon
 
@@ -469,14 +470,14 @@ Die Daten der Karte müssen bereits eingerichtet sein. Die Anzeige kann zusätzl
 
 ### Karte einrichten oder korrigieren – Administration
 
-1. **Verband → Kreiskarte** öffnen. Vor dem Ersetzen Datenbank und bestehende Kartendateien sichern.
+1. **Verband → Kreiskarte** öffnen. Vor dem Ersetzen die Datenbank sichern; bei älteren Theme-Versionen auch lokal geänderte Kartendateien sichern.
 2. Falls keine Karte vorliegt, den Landkreis suchen, den richtigen Treffer wählen und die geladenen Gemeindegrenzen in der Vorschau kontrollieren.
 3. Erst dann **Karte übernehmen** wählen.
-4. Unter **Gemeinden konfigurieren** Typ, bestehenden OV oder eigenen Link je Gemeinde festlegen. Gemeinsam zuständige OVs und externe Websites bewusst zuweisen.
+4. Unter **Gemeinden konfigurieren** je Gemeinde die gewünschte Aktion wählen: **Ortsverband/Ortsgruppe** für lokale oder im OV-Kontaktfeld hinterlegte Websites, **Externer Link** für eine ausdrücklich vorgegebene Website, **Kontaktseite** für den Kontaktweg oder **Ohne Link** für einen Eintrag im Aufbau. Die Spalte **Klickziel auf der Website** zeigt die derzeit gespeicherte öffentliche Wirkung; ungespeicherte Änderungen sind markiert.
 5. **Speichern** wählen. **Markierte Einträge anlegen** erzeugt zusätzliche Datensätze und ist kein bloßer Speicherschritt; vorher vorhandene OVs abgleichen.
-6. Alle Gemeinden öffentlich testen. Lokale OV-Startseite und OV-Kontakt-Website haben Vorrang; nur ohne nutzbares OV-Ziel kann ein eigener Kartenlink greifen. Platzhalter wie `example.com` durch die bestätigte Website ersetzen, niemals raten.
+6. Alle Gemeinden öffentlich testen: Karte und mobile Liste müssen die gespeicherte Aktion umsetzen. Für **Externer Link** ist eine gültige vollständige HTTP-/HTTPS-Adresse Pflicht; Platzhalter wie `example.com` durch die bestätigte Website ersetzen, niemals raten.
 
-**Karte neu laden** erhält Zuordnungen nur, soweit Gemeinde-Slugs weiterhin übereinstimmen. Der Generator lädt OpenStreetMap-Daten und schreibt Kartendaten in das Theme-Verzeichnis (`lib/data/kreiskarte.json`). Vor einem Theme-Update muss die Administration deshalb auch lokal angepasste Kartendateien sichern und deren Wiederherstellung prüfen. Ein Datenbankbackup allein genügt dafür nicht.
+**Karte neu laden** erhält Zuordnungen nur, soweit Gemeinde-Slugs weiterhin übereinstimmen. Der Generator lädt OpenStreetMap-Daten. Gespeicherte Kartendaten liegen in der WordPress-Datenbank und bleiben bei einem Theme-Update erhalten; die mitgelieferte Kartendatei dient nur als Ausgangswert, solange keine eigene Konfiguration gespeichert wurde. Vor einem Update eine Datenbanksicherung und eine öffentliche Stichprobe der Ziele einplanen.
 
 ## 14. Shortcodes und Blöcke zum Nachschlagen
 

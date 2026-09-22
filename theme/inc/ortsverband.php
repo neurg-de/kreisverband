@@ -267,7 +267,7 @@ function gk_get_ov_url( $term_id ) {
 }
 
 /**
- * Public navigation always offers an OV page, website or useful information.
+ * Public navigation follows the map action where this OV is on the map.
  *
  * @param int $term_id OV term ID.
  * @return string Navigation URL.
@@ -276,6 +276,14 @@ function gk_get_ov_navigation_url( $term_id ) {
     $term = get_term( $term_id, 'gk_zuordnung' );
     if ( ! $term || is_wp_error( $term ) || 'kreisverband' === $term->slug ) {
         return '';
+    }
+    $map = gk_get_kreiskarte_data();
+    if ( isset( $map['municipalities'][ $term->slug ] ) ) {
+        return gk_get_municipality_url(
+            $term->slug,
+            $map['municipalities'][ $term->slug ],
+            array( $term->slug => (object) array( 'homepage_url' => gk_get_ov_url( $term_id ) ) )
+        );
     }
     $url = gk_get_ov_url( $term_id );
     return $url ? $url : gk_ov_info_url( $term->slug );
