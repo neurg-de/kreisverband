@@ -226,7 +226,7 @@ Eine funktionierende direkte Adresse wie `/ov-beispielort/` beweist noch nicht, 
 
 ### Einen Termin erstellen – Redaktion und berechtigte OV-Nutzer
 
-1. **Termine → passender Bereich → Neuer Termin** öffnen.
+1. **Termine → passender Bereich → Neuer Termin** öffnen. Die Zuordnung zum ausgewählten Verband wird übernommen. **Alle Termine** zeigt der berechtigten Redaktion die bereichsübergreifende Liste.
 2. Einen Titel und eine Beschreibung eingeben: Was findet statt, für wen, mit welcher Anmeldung und gegebenenfalls welcher Barrierefreiheit?
 3. Unter **Termin-Details** das **Startdatum** eintragen. Im Blockeditor erscheinen die Felder in der Seitenleiste, im klassischen Editor in einer eigenen Box.
 4. **Startzeit** sowie **Enddatum** und **Endzeit** eintragen, soweit bekannt. Das Ende darf nicht vor dem Beginn liegen. Für eine Abendveranstaltung beispielsweise denselben Tag und `19:00` bis `21:00` wählen.
@@ -240,6 +240,17 @@ Eine funktionierende direkte Adresse wie `/ov-beispielort/` beweist noch nicht, 
 Termine verwenden die in WordPress eingestellte Zeitzone. Bei Zeitverschiebungen die Administration die Website-Zeitzone prüfen lassen; die Geschäftsstelle soll Uhrzeiten nicht durch willkürliche Zuschläge „reparieren“. Das Theme bietet keine bedienbare Serienverwaltung: Wiederkehrende Sitzungen als einzelne Termine mit jeweils geprüftem Datum anlegen.
 
 Für eine Absage können Titel und Beschreibung zunächst deutlich **Abgesagt** kennzeichnen. Eine automatische Absage-Nachricht an Kalenderabonnenten oder Teilnehmer wird dadurch nicht versandt. Soll der Termin verschwinden, ihn nach Abschnitt 4 zurücknehmen oder in den Papierkorb legen; eine Löschung entfernt bereits importierte Kalenderkopien nicht zuverlässig.
+
+### Termine ohne lokale OV-Unterseite
+
+Eine externe Website oder eine Ortsgruppe kann ebenfalls Termine im gemeinsamen Kalender unter **/termine** und im iCal-Export haben. Dafür genügt eine interne Zuordnung; eine lokale OV-Unterseite ist nicht erforderlich.
+
+1. Als Administration **Verband → Kreiskarte → Gemeinden konfigurieren** öffnen.
+2. Bei der Gemeinde **Im Terminmenü anzeigen** aktivieren. Falls mehrere Gemeinden denselben Verband nutzen, den bestehenden Verband auswählen.
+3. **Speichern**. Bei Bedarf wird eine interne Zuordnung angelegt, jedoch keine lokale Unterseite. Kartenaktion und externe Zieladresse bleiben bestehen.
+4. Über **Termine verwalten** oder **Termine → gewünschter Verband** einen Termin anlegen. Vor der Veröffentlichung die Zuordnung prüfen, danach den gemeinsamen Kalender und den passenden Filter kontrollieren.
+
+Abwählen blendet den Eintrag im gemeinsamen Terminmenü aus. Vorhandene Termine, Zuordnungen und ihre öffentliche Anzeige bleiben erhalten. OV-Konten behalten ihren eigenen Bereich; die Einstellung erweitert keine Benutzerrechte. Bei gemeinsam genutzten Zuordnungen bleibt der Menüeintrag sichtbar, solange mindestens eine Gemeinde ihn aktiviert hat.
 
 ### Listen richtig eingrenzen
 

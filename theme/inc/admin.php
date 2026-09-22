@@ -50,6 +50,9 @@ function gk_zuordnung_submenu( $menu_slug, $capability ) {
     $is_ov    = array_intersect( $ov_roles, $roles );
 
     if ( $is_kv ) {
+        if ( 'edit.php?post_type=gk_event' === $menu_slug && null === gk_user_scope() ) {
+            add_submenu_page( $menu_slug, 'Alle Termine', 'Alle Termine', $capability, $menu_slug );
+        }
         $kv_term = get_term_by( 'slug', 'kreisverband', 'gk_zuordnung' );
         if ( $kv_term ) {
             add_submenu_page(
@@ -72,6 +75,9 @@ function gk_zuordnung_submenu( $menu_slug, $capability ) {
 
         if ( ! is_wp_error( $ov_terms ) ) {
             foreach ( $ov_terms as $term ) {
+                if ( 'edit.php?post_type=gk_event' === $menu_slug && ! gk_ov_in_event_menu( $term ) ) {
+                    continue;
+                }
                 add_submenu_page(
                     $menu_slug,
                     $term->name,

@@ -95,9 +95,11 @@ function gk_safe_default_scope( $post_id, $post, $update ) {
     }
     $scope = gk_user_scope();
     if ( null === $scope ) {
+        global $pagenow;
+        $selected     = is_admin() && 'post-new.php' === $pagenow && 'gk_event' === $post->post_type ? gk_event_admin_selected_term() : false;
         $parent_scope = $post->post_parent ? gk_object_scope_ids( $post->post_parent ) : array();
         $kv           = get_term_by( 'slug', 'kreisverband', 'gk_zuordnung' );
-        $scope        = 1 === count( $parent_scope ) ? $parent_scope[0] : ( $kv ? (int) $kv->term_id : 0 );
+        $scope        = $selected ? (int) $selected->term_id : ( 1 === count( $parent_scope ) ? $parent_scope[0] : ( $kv ? (int) $kv->term_id : 0 ) );
     }
     if ( $scope ) {
         wp_set_object_terms( $post_id, array( $scope ), 'gk_zuordnung' );

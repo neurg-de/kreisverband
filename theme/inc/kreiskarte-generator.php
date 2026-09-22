@@ -143,6 +143,11 @@ function gk_kreiskarte_generator_page() {
                 &bdquo;Klickziel auf der Website&ldquo; zeigt den aktuell gespeicherten Stand.
                 &Auml;nderungen werden erst nach &bdquo;Speichern&ldquo; &ouml;ffentlich.
             </p>
+            <p class="description">
+                <strong>Im Terminmen&uuml; anzeigen</strong> ist unabh&auml;ngig vom Kartenlink.
+                Beim Speichern wird bei Bedarf eine interne Zuordnung ohne lokale Unterseite angelegt.
+                Abw&auml;hlen blendet nur den Men&uuml;eintrag aus; vorhandene Termine bleiben erhalten.
+            </p>
 
             <div id="gk-config-table"></div>
 
@@ -203,6 +208,10 @@ function gk_ajax_save_kreiskarte() {
         wp_send_json_error( 'Ungültige Kartendaten.' );
     }
 
+    $data = gk_ensure_map_event_scopes( $data );
+    if ( is_wp_error( $data ) ) {
+        wp_send_json_error( $data->get_error_message() );
+    }
     update_option( 'gk_kreiskarte_data', $data, false );
     wp_send_json_success( array( 'bytes' => strlen( wp_json_encode( $data ) ) ) );
 }
@@ -238,7 +247,8 @@ function gk_ajax_update_kreiskarte_mappings() {
             if ( ! in_array( $type, array( 'ov', 'ortsgruppe', 'werbung', 'link', 'keine' ), true ) ) {
                 wp_send_json_error( 'Ungültiger Gemeindetyp.' );
             }
-            $muni['type'] = $type;
+            $muni['type']          = $type;
+            $muni['eventsEnabled'] = isset( $m['eventsEnabled'] ) ? true === $m['eventsEnabled'] : gk_map_events_enabled( $slug, $muni );
 
             // Link field only for the 'link' type.
             if ( 'link' === $type ) {
@@ -253,8 +263,7 @@ function gk_ajax_update_kreiskarte_mappings() {
             }
 
             // Keep the municipality key stable; multiple municipalities may share one OV.
-            $needs_wp = in_array( $type, array( 'ov', 'ortsgruppe', 'werbung' ), true );
-            $ov_slug  = $needs_wp ? sanitize_title( $m['ovSlug'] ?? '' ) : '';
+            $ov_slug = sanitize_title( $m['ovSlug'] ?? '' );
             if ( $ov_slug ) {
                 if ( ! get_term_by( 'slug', $ov_slug, 'gk_zuordnung' ) ) {
                     wp_send_json_error( sprintf( 'Der zugeordnete Ortsverband für %s existiert nicht.', sanitize_text_field( $muni['name'] ?? $slug ) ) );
@@ -270,8 +279,45 @@ function gk_ajax_update_kreiskarte_mappings() {
     }
     $data['municipalities'] = $new_munis;
 
+    $data = gk_ensure_map_event_scopes( $data );
+    if ( is_wp_error( $data ) ) {
+        wp_send_json_error( $data->get_error_message() );
+    }
     update_option( 'gk_kreiskarte_data', $data, false );
     wp_send_json_success( array( 'bytes' => strlen( wp_json_encode( $data ) ) ) );
+}
+
+/**
+ * Create only the internal assignment needed for events, never a public page.
+ *
+ * @param array $data Validated map data.
+ * @return array|WP_Error Map with explicit assignments, or an actionable error.
+ */
+function gk_ensure_map_event_scopes( $data ) {
+    $created = array();
+    foreach ( $data['municipalities'] as $slug => &$municipality ) {
+        if ( true !== ( $municipality['eventsEnabled'] ?? false ) ) {
+            continue;
+        }
+        $ov_slug = sanitize_title( ! empty( $municipality['ovSlug'] ) ? $municipality['ovSlug'] : $slug );
+        $term    = get_term_by( 'slug', $ov_slug, 'gk_zuordnung' );
+        if ( ! $term ) {
+            $is_group = 'ortsgruppe' === ( $municipality['type'] ?? '' );
+            $name     = ( $is_group ? 'Ortsgruppe ' : 'OV ' ) . sanitize_text_field( $municipality['name'] ?? $slug );
+            $result   = wp_insert_term( $name, 'gk_zuordnung', array( 'slug' => $ov_slug ) );
+            if ( is_wp_error( $result ) ) {
+                foreach ( $created as $id ) {
+                    wp_delete_term( $id, 'gk_zuordnung' );
+                }
+                return new WP_Error( 'gk_event_scope', sprintf( 'Terminzuordnung für %s konnte nicht angelegt werden: %s', $name, $result->get_error_message() ) );
+            }
+            $created[] = (int) $result['term_id'];
+            update_term_meta( $result['term_id'], '_gk_ov_type', $is_group ? 'ortsgruppe' : 'ov' );
+        }
+        $municipality['ovSlug'] = $ov_slug;
+    }
+    unset( $municipality );
+    return $data;
 }
 
 /**
@@ -303,12 +349,15 @@ function gk_ajax_create_ortsverbaende() {
 			continue;
         }
 
-        $existing = get_term_by( 'slug', $slug, 'gk_zuordnung' );
-        if ( $existing ) {
-			++$skipped;
-			continue; }
-
         $type = sanitize_text_field( $muni['type'] ?? 'ov' );
+        if ( ! in_array( $type, array( 'ov', 'ortsgruppe', 'werbung' ), true ) ) {
+            continue;
+        }
+        $existing = get_term_by( 'slug', $slug, 'gk_zuordnung' );
+        if ( $existing && ( 'werbung' === $type || gk_get_ov_homepage_id( $existing->term_id ) || gk_get_ov_public_homepage_id( $existing->term_id ) ) ) {
+            ++$skipped;
+            continue;
+        }
 
         $display_name = match ( $type ) {
             'ortsgruppe' => 'Ortsgruppe ' . $name,
@@ -316,21 +365,25 @@ function gk_ajax_create_ortsverbaende() {
             default      => 'OV ' . $name,
         };
 
-        $result = wp_insert_term( $display_name, 'gk_zuordnung', array( 'slug' => $slug ) );
+        $result = $existing ? array( 'term_id' => $existing->term_id ) : wp_insert_term( $display_name, 'gk_zuordnung', array( 'slug' => $slug ) );
         if ( is_wp_error( $result ) ) {
             $errors[] = $name . ': ' . $result->get_error_message();
             continue;
         }
 
         $term_id = $result['term_id'];
-        update_term_meta( $term_id, '_gk_ov_type', $type );
+        if ( ! $existing ) {
+            update_term_meta( $term_id, '_gk_ov_type', $type );
+        }
 
         $header_text = match ( $type ) {
             'ortsgruppe' => 'Ortsgruppe Grüne ' . $name,
             'werbung'    => 'Grüne in ' . $name,
             default      => 'Ortsverband Grüne ' . $name,
         };
-        update_term_meta( $term_id, '_gk_ov_header', $header_text );
+        if ( ! $existing ) {
+            update_term_meta( $term_id, '_gk_ov_header', $header_text );
+        }
 
         if ( 'ov' === $type || 'ortsgruppe' === $type ) {
             $page_id = wp_insert_post(
@@ -341,10 +394,14 @@ function gk_ajax_create_ortsverbaende() {
 					'post_status'   => 'publish',
 					'post_content'  => '',
 					'page_template' => 'page-OV.php',
-                )
+                ),
+                true
             );
 
-            if ( ! is_wp_error( $page_id ) ) {
+            if ( is_wp_error( $page_id ) ) {
+                $errors[] = $name . ': ' . $page_id->get_error_message();
+                continue;
+            } else {
                 wp_set_object_terms( $page_id, array( $term_id ), 'gk_zuordnung' );
                 update_term_meta( $term_id, '_gk_homepage_id', $page_id );
             }
@@ -374,10 +431,12 @@ function gk_ajax_get_ortsverbaende() {
     $result = array();
     foreach ( gk_get_ov_terms() as $term ) {
         $result[] = array(
-            'id'    => $term->term_id,
-            'slug'  => $term->slug,
-            'title' => $term->name,
-            'type'  => gk_get_ov_type( $term->term_id ),
+            'id'        => $term->term_id,
+            'slug'      => $term->slug,
+            'title'     => $term->name,
+            'type'      => gk_get_ov_type( $term->term_id ),
+            'eventsUrl' => admin_url( 'edit.php?post_type=gk_event&gk_zuordnung=' . $term->slug ),
+            'hasPage'   => (bool) ( gk_get_ov_homepage_id( $term->term_id ) || gk_get_ov_public_homepage_id( $term->term_id ) ),
         );
     }
     $map     = gk_get_kreiskarte_data();

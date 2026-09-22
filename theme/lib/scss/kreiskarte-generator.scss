@@ -142,6 +142,9 @@
 
     .gk-link-error { color: #b32d2e; font-weight: 600; }
 
+    .gk-events-label { display: block; margin-top: 10px; }
+    .gk-events-status { margin-top: 4px; }
+
     .gk-link-input[aria-invalid="true"] {
         border-color: #b32d2e;
         box-shadow: 0 0 0 1px #b32d2e;

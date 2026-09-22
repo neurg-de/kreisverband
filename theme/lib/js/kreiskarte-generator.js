@@ -199,6 +199,13 @@
             progressBar.style.width = '100%';
 
             if (isReload) {
+                for (const [slug, municipality] of Object.entries(result.municipalities)) {
+                    const previous = savedMap?.municipalities?.[slug];
+                    if (!previous) continue;
+                    for (const key of ['type', 'link', 'ovSlug', 'eventsEnabled']) {
+                        if (Object.hasOwn(previous, key)) municipality[key] = previous[key];
+                    }
+                }
                 setStatus('Speichere Karte...', 100);
                 await saveKreiskarte(result);
                 hide(loadingId);
@@ -311,7 +318,7 @@
         ).join('');
 
         let html = '<table class="widefat gk-mapping-table"><thead><tr>' +
-            '<th>Gemeinde</th><th>Typ</th><th>Details</th><th class="gk-col-create">Anlegen</th><th>Klickziel auf der Website</th>' +
+            '<th>Gemeinde</th><th>Typ</th><th>Details / Termine</th><th class="gk-col-create">Lokalen Eintrag anlegen</th><th>Klickziel auf der Website</th>' +
             '</tr></thead><tbody>';
 
         for (const [slug, muni] of entries) {
@@ -319,7 +326,8 @@
             const link = muni.link || '';
             const linkedOV = existingOVs.find(ov => ov.slug === (muni.ovSlug || slug));
 
-            mappings[slug] = { type, ovSlug: muni.ovSlug || (linkedOV ? linkedOV.slug : ''), link };
+            const eventsEnabled = typeof muni.eventsEnabled === 'boolean' ? muni.eventsEnabled : !!linkedOV;
+            mappings[slug] = { type, ovSlug: muni.ovSlug || (linkedOV ? linkedOV.slug : ''), link, eventsEnabled };
             savedMappings[slug] = { ...mappings[slug] };
 
             const missingOV = muni.ovSlug && !linkedOV
@@ -334,6 +342,8 @@
                 `<td class="gk-details-cell">` +
                     `<select class="gk-ov-select" aria-label="Ortsverband für ${esc(muni.name)}"><option value="">— Neu erstellen —</option>${ovOpts}${missingOV}</select>` +
                     `<input type="url" class="gk-link-input" aria-label="Externe Website für ${esc(muni.name)}" placeholder="https://example.com" value="${esc(link)}" />` +
+                    `<label class="gk-events-label"><input type="checkbox" class="gk-events-check" ${eventsEnabled ? 'checked' : ''} aria-label="${esc(muni.name)} im Terminmenü anzeigen" /> Im Terminmenü anzeigen</label>` +
+                    '<p class="gk-events-status description"></p>' +
                 `</td>` +
                 `<td class="gk-col-create"><input type="checkbox" class="gk-create-check" aria-label="Eintrag für ${esc(muni.name)} anlegen" /></td>` +
                 `<td class="gk-target-cell" aria-live="polite"></td>` +
@@ -350,6 +360,7 @@
             const typeSelect = row.querySelector('.gk-type-select');
             const ovSelect = row.querySelector('.gk-ov-select');
             const linkInput = row.querySelector('.gk-link-input');
+            const eventsCheck = row.querySelector('.gk-events-check');
 
             typeSelect.value = m.type;
             if (m.ovSlug) ovSelect.value = m.ovSlug;
@@ -357,6 +368,7 @@
             typeSelect.addEventListener('change', () => { m.type = typeSelect.value; syncRow(row, slug); });
             ovSelect.addEventListener('change', () => { m.ovSlug = ovSelect.value; syncRow(row, slug); });
             linkInput.addEventListener('input', () => { m.link = linkInput.value.trim(); syncRow(row, slug); });
+            eventsCheck.addEventListener('change', () => { m.eventsEnabled = eventsCheck.checked; syncRow(row, slug); });
 
             syncRow(row, slug);
         });
@@ -370,8 +382,10 @@
         const targetCell = row.querySelector('.gk-target-cell');
         const descEl = row.querySelector('.gk-type-desc');
 
-        const needsWP = m.type === 'ov' || m.type === 'ortsgruppe' || m.type === 'werbung';
-        const exists = needsWP && !!existingOVs.find(ov => ov.slug === (m.ovSlug || slug));
+        const localType = m.type === 'ov' || m.type === 'ortsgruppe' || m.type === 'werbung';
+        const needsWP = localType || m.eventsEnabled;
+        const assignedOV = existingOVs.find(ov => ov.slug === (m.ovSlug || slug));
+        const exists = !!assignedOV;
         const missingOV = needsWP && !!m.ovSlug && !existingOVs.some(ov => ov.slug === m.ovSlug);
 
         // Type description
@@ -382,14 +396,17 @@
         linkInput.style.display = m.type === 'link' ? '' : 'none';
 
         // Create checkbox: only for WP types that don't already exist
-        const canCreate = needsWP && !exists;
+        const canCreate = localType && (m.type === 'werbung' ? !exists : !assignedOV?.hasPage);
         createCheck.style.display = canCreate ? '' : 'none';
         if (!canCreate) createCheck.checked = false;
 
         const invalidLink = m.type === 'link' && !validPublicUrl(m.link);
         linkInput.setAttribute('aria-invalid', invalidLink ? 'true' : 'false');
         const saved = savedMappings[slug];
-        const dirty = saved && (saved.type !== m.type || saved.ovSlug !== m.ovSlug || saved.link !== m.link);
+        const dirty = saved && (saved.type !== m.type || saved.ovSlug !== m.ovSlug || saved.link !== m.link || saved.eventsEnabled !== m.eventsEnabled);
+        row.querySelector('.gk-events-status').innerHTML = m.eventsEnabled && !exists
+            ? 'Beim Speichern: Terminzuordnung ohne Unterseite anlegen.'
+            : (assignedOV ? `<a href="${esc(assignedOV.eventsUrl)}">Termine verwalten</a>` : 'Keine Terminzuordnung vorhanden.');
         const target = liveTargets[slug];
         let html = '';
         if (dirty) html += '<span class="gk-badge gk-badge--warn">Noch nicht gespeichert</span><br><small>Derzeit öffentlich:</small><br>';
@@ -424,8 +441,7 @@
 
     function firstMissingOV() {
         return Array.from(document.querySelectorAll('#gk-config-table tr[data-slug]'))
-            .find(row => ['ov', 'ortsgruppe', 'werbung'].includes(mappings[row.dataset.slug]?.type) &&
-                mappings[row.dataset.slug].ovSlug &&
+            .find(row => mappings[row.dataset.slug].ovSlug &&
                 !existingOVs.some(ov => ov.slug === mappings[row.dataset.slug].ovSlug));
     }
 
@@ -495,7 +511,7 @@
             if (!check.checked || check.style.display === 'none') return;
             const slug = row.dataset.slug;
             toCreate.push({
-                slug,
+                slug: mappings[slug]?.ovSlug || slug,
                 name: currentData.municipalities[slug]?.name || slug,
                 type: mappings[slug]?.type || 'ov',
             });
@@ -538,7 +554,8 @@
                 const d = result.data;
                 let msg = `${d.created} Einträge erstellt`;
                 if (d.skipped) msg += `, ${d.skipped} bereits vorhanden`;
-                statusEl.innerHTML = `<div class="notice notice-success inline"><p>${msg}.</p></div>`;
+                const errors = d.errors || [];
+                statusEl.innerHTML = `<div class="notice notice-${errors.length ? 'warning' : 'success'} inline"><p>${msg}.${errors.length ? ' ' + errors.map(esc).join('; ') : ''}</p></div>`;
 
                 // Refresh table to update badges
                 await loadExistingOVs();

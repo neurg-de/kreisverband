@@ -4,7 +4,7 @@ Contributors: severinkistner
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.7.3
+Stable tag: 0.7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,12 @@ Als Administrator unter Verband einen Ortsverband anlegen und eine lokale Starts
 Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Theme integriert.
 
 == Changelog ==
+
+= 0.7.4 =
+* Terminmenue je Gemeinde unabhaengig von Kartenlink und lokaler OV-Unterseite aktivieren.
+* Fehlende Terminzuordnungen beim Speichern anlegen, ohne oeffentliche Seiten zu erzeugen.
+* Neue Termine uebernehmen den ausgewaehlten Verband; zentrale Liste "Alle Termine" ergaenzt.
+* Karten-Neuladen erhaelt gespeicherte Ziele und Terminmenue-Einstellungen.
 
 = 0.7.3 =
 * Karteneditor zeigt das gespeicherte öffentliche Klickziel je Gemeinde und markiert ungespeicherte Änderungen.

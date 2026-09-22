@@ -73,6 +73,85 @@ function gk_register_event_post_type() {
 }
 add_action( 'init', 'gk_register_event_post_type' );
 
+/**
+ * Whether a municipality should have a shortcut in the event menu.
+ * Existing assignments remain visible unless explicitly unchecked.
+ *
+ * @param string $slug Municipality slug.
+ * @param array  $municipality Saved map row.
+ * @return bool
+ */
+function gk_map_events_enabled( $slug, $municipality ) {
+    if ( array_key_exists( 'eventsEnabled', $municipality ) ) {
+        return true === $municipality['eventsEnabled'];
+    }
+    return (bool) get_term_by( 'slug', $municipality['ovSlug'] ?? $slug, 'gk_zuordnung' );
+}
+
+/**
+ * Shared OVs stay visible if at least one assigned municipality enables them.
+ *
+ * @param WP_Term $term OV or KV assignment.
+ * @return bool
+ */
+function gk_ov_in_event_menu( $term ) {
+    $map   = gk_get_kreiskarte_data();
+    $found = false;
+    foreach ( $map['municipalities'] ?? array() as $slug => $municipality ) {
+        if ( ( $municipality['ovSlug'] ?? $slug ) !== $term->slug ) {
+            continue;
+        }
+        $found = true;
+        if ( gk_map_events_enabled( $slug, $municipality ) ) {
+            return true;
+        }
+    }
+    return ! $found || 'kreisverband' === $term->slug;
+}
+
+/**
+ * Resolve the requested admin view without extending the current user's scope.
+ *
+ * @return WP_Term|false
+ */
+function gk_event_admin_selected_term() {
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view context; core checks creation capabilities and editorial scope is enforced below.
+    $slug = isset( $_GET['gk_zuordnung'] ) && is_string( $_GET['gk_zuordnung'] ) ? sanitize_title( wp_unslash( $_GET['gk_zuordnung'] ) ) : '';
+    $term = $slug ? get_term_by( 'slug', $slug, 'gk_zuordnung' ) : false;
+    if ( ! $term || ! current_user_can( 'edit_posts' ) ) {
+        return false;
+    }
+    $scope = gk_user_scope();
+    return null === $scope || $scope === (int) $term->term_id ? $term : false;
+}
+
+/**
+ * Keep the selected OV when the native New Event button opens the editor.
+ *
+ * @param string $url Generated admin URL.
+ * @param string $path Relative admin path.
+ * @return string
+ */
+function gk_event_scoped_new_url( $url, $path ) {
+    if ( 'post-new.php?post_type=gk_event' !== $path || ! function_exists( 'get_current_screen' ) ) {
+        return $url;
+    }
+    $screen = get_current_screen();
+    $term   = $screen && 'edit-gk_event' === $screen->id ? gk_event_admin_selected_term() : false;
+    return $term ? add_query_arg( 'gk_zuordnung', $term->slug, $url ) : $url;
+}
+add_filter( 'admin_url', 'gk_event_scoped_new_url', 10, 2 );
+
+/** Clearly identify the selected event list and its creation context. */
+function gk_event_admin_scope_notice() {
+    $screen = get_current_screen();
+    $term   = $screen && 'edit-gk_event' === $screen->id ? gk_event_admin_selected_term() : false;
+    if ( $term ) {
+        echo '<div class="notice notice-info"><p><strong>' . esc_html( 'Termine: ' . $term->name ) . '</strong> — ' . esc_html__( 'Neue Termine werden diesem Verband zugeordnet. Eine lokale OV-Unterseite ist dafür nicht erforderlich.', 'neurg-kreisverband' ) . '</p></div>';
+    }
+}
+add_action( 'admin_notices', 'gk_event_admin_scope_notice' );
+
 // Flush rewrite rules once after CPT slug change.
 /**
  * Flush rewrite once.
