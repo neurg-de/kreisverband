@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'GK_VERSION', '0.7.1' );
+define( 'GK_VERSION', '0.7.2' );
 define( 'GK_DIR', get_template_directory() );
 define( 'GK_URI', get_template_directory_uri() );
 define( 'GK_IMAGE_DIR', GK_URI . '/lib/images/' );
@@ -83,9 +83,6 @@ require_once GK_DIR . '/inc/admin.php';
 
 // Widgets.
 require_once GK_DIR . '/inc/widgets.php';
-
-// The Taurus integration: compliance badge, Customizer settings, sponsor credit.
-require_once GK_DIR . '/inc/taurus.php';
 
 // Kreiskarte: interactive SVG map of the Landkreis.
 require_once GK_DIR . '/inc/kreiskarte.php';
