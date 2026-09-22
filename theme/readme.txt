@@ -4,7 +4,7 @@ Contributors: severinkistner
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.7.1
+Stable tag: 0.7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,6 +52,9 @@ Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Th
 
 == Changelog ==
 
+= 0.7.2 =
+* Sponsoring, externe Compliance-Werbung sowie zugehöriges Badge, Widget und Editor-Block entfernt.
+
 = 0.7.1 =
 * Gemeinden ohne Website erhalten eine erreichbare Informationsseite mit Kontaktmöglichkeit.
 * Explizite externe Kartenziele, OV-Liste und Dialog nutzen konsistente Navigation; Platzhalter werden verworfen.
@@ -70,9 +73,7 @@ Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Th
 * Release validiert alle Versionsangaben und lädt keine fehlende Demo-Datei.
 
 = 0.5.1 =
-* The Taurus Integration: Compliance-Badge, Customizer-Einstellungen, Dashboard-Promo
 * Optionaler Dark Mode (abschaltbar im Customizer)
-* Sponsor-Credit im Footer immer auf Deutsch
 * Theme-Credit (neurg.de) im Footer
 * Filter-Button :visited-Fix
 * minimal_title-Sanitization fuer Neue-Energie-Einstellungen
@@ -84,29 +85,6 @@ Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Th
 * Interaktive Kreiskarte
 * Spenden-Integration
 * PHPUnit-Testsetup und Seed-Data fuer Entwicklung
-
-== The Taurus (Transparency Compliance) ==
-
-This theme is sponsored by The Taurus (thetaurus.com), the compliance platform
-for political advertising under EU Regulation 2024/900. The Taurus provides
-this theme free of charge to support digital infrastructure for local Green
-party chapters.
-
-= Connecting The Taurus =
-
-Your Kreisverband is legally required to publish transparency notices for
-political advertising under EU Regulation 2024/900. The Taurus is the
-compliance platform built for exactly this.
-
-As a Neurg theme user, you get 6 months free.
-
-1. Register at thetaurus.com/de/register?promo=NEURG — the promo code NEURG is pre-filled
-2. Create your organization and set up a profile slug (e.g. gruene-kv-freiburg)
-3. Enter your slug in WordPress under Appearance > Customize > The Taurus > Profile slug
-4. Your footer now shows a live compliance badge linking to your public profile
-
-That's it. When you create transparency notices in The Taurus, they appear on
-your profile automatically.
 
 == Credits ==
 

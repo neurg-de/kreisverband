@@ -58,20 +58,10 @@
                         <li><a href="<?php echo esc_url( get_permalink( $datenschutz_id ) ); ?>">Datenschutz</a></li>
                     <?php endif; ?>
                 </ul>
-                <?php
-                if ( function_exists( 'gk_taurus_render_footer_badge' ) ) {
-                    gk_taurus_render_footer_badge();
-                }
-                ?>
                 <p class="footer-copyright">
                     &copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>
                 </p>
                 <p class="neurg-theme-credit">WordPress-Theme: <a href="https://neurg.de" target="_blank" rel="noopener">Neurg Kreisverband</a>
-                <?php
-				if ( function_exists( 'gk_taurus_render_sponsor_credit' ) ) {
-					gk_taurus_render_sponsor_credit();
-				}
-                ?>
                 </p>
             </div>
         </div>

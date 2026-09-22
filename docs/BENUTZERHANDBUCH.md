@@ -530,7 +530,6 @@ Ein *Shortcode* ist ein Platzhalter in eckigen Klammern. Im Blockeditor dafür d
 | Block im Editor | Einstellungen | Verhalten |
 |---|---|---|
 | **Abteilung** (`gk/abteilung`) | `slug` als Abteilungsauswahl; `limit` als Zahl, 0 = alle | dynamische Personenliste; OV-Seitenbereich wird automatisch übernommen. Auf KV-Seiten kann die Liste mehrere Bereiche enthalten. Der Block bietet kein frei einstellbares `zuordnung`-Attribut |
-| **The Taurus Badge** (`neurg/taurus-badge`) | `slug` als Profil-Slug, leer = Customizer-Vorgabe; `lang` mit `auto`, `de`, `en` | zeigt das konfigurierte externe Badge beziehungsweise ohne Profil einen Registrierungs-/Sponsorhinweis; kein Nachweis, dass alle rechtlichen Pflichten erfüllt sind |
 
 Die Abteilungsauswahl eines OV-Blocks kann auf Abteilungen mit Personen dieses OVs begrenzt sein. Fehlt eine Abteilung, zuerst Personenzuordnung und Veröffentlichung prüfen. Ein eigener Termin-, Newsletter-, Spenden- oder Kreiskartenblock wird im Theme nicht registriert; diese Funktionen über den Standardblock **Shortcode** einsetzen.
 
@@ -548,7 +547,7 @@ Das Theme erzeugt außerdem kanonische URLs und strukturierte Daten für Organis
 
 KV-Profile werden im **KV-Setup**, OV-Profile unter **Verband → OV → Kontaktdaten**, persönliche Profile im Personeneintrag gepflegt. Die Eingabehinweise beachten: Manche Felder verlangen eine URL, andere erlauben einen Benutzernamen. Jeden erzeugten Link prüfen. Die Website veröffentlicht dadurch keine Beiträge automatisch auf den sozialen Netzwerken.
 
-Logo, globale Darstellung, Dark-Mode-Vorgabe und **The Taurus**-Einstellungen liegen im WordPress-Customizer und gehören zur Administrationsarbeit. Ein Badge verknüpft ein externes Angebot; es ersetzt keine Prüfung von Transparenzpflichten oder Datenschutz.
+Logo, globale Darstellung und Dark-Mode-Vorgabe liegen im WordPress-Customizer und gehören zur Administrationsarbeit.
 
 ## 16. Spenden und Cookie-Hinweis
 
@@ -654,7 +653,7 @@ Dieses Handbuch wurde mit [README](../README.md), [CONTRIBUTING](../CONTRIBUTING
 - [Admin-Oberflächen](../theme/inc/admin.php), [OV-Verknüpfung und Pflichtseiten](../theme/inc/ortsverband.php), [KV-Setup](../theme/inc/setup-wizard.php).
 - [Termine und iCal](../theme/inc/events.php), [Personentypen und Zuordnungen](../theme/inc/post-types.php), [Abteilungsangaben](../theme/inc/abteilung-meta.php).
 - [Anfrageformulare](../theme/inc/contact-form.php), [Mach-mit-Vorlage](../theme/page-templates/mach-mit.php).
-- [Shortcodes](../theme/inc/shortcodes.php), [Abteilungsblock](../theme/inc/blocks.php), [Taurus-Integration](../theme/inc/taurus.php).
+- [Shortcodes](../theme/inc/shortcodes.php), [Abteilungsblock](../theme/inc/blocks.php).
 - [Homepage-Einstellungen](../theme/template-parts/home/neue-energie-settings.php), [Kreiskarte](../theme/inc/kreiskarte-generator.php), [SEO](../theme/inc/seo.php), [Spenden](../theme/inc/donation.php), [Cookie-Hinweis](../theme/inc/cookie-consent.php).
 
 Besonders zu beachten sind die beschriebenen Alt-Personenshortcodes, die unterschiedliche Bedeutung des KV-Filters bei Personen und Terminen, die fehlenden Menü-/Customizerrechte auch der OV-Admin-Rolle, die zeitlich und mengenmäßig begrenzten Kalenderfeeds sowie die fehlende websiteweite Einwilligungssteuerung. Den technischen Abgleich und die praktischen Prüfungen dokumentieren der [Releasebericht](RELEASE-0.7.0.md) und der [unabhängige Review](validation/INDEPENDENT-REVIEW.md).
