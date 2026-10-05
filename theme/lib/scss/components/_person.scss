@@ -77,3 +77,18 @@
     }
   }
 }
+// Explicit editorial declaration, independent of the person's OV edit scope.
+.gk-person-affiliation {
+    display: block;
+    width: fit-content;
+    margin: 0.35rem auto;
+    padding: 0.1rem 0.5rem;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-full);
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+.gk-profile__context .gk-person-affiliation { margin: 0; }

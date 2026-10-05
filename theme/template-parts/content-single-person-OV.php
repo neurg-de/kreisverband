@@ -31,6 +31,7 @@ $social_links = gk_build_social_links( $contact );
 
     <header class="article-header">
         <h1 class="entry-title"><?php the_title(); ?></h1>
+        <?php get_template_part( 'template-parts/person-affiliation', null, array( 'person_id' => $gk_post_id ) ); ?>
         <?php
         if ( $amt ) :
 			?>

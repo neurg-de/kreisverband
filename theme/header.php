@@ -25,7 +25,8 @@ language_attributes(); ?> class="no-js">
 <?php
     // Determine OV context via zuordnung taxonomy.
     global $post;
-    $gk_ov_slug = isset( $post ) ? gk_get_post_zuordnung_slug( $post->ID ) : '';
+    $gk_archive = gk_ov_news_context();
+    $gk_ov_slug = $gk_archive ? $gk_archive['term']->slug : ( isset( $post ) ? gk_public_post_zuordnung_slug( $post->ID ) : '' );
     $gk_is_ov   = '' !== $gk_ov_slug && 'kreisverband' !== $gk_ov_slug;
 
 if ( $gk_is_ov ) {

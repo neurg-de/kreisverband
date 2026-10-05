@@ -262,7 +262,7 @@ function gk_shortcode_abteilung( $atts ) {
         }
 
         // Zuordnung (OV).
-        $ov_slug = gk_get_post_zuordnung_slug( $pid );
+        $ov_slug = gk_public_post_zuordnung_slug( $pid );
         $ov_slug = $ov_slug ? $ov_slug : 'kreisverband';
         if ( 'kreisverband' !== $ov_slug ) {
             $ov_counts[ $ov_slug ] = ( $ov_counts[ $ov_slug ] ?? 0 ) + 1;
@@ -384,6 +384,7 @@ function gk_shortcode_abteilung( $atts ) {
                     <span class="gk-abteilung__position"><?php echo esc_html( $position ); ?></span>
                 <?php endif; ?>
                 <h4 class="gk-abteilung__name"><?php echo esc_html( $title ); ?></h4>
+                <?php get_template_part( 'template-parts/person-affiliation', null, array( 'person_id' => $pid ) ); ?>
                 <?php if ( $function ) : ?>
                     <p class="gk-abteilung__role"><?php echo esc_html( $function ); ?></p>
                 <?php endif; ?>

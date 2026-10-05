@@ -220,7 +220,7 @@ function gk_get_context_social_links() {
     global $post;
 
     // Try OV/KV term meta first.
-    $slug = isset( $post ) ? gk_get_post_zuordnung_slug( $post->ID ) : '';
+    $slug = isset( $post ) ? gk_public_post_zuordnung_slug( $post->ID ) : '';
     if ( empty( $slug ) ) {
         $slug = 'kreisverband';
     }

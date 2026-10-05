@@ -771,7 +771,10 @@ function gk_ortsverband_edit_page() {
                     </tr>
                     <tr>
                         <th><label for="ov_hero_subtitle">Untertitel</label></th>
-                        <td><input type="text" name="ov_hp[hero_subtitle]" id="ov_hero_subtitle" value="<?php echo esc_attr( $hp['hero_subtitle'] ?? '' ); ?>" class="large-text" /></td>
+                        <td>
+                            <input type="text" name="ov_hp[hero_subtitle]" id="ov_hero_subtitle" value="<?php echo esc_attr( $hp['hero_subtitle'] ?? '' ); ?>" class="large-text" aria-describedby="ov_hero_subtitle_help" />
+                            <p class="description" id="ov_hero_subtitle_help">Optionaler kurzer Text im Einstiegsbereich. Leer lassen, wenn dort nur der Titel stehen soll. Der Seiteninhalt erscheint separat darunter.</p>
+                        </td>
                     </tr>
                     <tr>
                         <th>Hero-Bild</th>
@@ -873,6 +876,11 @@ function gk_ortsverband_edit_page() {
                     </tr>
                 </table>
             </div>
+
+            <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=gk-ov-home&ov=' . $term_id ) ); ?>"><?php esc_html_e( 'OV-Startseite gestalten: Reihenfolge, Sichtbarkeit, Aktuelles, Team und Rubriken', 'neurg-kreisverband' ); ?></a></p>
+				<?php if ( metadata_exists( 'term', $term_id, '_gk_home_sections' ) ) : ?>
+            <p><?php esc_html_e( 'Für diesen OV ist die neue Sektionssteuerung gespeichert. Ihre Sichtbarkeit hat Vorrang vor den älteren Bereichscheckboxen unten.', 'neurg-kreisverband' ); ?></p>
+            <?php endif; ?>
 
             <!-- Section toggles -->
             <table class="form-table">
