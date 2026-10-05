@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'GK_VERSION', '0.7.5' );
+define( 'GK_VERSION', '0.8.2' );
 define( 'GK_DIR', get_template_directory() );
 define( 'GK_URI', get_template_directory_uri() );
 define( 'GK_IMAGE_DIR', GK_URI . '/lib/images/' );
@@ -35,12 +35,14 @@ require_once GK_DIR . '/inc/post-types.php';
 
 // Meta boxes for person & page data.
 require_once GK_DIR . '/inc/meta-boxes.php';
+require_once GK_DIR . '/inc/person-affiliation.php';
 
 // Per-abteilung meta: position, function, hidden per person×abteilung.
 require_once GK_DIR . '/inc/abteilung-meta.php';
 
 // Shortcodes for displaying persons, OV lists, UI elements.
 require_once GK_DIR . '/inc/shortcodes.php';
+require_once GK_DIR . '/inc/team-carousel.php';
 
 // Ortsverband system: OV configuration, template routing, navigation.
 require_once GK_DIR . '/inc/ortsverband.php';

@@ -106,6 +106,7 @@ uksort(
 											<?php endif; ?>
                 </div>
                 <h3 class="gk-team__name"><?php echo esc_html( $p['title'] ); ?></h3>
+                <?php get_template_part( 'template-parts/person-affiliation', null, array( 'person_id' => $p['id'] ) ); ?>
                 <?php if ( $p['funktion'] ) : ?>
                     <p class="gk-team__role"><?php echo esc_html( $p['funktion'] ); ?></p>
                 <?php endif; ?>
@@ -135,6 +136,7 @@ uksort(
 											<?php endif; ?>
                 </div>
                 <h3 class="gk-team__name"><?php echo esc_html( $p['title'] ); ?></h3>
+                <?php get_template_part( 'template-parts/person-affiliation', null, array( 'person_id' => $p['id'] ) ); ?>
                 <?php if ( $p['funktion'] ) : ?>
                     <p class="gk-team__role"><?php echo esc_html( $p['funktion'] ); ?></p>
                 <?php endif; ?>

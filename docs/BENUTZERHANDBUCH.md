@@ -299,6 +299,10 @@ Bei einem Amtswechsel eine alte Abteilungszugehörigkeit und Funktionsbezeichnun
 
 Neue Abteilungen oder globale Umbenennungen übernimmt die Administration. Ein Abteilungs-Slug kann in Shortcodes stecken und darf nicht ohne Prüfung geändert werden. Falls die Begriffsverwaltung wegen der nach Bereichen umgebauten Seitenleiste nicht sichtbar ist, soll die Administration den WordPress-Bildschirm der betreffenden Taxonomie öffnen; die Geschäftsstelle braucht dafür kein zusätzliches Menü.
 
+**Parteifremde Fraktionsmitglieder:** Im Personeneditor unter **Parteizugehörigkeit** entweder **Parteifremdes Fraktionsmitglied** oder **Parteilos** auswählen. Beide Angaben müssen redaktionell bestätigt sein; die Standardauswahl behauptet keine Parteimitgliedschaft. Bei einer Kennzeichnung erscheinen Profil und Personenkarten mit dem entsprechenden Hinweis, ohne öffentliche OV-Zugehörigkeit oder Parteizugehörigkeit in den strukturierten Personendaten. Die interne Zuordnung für Zuständigkeiten und Bearbeitungsrechte bleibt erhalten. Die gewünschte Fraktion weiterhin als Abteilung zuweisen.
+
+**Kompakte Teamkomponente:** `[team_carousel abteilungen="vorstand,fraktion"]` bindet die ausgewählten Abteilungen in der angegebenen Reihenfolge ein. Die Slugs müssen zur Installation passen. Die Automatik zeigt alle Mitglieder einer Abteilung in einer horizontalen Reihe, danach die nächste Abteilung; sie wechselt alle sechs Sekunden weiter. Tastaturbedienung, ausgeblendete Browser-Tabs und ein außerhalb des Bildschirms liegender Teambereich pausieren den Ablauf. Nach Mausbewegungen, Wischen oder manueller Bedienung läuft er nach zwölf Sekunden ohne weitere Interaktion weiter; ein ruhender Mauszeiger oder ein per Maus fokussierter Button blockiert die Automatik nicht. **Automatik starten** startet den Timer ausdrücklich auch bei Fokus auf diesem Button. Die kompakte Reihe zeigt ganze Karten ohne sichtbare Scrollleiste; Pfeile und Wischen bleiben verfügbar. **Automatik pausieren** stoppt ihn dauerhaft bis zum erneuten Start. Bei bevorzugter reduzierter Bewegung startet er pausiert. **Alle anzeigen** öffnet alle Gruppen als vollständige Raster, **Kompakt anzeigen** stellt die einzelne Reihe wieder her. Ohne JavaScript bleiben alle Gruppen horizontal scrollbar. OV-Startseiten verwenden dieselbe Komponente. Startseiteninhalte sind in allen Hero-Modi sichtbar.
+
 **Listen darstellen:** Für neue Inhalte den Block **Abteilung** oder `[abteilung slug="…"]` verwenden. Der Block begrenzt auf OV-Seiten automatisch auf den Seitenbereich. Ein allein stehender Shortcode ohne `zuordnung` kann Personen aus mehreren Bereichen mit Filterreitern zeigen; bei einer OV-Liste deshalb den OV-Slug ausdrücklich setzen.
 
 ## 9. Medien, Beitragsbilder und Altbestand
@@ -471,6 +475,8 @@ Die Geschäftsstelle liefert Texte, freigegebene Bilder und Ziel-URLs. Die Admin
 
 Die WordPress-Zuweisung der eigentlichen Startseite unter **Einstellungen → Lesen** ist ein zusätzlicher Administrationsschritt. OV-Darstellung wird separat in **Verband → OV bearbeiten** mit Header, angebotenem Hero-Modus und Bereichen gepflegt. Ein KV-Homepagewechsel setzt nicht automatisch alle OV-Seiten um.
 
+Auf OV-Startseiten erscheint der im Seiteneditor gepflegte Einführungstext unterhalb des Einstiegsbereichs. Er wird nicht automatisch als Untertitel ins Titelbild übernommen. Für einen Einstieg nur mit OV-Titel das Feld **Untertitel** leer lassen; ein dort bewusst eingetragener kurzer Text wird weiterhin angezeigt. Der Modus **Aktuelles** zeigt stattdessen den neuesten Beitrag mit dessen Auszug. Der Bereich **Team** ist unabhängig davon optional und kann bis zur Aktualisierung der Personen ausgeblendet bleiben.
+
 ### Kreiskarte anzeigen – Redaktion
 
 Auf einer berechtigten Seite einen Shortcode-Block einfügen:
@@ -500,6 +506,7 @@ Ein *Shortcode* ist ein Platzhalter in eckigen Klammern. Im Blockeditor dafür d
 
 | Shortcode | Tatsächlich angenommene Attribute und Grenzen |
 |---|---|
+| `[team_carousel abteilungen="vorstand,fraktion"]` | kompakte Teamreihe mit Abteilungsreitern; Slugs an die vorhandenen Abteilungen anpassen. `title` setzt die Überschrift, `zuordnung` begrenzt auf einen Bereich; ohne Zuordnung werden passende Personen aus allen Bereichen angezeigt. Auf OV-Seiten gilt automatisch der umgebende OV |
 | `[abteilung slug="vorstand"]` | `slug` erforderlich; `abteilung` als alter Alias; `limit="0"` für alle; `zuordnung` für OV-Slug; `typ` als Altbestand-Fallback für Sortier-/Funktionsfelder |
 | `[personenliste slug="vorstand"]` | Alias von `[abteilung]`, gleiche Attribute |
 | `[vorstand]`, `[team]`, `[glv]`, `[mandate]`, `[landesliste]`, `[kontakt]` | ältere Personenansichten; `person="12,34"`, `slug` und `abteilung` werden angenommen; `slug` hat Vorrang vor `abteilung`. Sortierung nach älteren Positionsfeldern, kein eigenes `zuordnung`-Attribut; neue Bereichslisten vorzugsweise mit `[abteilung]` erstellen |

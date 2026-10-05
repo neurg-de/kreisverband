@@ -36,7 +36,7 @@ $contact      = array(
 $social_links = gk_build_social_links( $contact );
 
 // ── Organizational context ─────────────────────────────────────────────────
-$ov_slug = gk_get_post_zuordnung_slug( $gk_post_id );
+$ov_slug = gk_public_post_zuordnung_slug( $gk_post_id );
 $ov_term = ( $ov_slug && 'kreisverband' !== $ov_slug ) ? gk_get_ov_term( $ov_slug ) : false;
 
 // Department(s).
@@ -79,6 +79,7 @@ $has_content = trim( get_the_content() ) !== '';
 
                 <?php // Organizational context badges. ?>
                 <div class="gk-profile__context">
+                    <?php get_template_part( 'template-parts/person-affiliation', null, array( 'person_id' => $gk_post_id ) ); ?>
                     <?php if ( $ov_term ) : ?>
                         <span class="gk-profile__badge">
                             <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
@@ -94,6 +95,10 @@ $has_content = trim( get_the_content() ) !== '';
                     <?php endif; ?>
 
                     <?php foreach ( $departments as $dept ) : ?>
+                        <?php if ( gk_person_affiliation_label( $gk_post_id ) ) : ?>
+                            <span class="gk-profile__badge"><?php echo esc_html( $dept->name ); ?></span>
+                            <?php continue; ?>
+                        <?php endif; ?>
                         <a href="<?php echo esc_url( gk_abteilung_url( $dept, $ov_slug ? $ov_slug : 'kreisverband' ) ); ?>" class="gk-profile__badge">
                             <?php echo esc_html( $dept->name ); ?>
                         </a>

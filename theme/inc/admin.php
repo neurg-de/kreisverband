@@ -771,7 +771,10 @@ function gk_ortsverband_edit_page() {
                     </tr>
                     <tr>
                         <th><label for="ov_hero_subtitle">Untertitel</label></th>
-                        <td><input type="text" name="ov_hp[hero_subtitle]" id="ov_hero_subtitle" value="<?php echo esc_attr( $hp['hero_subtitle'] ?? '' ); ?>" class="large-text" /></td>
+                        <td>
+                            <input type="text" name="ov_hp[hero_subtitle]" id="ov_hero_subtitle" value="<?php echo esc_attr( $hp['hero_subtitle'] ?? '' ); ?>" class="large-text" aria-describedby="ov_hero_subtitle_help" />
+                            <p class="description" id="ov_hero_subtitle_help">Optionaler kurzer Text im Einstiegsbereich. Leer lassen, wenn dort nur der Titel stehen soll. Der Seiteninhalt erscheint separat darunter.</p>
+                        </td>
                     </tr>
                     <tr>
                         <th>Hero-Bild</th>

@@ -504,7 +504,7 @@ function gk_seo_jsonld_person() {
 
     // Affiliation: the organization.
     $kv_name = function_exists( 'gk_kv_name' ) ? gk_kv_name() : get_bloginfo( 'name' );
-    if ( $kv_name ) {
+    if ( $kv_name && ! gk_person_affiliation_label( $post->ID ) ) {
         $schema['affiliation'] = array(
             '@type' => 'Organization',
             'name'  => $kv_name,

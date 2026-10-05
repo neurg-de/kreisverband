@@ -52,9 +52,6 @@ while ( have_posts() ) :
     if ( ! $hero_title ) {
 		$hero_title = get_the_title();
     }
-    if ( ! $hero_subtitle ) {
-		$hero_subtitle = get_the_excerpt();
-    }
     if ( ! $hero_img_id && has_post_thumbnail() ) {
 		$hero_img_id = get_post_thumbnail_id();
     }
@@ -338,150 +335,10 @@ endwhile;
 // ════════════════════════════════════════════════════════════════════════════
 // 3. TEAM — Tabbed by Abteilung, auto-rotating
 // ════════════════════════════════════════════════════════════════════════════
-if ( $show_team ) :
-    $ov_persons = new WP_Query(
-        array(
-			'post_type'      => 'person',
-			'posts_per_page' => 60,
-			'orderby'        => 'menu_order title',
-			'order'          => 'ASC',
-			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Required taxonomy/date constraints preserve the configured content scope; WordPress caches these queries.
-			'tax_query'      => array(
-				array(
-					'taxonomy' => 'gk_zuordnung',
-					'field'    => 'slug',
-					'terms'    => $ov_slug,
-				),
-			),
-        )
-    );
-
-    if ( $ov_persons->have_posts() ) :
-        // Collect persons and group by abteilung.
-        $all_persons = array();
-        $abt_groups  = array(); // slug => array of person indices.
-        $abt_labels  = array(); // slug => name.
-        while ( $ov_persons->have_posts() ) :
-			$ov_persons->the_post();
-            $terms = get_the_terms( get_the_ID(), 'abteilung' );
-            if ( ! $terms || is_wp_error( $terms ) ) {
-                continue; // Only show persons assigned to an Abteilung.
-            }
-
-            $person        = array(
-                'id'        => get_the_ID(),
-                'title'     => get_the_title(),
-                'permalink' => get_permalink(),
-                'funktion'  => get_post_meta( get_the_ID(), 'kr8mb_pers_position_funktion', true ),
-                'thumb'     => has_post_thumbnail() ? get_the_post_thumbnail( get_the_ID(), 'medium' ) : '',
-            );
-            $idx           = count( $all_persons );
-            $all_persons[] = $person;
-
-            foreach ( $terms as $t ) {
-                $abt_labels[ $t->slug ]   = $t->name;
-                $abt_groups[ $t->slug ][] = $idx;
-            }
-        endwhile;
-        wp_reset_postdata();
-
-        // Build ordered tab list (abteilungen only, no "Alle").
-        $ov_team_tabs = array();
-        if ( ! empty( $abt_groups ) ) {
-            uksort(
-                $abt_groups,
-                function ( $a, $b ) use ( $abt_labels ) {
-					return strcasecmp( $abt_labels[ $a ], $abt_labels[ $b ] );
-				}
-            );
-            foreach ( $abt_groups as $slug => $indices ) {
-                $ov_team_tabs[ $slug ] = $abt_labels[ $slug ];
-            }
-        }
-        $has_tabs   = count( $ov_team_tabs ) > 1;
-        $first_slug = $has_tabs ? array_key_first( $ov_team_tabs ) : '';
-		?>
-<section class="gk-team" id="ov-team">
-    <div class="inner">
-        <div class="gk-section-header">
-            <h2>Unser Team</h2>
-        </div>
-        <?php if ( $has_tabs ) : ?>
-        <nav class="gk-team__tabs" role="tablist" aria-label="Team-Abteilungen">
-            <?php foreach ( $ov_team_tabs as $slug => $label ) : ?>
-            <button class="gk-team__tab<?php echo $slug === $first_slug ? ' is-active' : ''; ?>"
-                    role="tab"
-                    aria-selected="<?php echo $slug === $first_slug ? 'true' : 'false'; ?>"
-                    aria-controls="team-panel-<?php echo esc_attr( $slug ); ?>"
-                    data-tab="<?php echo esc_attr( $slug ); ?>">
-                <?php echo esc_html( $label ); ?>
-            </button>
-            <?php endforeach; ?>
-        </nav>
-        <?php endif; ?>
-
-        <?php
-        if ( $has_tabs ) :
-            foreach ( $ov_team_tabs as $slug => $label ) :
-                $indices = $abt_groups[ $slug ];
-				?>
-        <div class="gk-team__panel<?php echo $slug === $first_slug ? ' is-active' : ''; ?>"
-            id="team-panel-<?php echo esc_attr( $slug ); ?>"
-            role="tabpanel">
-            <div class="gk-team__grid">
-                <?php
-                foreach ( $indices as $i ) :
-					$p = $all_persons[ $i ];
-					?>
-                <a href="<?php echo esc_url( $p['permalink'] ); ?>" class="gk-team__card">
-                    <div class="gk-team__photo">
-                        <?php
-                        if ( $p['thumb'] ) :
-							echo wp_kses_post( $p['thumb'] ); else :
-								?>
-                        <svg class="gk-team__placeholder" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="78" r="36" fill="currentColor" opacity=".25"/><ellipse cx="100" cy="176" rx="56" ry="46" fill="currentColor" opacity=".18"/></svg>
-													<?php endif; ?>
-                    </div>
-                    <h3 class="gk-team__name"><?php echo esc_html( $p['title'] ); ?></h3>
-                    <?php if ( $p['funktion'] ) : ?>
-                        <p class="gk-team__role"><?php echo esc_html( $p['funktion'] ); ?></p>
-                    <?php endif; ?>
-                </a>
-                <?php endforeach; ?>
-            </div>
-        </div>
-				<?php
-        endforeach;
-        else :
-			?>
-        <div class="gk-team__grid">
-            <?php foreach ( $all_persons as $p ) : ?>
-            <a href="<?php echo esc_url( $p['permalink'] ); ?>" class="gk-team__card">
-                <div class="gk-team__photo">
-                    <?php
-                    if ( $p['thumb'] ) :
-						echo wp_kses_post( $p['thumb'] ); else :
-							?>
-                    <svg class="gk-team__placeholder" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="78" r="36" fill="currentColor" opacity=".25"/><ellipse cx="100" cy="176" rx="56" ry="46" fill="currentColor" opacity=".18"/></svg>
-											<?php endif; ?>
-                </div>
-                <h3 class="gk-team__name"><?php echo esc_html( $p['title'] ); ?></h3>
-                <?php if ( $p['funktion'] ) : ?>
-                    <p class="gk-team__role"><?php echo esc_html( $p['funktion'] ); ?></p>
-                <?php endif; ?>
-            </a>
-            <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
-
-        <div class="gk-team__footer">
-            <a href="<?php echo esc_url( gk_ov_team_url( $ov_slug ) ); ?>" class="gk-btn gk-btn--primary">Alle anzeigen</a>
-        </div>
-    </div>
-</section>
-		<?php
-    endif;
-endif;
+if ( $show_team ) {
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the shared renderer.
+    echo gk_render_team_carousel( array( 'zuordnung' => $ov_slug ) );
+}
 ?>
 
 
@@ -775,56 +632,5 @@ if ( $show_engage ) :
 </div>
 
 
-<script>
-(function() {
-    var section = document.getElementById('ov-team');
-    if (!section) return;
-    var tabs = section.querySelectorAll('.gk-team__tab');
-    if (tabs.length < 2) return;
-
-    var panels = section.querySelectorAll('.gk-team__panel');
-    var current = 0;
-    var interval = null;
-    var userClicked = false;
-
-    function activate(index) {
-        tabs[current].classList.remove('is-active');
-        tabs[current].setAttribute('aria-selected', 'false');
-        panels[current].classList.remove('is-active');
-        current = index;
-        tabs[current].classList.add('is-active');
-        tabs[current].setAttribute('aria-selected', 'true');
-        panels[current].classList.add('is-active');
-    }
-
-    function next() {
-        activate((current + 1) % tabs.length);
-    }
-
-    function startRotation() {
-        if (interval) clearInterval(interval);
-        interval = setInterval(next, 5000);
-    }
-
-    tabs.forEach(function(tab, i) {
-        tab.addEventListener('click', function() {
-            userClicked = true;
-            if (interval) { clearInterval(interval); interval = null; }
-            activate(i);
-        });
-    });
-
-    // Only auto-rotate when visible
-    var observer = new IntersectionObserver(function(entries) {
-        if (entries[0].isIntersecting && !userClicked) {
-            startRotation();
-        } else if (interval) {
-            clearInterval(interval);
-            interval = null;
-        }
-    }, { threshold: 0.2 });
-    observer.observe(section);
-})();
-</script>
 
 <?php get_footer(); ?>
