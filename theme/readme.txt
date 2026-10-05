@@ -4,7 +4,7 @@ Contributors: severinkistner
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.7.5
+Stable tag: 0.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,30 @@ Als Administrator unter Verband einen Ortsverband anlegen und eine lokale Starts
 Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Theme integriert.
 
 == Changelog ==
+
+= 0.9.0 =
+* Eigene OV-Startseiten mit tastaturbedienbarer Sektionsreihenfolge und Sichtbarkeit.
+* Titelbildtext, Beitragszahl, Archivlink, Rubrikausschlüsse und Team-Gruppen pro OV.
+* Eigene Rubriken und Rubriklinks im eigenen OV-Hauptmenü ohne globale Verwaltungsrechte.
+* Paginierte OV- und Rubrikarchive mit stabilen, kollisionsfreien Query-URLs.
+* Bestehende Teamdarstellung und Personenkennzeichnung aus 0.8.2 bleiben erhalten.
+
+
+= 0.8.2 =
+* Die Teamautomatik setzt nach einer Bedienpause wieder ein und lässt sich auch vom fokussierten Startbutton starten. Kompakte Reihen zeigen ganze Karten ohne sichtbare Scrollleiste.
+* OV-Startseiten wiederholen den Seiteninhalt nicht mehr automatisch im Titelbild. Ein expliziter Untertitel bleibt optional; die Bearbeitungsmaske erläutert das Verhalten.
+
+= 0.8.1 =
+* Teamkomponenten im Startseiteninhalt verwenden denselben flächigen Hintergrund und dieselbe Inhaltsbreite wie OV-Startseiten.
+
+
+= 0.8.0 =
+* Redaktionelle Kennzeichnung parteifremder und parteiloser Fraktionsmitglieder ohne öffentliche OV-Zugehörigkeit.
+* Gemeinsame kompakte Teamkomponente für OV-Startseiten und den Shortcode [team_carousel].
+* Horizontale Mitgliederreihe mit Abteilungsreitern, automatischem Durchlauf, Pause und aufklappbarer Gesamtübersicht.
+* Abteilungsbezogene Funktionen und Reihenfolge; alle veröffentlichten Mitglieder werden berücksichtigt.
+* Startseiteninhalte werden in allen Hero-Modi angezeigt.
+
 
 = 0.7.5 =
 * Reine Terminzuordnungen erscheinen ausschliesslich in der Terminverwaltung, nicht als Bereiche fuer Seiten, Beitraege, Personen, Medien oder Menues.

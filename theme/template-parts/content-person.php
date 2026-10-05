@@ -85,6 +85,7 @@ if ( 'personenliste' === $variant ) :
             <span class="listenplatz">(<?php echo esc_html( $listenplatz ); ?>)</span>
         <?php endif; ?>
     </a></h4>
+    <?php get_template_part( 'template-parts/person-affiliation', null, array( 'person_id' => $gk_post_id ) ); ?>
 
     <?php if ( $amt ) : ?>
         <div class="amt"><?php echo esc_html( $amt ); ?></div>
@@ -120,6 +121,7 @@ else :
         </h3>
     </header>
 
+    <?php get_template_part( 'template-parts/person-affiliation', null, array( 'person_id' => $gk_post_id ) ); ?>
     <section class="entry-content">
         <?php // Amt — shown by team, mandat, kontakt, glv. ?>
         <?php if ( in_array( $variant, array( 'team', 'mandat', 'kontakt', 'glv' ), true ) && $meta['amt'] ) : ?>

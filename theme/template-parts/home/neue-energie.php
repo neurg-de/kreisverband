@@ -265,6 +265,13 @@ switch ( $landing_mode ) :
     </div>
 </section>
 
+
+		<?php
+        break;
+
+endswitch; // landing_mode.
+?>
+
 		<?php
 		rewind_posts();
 		while ( have_posts() ) :
@@ -282,11 +289,6 @@ switch ( $landing_mode ) :
 		endif;
 	endwhile;
 		?>
-		<?php
-        break;
-
-endswitch; // landing_mode.
-?>
 
 <!-- ╔═══════════════════════════════════════════════════════════════╗
     ║  3. KREISKARTE — The centrepiece                            ║

@@ -167,8 +167,15 @@ function gk_seo_meta_tags() {
     }
 
     // Canonical URL — all page types.
-    $canonical = '';
-    if ( is_singular() ) {
+    $canonical  = '';
+    $ov_archive = gk_ov_news_context();
+    if ( $ov_archive ) {
+        $canonical = gk_ov_news_url( $ov_archive['term']->term_id, $ov_archive['category'] ? $ov_archive['category']->term_id : 0 );
+        $ov_page   = max( 1, (int) get_query_var( 'paged' ) );
+        if ( $ov_page > 1 ) {
+            $canonical = add_query_arg( 'paged', $ov_page, $canonical );
+        }
+    } elseif ( is_singular() ) {
         $canonical = get_permalink();
     } elseif ( is_front_page() ) {
         $canonical = home_url( '/' );
@@ -504,7 +511,7 @@ function gk_seo_jsonld_person() {
 
     // Affiliation: the organization.
     $kv_name = function_exists( 'gk_kv_name' ) ? gk_kv_name() : get_bloginfo( 'name' );
-    if ( $kv_name ) {
+    if ( $kv_name && ! gk_person_affiliation_label( $post->ID ) ) {
         $schema['affiliation'] = array(
             '@type' => 'Organization',
             'name'  => $kv_name,

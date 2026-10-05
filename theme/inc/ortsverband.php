@@ -158,7 +158,7 @@ function gk_get_zuordnung_legal_page( $zuordnung_slug, $type ) {
 function gk_legal_context_slug() {
     $slug = get_query_var( 'gk_ov_context' );
     if ( ! $slug && is_singular() ) {
-        $slug = gk_get_post_zuordnung_slug( get_queried_object_id() );
+        $slug = gk_public_post_zuordnung_slug( get_queried_object_id() );
         if ( ! $slug ) {
             foreach ( get_post_ancestors( get_queried_object_id() ) as $ancestor ) {
                 $slug = gk_get_post_zuordnung_slug( $ancestor );
@@ -431,11 +431,8 @@ function gk_get_ov_header( $term_id ) {
  * @return array
  */
 function gk_get_ov_homepage_options( $term_id ) {
-    static $cache = array();
-    if ( ! isset( $cache[ $term_id ] ) ) {
-        $cache[ $term_id ] = get_term_meta( $term_id, '_gk_ov_homepage', true );
-    }
-    return $cache[ $term_id ] ? $cache[ $term_id ] : array();
+    $options = get_term_meta( $term_id, '_gk_ov_homepage', true );
+    return is_array( $options ) ? $options : array();
 }
 
 /**
@@ -464,7 +461,7 @@ function gk_get_ov_homepage_option( $term_id, $key, $default = '' ) { // phpcs:i
 function gk_context_social_bar() {
     global $post;
 
-    $slug = isset( $post ) ? gk_get_post_zuordnung_slug( $post->ID ) : '';
+    $slug = isset( $post ) ? gk_public_post_zuordnung_slug( $post->ID ) : '';
     if ( empty( $slug ) ) {
         $slug = 'kreisverband';
     }

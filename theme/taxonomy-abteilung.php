@@ -55,6 +55,7 @@ $context_label = $ov_term ? $ov_term->name : '';
 									<?php endif; ?>
             </div>
             <h3 class="gk-team__name"><?php echo esc_html( $person['title'] ); ?></h3>
+                <?php get_template_part( 'template-parts/person-affiliation', null, array( 'person_id' => $person['id'] ) ); ?>
             <?php if ( $person['amt'] ) : ?>
                 <p class="gk-team__role"><?php echo esc_html( $person['amt'] ); ?></p>
             <?php endif; ?>
