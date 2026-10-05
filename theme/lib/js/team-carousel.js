@@ -14,19 +14,19 @@
 			if ( ! panels.length) {
 				return;
 			}
-			var tablist    = root.querySelector( '[role="tablist"]' );
-			var controls   = root.querySelector( '.gk-team__controls' );
-			var navigation = root.querySelector( '.gk-team__navigation' );
-			var status     = root.querySelector( '.gk-team__status' );
-			var play       = root.querySelector( '[data-team-play]' );
-			var expand     = root.querySelector( '[data-team-expand]' );
-			var motion     = window.matchMedia( '(prefers-reduced-motion: reduce)' );
-			var active     = 0;
-			var expanded   = false;
-			var paused     = motion.matches;
+			var tablist       = root.querySelector( '[role="tablist"]' );
+			var controls      = root.querySelector( '.gk-team__controls' );
+			var navigation    = root.querySelector( '.gk-team__navigation' );
+			var status        = root.querySelector( '.gk-team__status' );
+			var play          = root.querySelector( '[data-team-play]' );
+			var expand        = root.querySelector( '[data-team-expand]' );
+			var motion        = window.matchMedia( '(prefers-reduced-motion: reduce)' );
+			var active        = 0;
+			var expanded      = false;
+			var paused        = motion.matches;
 			var keyboardFocus = false;
-			var visible    = false;
-			var resumeAt   = 0;
+			var visible       = false;
+			var resumeAt      = 0;
 			var timer;
 			var interval = 6000;
 
@@ -160,7 +160,7 @@
                     paused = ! paused;
                     // An explicit start also works while this button retains focus.
                     keyboardFocus = false;
-                    resumeAt = 0;
+                    resumeAt      = 0;
                     updatePlay();
                     schedule();
                 }

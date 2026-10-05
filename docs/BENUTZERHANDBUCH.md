@@ -1,8 +1,8 @@
 # Benutzerhandbuch für Redaktion und Administration
 
-**Neurg Kreisverband · Release 0.7.1 · Stand: 22. September 2026**
+**Neurg Kreisverband · Release 0.9.0 · Stand: 5. Oktober 2026**
 
-Dieses Handbuch erklärt die Arbeit mit der Website des Kreisverbands und seiner Ortsverbände. Es beschreibt den Quellcode für Release 0.7.1. Es bestätigt weder eine Installation auf der Live-Website noch die dortige Einrichtung von Seiten, E-Mail-Versand, Plugins oder Benutzerkonten. Vor dem Einsatz sind die Abläufe auf einer Testkopie mit den tatsächlich vergebenen Rechten zu prüfen.
+Dieses Handbuch erklärt die Arbeit mit der Website des Kreisverbands und seiner Ortsverbände. Es beschreibt den Quellcode für Release 0.9.0. Es bestätigt weder eine Installation auf der Live-Website noch die dortige Einrichtung von Seiten, E-Mail-Versand, Plugins oder Benutzerkonten. Vor dem Einsatz sind die Abläufe auf einer Testkopie mit den tatsächlich vergebenen Rechten zu prüfen.
 
 Die beschriebenen bereichsübergreifenden Redaktionsaufgaben setzen die Rolle **„KV-Autor (mit OV-Zugang)“ (`gk_kvautor_ov`)** voraus. Die tatsächlich zugewiesene Rolle prüft die Administration. Für die tägliche Redaktion sind keine Administratorrechte erforderlich. Änderungen an globalen Einstellungen, Benutzerkonten oder der technischen Installation übernimmt die Administration.
 
@@ -45,7 +45,7 @@ Bei vergessenem Passwort die Funktion **Passwort vergessen?** auf der Anmeldung 
 
 ## 2. Rollen und Zuständigkeiten
 
-Die folgende Matrix beschreibt die Theme-Rollen nach der Aktualisierung auf 0.7.0. Zusätzliche Plugins, manuelle Rechteänderungen und WordPress-Sonderfälle können die konkrete Oberfläche beeinflussen. „Alle“ meint hier die üblichen redaktionellen Inhalte, nicht die Verwaltung der gesamten WordPress-Installation.
+Die folgende Matrix beschreibt die Theme-Rollen in 0.9.0. Zusätzliche Plugins, manuelle Rechteänderungen und WordPress-Sonderfälle können die konkrete Oberfläche beeinflussen. „Alle“ meint hier die üblichen redaktionellen Inhalte, nicht die Verwaltung der gesamten WordPress-Installation.
 
 | Aufgabe | Administration | KV-Autor | Geschäftsstelle: KV-Autor mit OV-Zugang | OV-Admin | OV-Autor |
 |---|---|---|---|---|---|
@@ -57,10 +57,12 @@ Die folgende Matrix beschreibt die Theme-Rollen nach der Aktualisierung auf 0.7.
 | Dauerhaftes Löschen von redaktionellen Inhalten und Medien | ja | nein | nein | nein | nein |
 | Medien hochladen und zur Auswahl sehen | alle | eindeutig KV | alle Bereiche | eindeutig eigener OV | eindeutig eigener OV |
 | Bestehende Kategorien/Abteilungen zuweisen | ja | beim eigenen Inhalt | bei berechtigtem Inhalt | bei berechtigtem Inhalt | bei berechtigtem Inhalt |
-| Kategorien/Abteilungen neu verwalten | ja | regulär nein | regulär nein | regulär nein | regulär nein |
+| Eigene OV-Rubriken anlegen/umbenennen (gescopter Editor) | alle | nein | nein | eigener OV | eigener OV |
+| Kategorien löschen / Abteilungen neu verwalten | ja | regulär nein | regulär nein | nein | nein |
 | OV anlegen, Name/Slug/Typ oder zugewiesene Startseite ändern | ja | nein | nein | nein | nein |
 | OV-Kontakt, Header und OV-Einstellungen | alle | nein | kein regulärer Zugang | eigener OV | nein |
-| Menüs und Menüplätze | alle | nein | nein | nein | nein |
+| Globale Menüs, Menüplätze und vollständiger Menüeditor | alle | nein | nein | nein | nein |
+| Eigene OV-Startseite / Rubriklink im eigenen Hauptmenü | alle OVs | nein | nein | eigener OV | eigener OV |
 | Globale Homepage, Spendenkonfiguration, KV-Stammdaten | Administration | nein | nein | nein | nein |
 | Kreiskarte erzeugen, Medienmigration, Theme-Rollenübersicht | ja | nein | nein | nein | nein |
 | Plugins, Updates, Backups, Benutzerverwaltung | Administration | nein | nein | nein | nein |
@@ -187,6 +189,26 @@ Die KV-Stammdaten liegen unter **KV-Setup**: Name, Kurzname, Anschrift, öffentl
 5. Öffentliche Kontakt-E-Mail, Telefon, Anschrift und freigegebene Social-Media-Profile ergänzen. Zugangsdaten gehören in keines dieser Felder.
 6. Speichern; anschließend gegebenenfalls Impressum und Datenschutz nach Abschnitt 10 auswählen.
 7. Die öffentliche OV-Liste und die Kreiskarte prüfen. Ein ausdrücklich konfiguriertes externes Kartenziel gilt für beide.
+
+### OV-Startseite gestalten
+
+**OV-Admin und OV-Autor:** Unter **OV-Startseite** öffnet sich der Editor **OV-Startseite gestalten** für den eigenen Verband. Die Administration kann dort einen OV auswählen. Ein gültig zugeordneter OV-Zugang genügt; globale Administrationsrechte werden nicht benötigt. Die Geschäftsstelle erhält durch diese Funktion keine zusätzlichen Rechte.
+
+1. **Sektionen sortieren und ausblenden:** In der Liste **Sektionen** mit **Auf** und **Ab** oder durch Ziehen die Reihenfolge ändern. **anzeigen** bei unerwünschten Bereichen abwählen. **Seiteninhalt** enthält den zusätzlichen Text und die Blöcke/Shortcodes aus dem Seiteneditor; er ist eine eigene Sektion. Leere Team- und Terminbereiche erscheinen erst mit veröffentlichten passenden Inhalten. **Startseite speichern** und die öffentliche Seite prüfen. Die neuen Sektionseinstellungen haben Vorrang vor den älteren Bereichscheckboxen unter **Verband**.
+2. **Titelbild:** **Begrüßung/Titeltext anzeigen** an- oder abwählen; bei Bedarf **Eigener Titeltext** eintragen. Leer bedeutet bisheriger Titel. **OV-/GR-Label im Titelbild anzeigen** steuert den Labeltext in Einstiegsmodi, die ihn verwenden; der Standardmodus besitzt kein zusätzliches Typ-Label. Kopfzeile und Menü sind eigenständig. Das Titelbild weiter über die bisherigen Verband-Einstellungen bzw. das Beitragsbild der Startseite pflegen. Ein „Willkommen“-Text unter dem Bild kommt aus dem Seiteninhalt: Als OV-Admin die Startseite im Seiteneditor bearbeiten oder **Seiteninhalt** ausblenden. OV-Autoren benötigen für Änderungen an Seitenblöcken Hilfe vom OV-Admin.
+3. **Aktuelles und Archiv:** Die **Anzahl der Beiträge** zwischen 3 und 20 einstellen und **Link „Alle Beiträge“ anzeigen** aktivieren. Die Menge ist eine Obergrenze: Bei weniger veröffentlichten Beiträgen erscheinen entsprechend weniger. **Alle Beiträge** öffnet das paginierte OV-Archiv einschließlich älterer Beiträge. Ausgeschlossene Rubriken bleiben im vollständigen Archiv erreichbar. Ohne neue Konfiguration bleiben die bisherigen sechs Beiträge und die bisherige Darstellung erhalten.
+4. **Team-Gruppen sortieren:** Unter **Team-Gruppen** die gewünschten Abteilungen mit **Auf/Ab** sortieren. Nur Gruppen mit veröffentlichten Personen im eigenen OV werden angeboten. Personenpositionen und Funktionen innerhalb der Gruppe bleiben erhalten. Neue Gruppen werden hinten angefügt; globale Abteilungsnamen ändert die Administration.
+5. **Eigene Rubrik anlegen und Beiträge zuordnen:** Unter **Eigene Rubriken → Neue Rubrik** den Namen eingeben und **Rubrik speichern** wählen. Eine bereits vorhandene eigene Rubrik auswählen und mit neuem Namen speichern, um sie umzubenennen; ihre Archivadresse bleibt gleich. Danach einen berechtigten Beitrag öffnen, in **Kategorien** die neue Rubrik auswählen und speichern. Für mehrere Beiträge: **Beiträge → eigener OV**, betreffende Beiträge markieren, **Mehrfachaktionen → Bearbeiten → Anwenden**, Rubrik unter **Kategorien** auswählen und **Aktualisieren**. Mehrfachbearbeitung fügt Kategorien hinzu; zum Entfernen einer falschen Zuordnung den einzelnen Beitrag bearbeiten. Unklare Beiträge erst redaktionell abstimmen.
+6. **Rubrik aus Aktuelles ausblenden:** Im Startseiteneditor unter **Diese Rubriken aus Aktuelles ausblenden** die eigene Rubrik anhaken und **Startseite speichern**. Die Beiträge bleiben veröffentlicht und erscheinen weiter im Gesamtarchiv sowie im Rubrikarchiv. Vorhandene gemeinsame Kategorien werden nicht automatisch zu OV-Rubriken; eine erforderliche Zuordnung/Übernahme muss die Administration prüfen.
+7. **Rubrik als Menüpunkt einbinden:** Unter **Rubrik im OV-Menü** die Aktion **Rubrik hinzufügen** oder **Menüpunkt durch Rubrik ersetzen**, gegebenenfalls den bisherigen obersten Menüpunkt und die eigene Rubrik wählen. **OV-Menü ändern** öffnet künftig das Archiv dieser Rubrik, gefiltert auf den eigenen OV und mit derselben Kartenliste und Paginierung wie Aktuelles. **Menüpunkt entfernen** entfernt ausschließlich den Link. Seiten und Beiträge bleiben bestehen; beim Ersetzen bleiben Unterpunkte erhalten. Menüpunkte mit Unterpunkten kann nur die Administration entfernen. Falls kein eindeutig eigenes Hauptmenü zugewiesen ist, zuerst die Administration um die Einrichtung bitten.
+8. **Grenzen der Rechte:** Der Editor erlaubt ausschließlich die eigene Startseitenkonfiguration, eigene Rubriken und einzelne Links im eigenen, exklusiv zugewiesenen OV-Hauptmenü. KV-weite Kategorien, fremde Rubriken, globale Menüplätze, Footer-/geteilte Menüs, Abteilungen, Konten, Updates und Backups bleiben bei der Administration. Rubriken dürfen OV-Konten auch dann nicht löschen, wenn sie leer sind. Das schützt bestehende Archiv- und Menülinks. Weitere Menüziele bzw. Rücknahme eines ersetzten Seitenlinks lässt die Administration im vollständigen Menüeditor setzen.
+9. **Fehler rückgängig machen:** Reihenfolge, Haken, Beitragszahl und Texte korrigieren und erneut speichern. **Bisherige Darstellung wiederherstellen** entfernt die neuen Startseitenoptionen und verwendet wieder die bisherige Reihenfolge und die älteren Verband-Einstellungen; Rubriken, Beiträge und Menüs bleiben erhalten. Ein falscher Rubrikname kann umbenannt werden. Eine falsche Beitragszuordnung im einzelnen Beitrag korrigieren. Eine versehentlich entfernte/ersetzte Menüverknüpfung kann die Administration wieder hinzufügen; die Zielseite ist nicht gelöscht.
+
+**Archivadressen:** Die erzeugten Links verwenden stabile Query-URLs, beispielsweise `/?gk_ov_news=1&gk_ov_context=ov-beispielort`. Ein Rubriklink enthält zusätzlich `gk_ov_rubric` mit dem gespeicherten Rubrik-Slug, eine Folgeseite `paged=2`. Diese Adressen funktionieren auch ohne sprechende Permalinks und verdrängen keine bestehenden Unterseiten wie `/ov-beispielort/aktuelles/`. Den erzeugten Link verwenden, nicht aus sichtbaren Namen zusammensetzen. Unbekannte OV-/Rubrik-Kombinationen und nicht vorhandene Archivseiten liefern 404.
+
+*Screenshot-Platzhalter S20:* „OV Beispielort“ im Startseiteneditor, Sektionenliste mit Auf/Ab, Sichtbarkeit und Titelbildoptionen; ausschließlich synthetische Daten.
+
+*Screenshot-Platzhalter S21:* Eigene Rubrik „Aus dem Gemeinderat“, Ausschluss aus Aktuelles und Ersetzen eines synthetischen Menülinks; ausschließlich synthetische Daten.
 
 ### Welches Linkziel erscheint?
 
@@ -473,7 +495,7 @@ Die Geschäftsstelle liefert Texte, freigegebene Bilder und Ziel-URLs. Die Admin
 | Spendenaktion | Kampagnentitel, Beschreibung, manuell gepflegtes Ziel und Stand, Bild |
 | Direkt zum OV | knapper Einstieg zur Kreiskarte |
 
-Die WordPress-Zuweisung der eigentlichen Startseite unter **Einstellungen → Lesen** ist ein zusätzlicher Administrationsschritt. OV-Darstellung wird separat in **Verband → OV bearbeiten** mit Header, angebotenem Hero-Modus und Bereichen gepflegt. Ein KV-Homepagewechsel setzt nicht automatisch alle OV-Seiten um.
+Die WordPress-Zuweisung der eigentlichen Startseite unter **Einstellungen → Lesen** ist ein zusätzlicher Administrationsschritt. OV-Darstellung wird mit Header und angebotenem Hero-Modus unter **Verband → OV bearbeiten** und mit Reihenfolge, Sichtbarkeit, Rubriken und Team unter **OV-Startseite** gepflegt. Ein KV-Homepagewechsel setzt nicht automatisch alle OV-Seiten um.
 
 Auf OV-Startseiten erscheint der im Seiteneditor gepflegte Einführungstext unterhalb des Einstiegsbereichs. Er wird nicht automatisch als Untertitel ins Titelbild übernommen. Für einen Einstieg nur mit OV-Titel das Feld **Untertitel** leer lassen; ein dort bewusst eingetragener kurzer Text wird weiterhin angezeigt. Der Modus **Aktuelles** zeigt stattdessen den neuesten Beitrag mit dessen Auszug. Der Bereich **Team** ist unabhängig davon optional und kann bis zur Aktualisierung der Personen ausgeblendet bleiben.
 
@@ -677,4 +699,4 @@ Dieses Handbuch wurde mit [README](../README.md), [CONTRIBUTING](../CONTRIBUTING
 - [Shortcodes](../theme/inc/shortcodes.php), [Abteilungsblock](../theme/inc/blocks.php).
 - [Homepage-Einstellungen](../theme/template-parts/home/neue-energie-settings.php), [Kreiskarte](../theme/inc/kreiskarte-generator.php), [SEO](../theme/inc/seo.php), [Spenden](../theme/inc/donation.php), [Cookie-Hinweis](../theme/inc/cookie-consent.php).
 
-Besonders zu beachten sind die beschriebenen Alt-Personenshortcodes, die unterschiedliche Bedeutung des KV-Filters bei Personen und Terminen, die fehlenden Menü-/Customizerrechte auch der OV-Admin-Rolle, die zeitlich und mengenmäßig begrenzten Kalenderfeeds sowie die fehlende websiteweite Einwilligungssteuerung. Den technischen Abgleich und die praktischen Prüfungen dokumentieren der [Releasebericht](RELEASE-0.7.0.md) und der [unabhängige Review](validation/INDEPENDENT-REVIEW.md).
+Besonders zu beachten sind die beschriebenen Alt-Personenshortcodes, die unterschiedliche Bedeutung des KV-Filters bei Personen und Terminen, die auf den eigenen OV begrenzte neue Startseiten-/Rubrik-/Menübedienung ohne allgemeine Menü-/Customizerrechte, die zeitlich und mengenmäßig begrenzten Kalenderfeeds sowie die fehlende websiteweite Einwilligungssteuerung. Den technischen Abgleich und die praktischen Prüfungen dokumentieren der [Releasebericht](RELEASE-0.7.0.md) und der [unabhängige Review](validation/INDEPENDENT-REVIEW.md).

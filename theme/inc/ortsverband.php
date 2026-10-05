@@ -431,11 +431,8 @@ function gk_get_ov_header( $term_id ) {
  * @return array
  */
 function gk_get_ov_homepage_options( $term_id ) {
-    static $cache = array();
-    if ( ! isset( $cache[ $term_id ] ) ) {
-        $cache[ $term_id ] = get_term_meta( $term_id, '_gk_ov_homepage', true );
-    }
-    return $cache[ $term_id ] ? $cache[ $term_id ] : array();
+    $options = get_term_meta( $term_id, '_gk_ov_homepage', true );
+    return is_array( $options ) ? $options : array();
 }
 
 /**

@@ -18,6 +18,7 @@ function gk_render_team_carousel( $args = array() ) {
 			'abteilungen' => '',
 			'zuordnung'   => '',
 			'title'       => 'Unser Team',
+            'group_order' => array(),
         )
     );
     $slugs     = array_values( array_filter( array_map( 'sanitize_title', explode( ',', $args['abteilungen'] ) ) ) );
@@ -76,6 +77,10 @@ function gk_render_team_carousel( $args = array() ) {
         $groups = array_replace( array_intersect_key( array_flip( $slugs ), $groups ), $groups );
     } else {
         uasort( $groups, static fn( $a, $b ) => strnatcasecmp( $a['label'], $b['label'] ) );
+    }
+    if ( ! empty( $args['group_order'] ) ) {
+        $order  = gk_ov_valid_order( $args['group_order'], array_keys( $groups ) );
+        $groups = array_replace( array_flip( $order ), $groups );
     }
     foreach ( $groups as &$group ) {
         usort(

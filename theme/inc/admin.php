@@ -877,6 +877,11 @@ function gk_ortsverband_edit_page() {
                 </table>
             </div>
 
+            <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=gk-ov-home&ov=' . $term_id ) ); ?>"><?php esc_html_e( 'OV-Startseite gestalten: Reihenfolge, Sichtbarkeit, Aktuelles, Team und Rubriken', 'neurg-kreisverband' ); ?></a></p>
+				<?php if ( metadata_exists( 'term', $term_id, '_gk_home_sections' ) ) : ?>
+            <p><?php esc_html_e( 'Für diesen OV ist die neue Sektionssteuerung gespeichert. Ihre Sichtbarkeit hat Vorrang vor den älteren Bereichscheckboxen unten.', 'neurg-kreisverband' ); ?></p>
+            <?php endif; ?>
+
             <!-- Section toggles -->
             <table class="form-table">
                 <tr>
