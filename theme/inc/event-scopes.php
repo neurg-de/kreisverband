@@ -42,7 +42,7 @@ function gk_validate_event_only_term( $term_id ) {
     }
     $term = get_term( $term_id, 'gk_zuordnung' );
     if ( ! $term || is_wp_error( $term ) || 'kreisverband' === $term->slug || gk_get_ov_homepage_id( $term_id ) ) {
-        return new WP_Error( 'gk_event_only', 'Diese Zuordnung hat eine lokale Startseite oder gehört zum Kreisverband.' );
+        return new WP_Error( 'gk_event_only', 'Diese Zuordnung hat eine lokale Startseite oder gehört zum Hauptverband.' );
     }
     foreach ( get_objects_in_term( $term_id, 'gk_zuordnung' ) as $post_id ) {
         if ( 'gk_event' !== get_post_type( $post_id ) ) {

@@ -57,7 +57,7 @@ function gk_person_affiliation_meta_box_cb( $post ) {
         <option value="external" <?php selected( $value, 'external' ); ?>>Parteifremdes Fraktionsmitglied</option>
         <option value="independent" <?php selected( $value, 'independent' ); ?>>Parteilos</option>
     </select>
-    <p class="description">Bei einer Kennzeichnung wird die Person weiterhin in ihrer Fraktion angezeigt. Die OV-Zugehörigkeit wird öffentlich ausgeblendet. Die interne Zuordnung und Bearbeitungsrechte bleiben erhalten. Nur bestätigte Angaben verwenden.</p>
+    <p class="description">Bei einer Kennzeichnung wird die Person weiterhin in ihrer Fraktion angezeigt. Die Zugehörigkeit zur Untergliederung wird öffentlich ausgeblendet. Die interne Zuordnung und Bearbeitungsrechte bleiben erhalten. Nur bestätigte Angaben verwenden.</p>
     <?php
 }
 

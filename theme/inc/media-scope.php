@@ -244,7 +244,7 @@ add_filter( 'register_taxonomy_args', 'gk_scope_taxonomy_rest_args', 10, 2 );
  */
 function gk_validate_upload_scope( $file ) {
     if ( 0 === gk_user_scope() ) {
-        $file['error'] = __( 'Keine gültige OV-Zuordnung. Bitte Administration kontaktieren.', 'neurg-kreisverband' );
+        $file['error'] = __( 'Keine gültige Verbandszuordnung. Bitte Administration kontaktieren.', 'neurg-kreisverband' );
     }
     return $file;
 }

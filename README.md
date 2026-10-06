@@ -1,11 +1,18 @@
-# [Neurg Kreisverband](https://neurg.de)
+# [Neurg](https://neurg.de)
 
-WordPress-Theme fuer GRUENE Kreisverband- und Ortsverband-Websites.
+WordPress-Theme für GRÜNE Verbände und ihre Untergliederungen.
 
 **[neurg.de](https://neurg.de)** — Download, Dokumentation und Demo.
 
+Eine WordPress-Installation für einen Hauptverband und seine Untergliederungen: zum Beispiel Kreisverband → Ortsverbände, Stadtverband → Stadtteilgruppen oder Bezirksverband → Kreisverbände. Bezeichnungen und Präfixe werden im Setup gewählt.
+
+Das GitHub-Repository `kreisverband` sowie das Theme-Verzeichnis und Paket `neurg-kreisverband` behalten ihre historischen Namen.
+
+Konfiguration und Produktbeschreibung: [Verbandsebenen](docs/VERBANDSEBENEN.md).
+Die konfigurierbaren Ebenen und erweiterten Kartengebiete sind ab Release 0.10.0 verfügbar.
+
 Für die Redaktion: [Benutzerhandbuch für Redaktion und Administration](docs/BENUTZERHANDBUCH.md).
-Release 0.9.0: [Änderungen und Prüfungen](docs/RELEASE-0.9.0.md).
+Release 0.10.0: [Änderungen und Prüfungen](docs/RELEASE-0.10.0.md).
 Update und Rollback: [Installationsablauf](docs/RELEASE-0.7.0.md).
 
 ![Screenshot](theme/screenshot.png)
@@ -15,8 +22,8 @@ Inspiriert von "Joseph knows best" von Benjamin Jopen (kre8tiv.de) und der Weite
 ## Features
 
 - Personendatenbank mit Abteilungen und Zuordnungen
-- Interaktive SVG-Kreiskarte (OpenStreetMap-basiert)
-- Ortsverband-Verwaltung mit eigenem Routing und Templates
+- Interaktive SVG-Verbandskarte für Gemeinden, Stadtbezirke und größere Gebiete (OpenStreetMap-basiert)
+- Verwaltung von Untergliederungen mit eigenem Routing und Templates
 - Termin-/Eventmanagement mit iCal-Export
 - Flexible Shortcodes (Vorstand, Mandate, Landesliste, Gliederungen, u.v.m.)
 - Eingebautes SEO (Open Graph, JSON-LD, Meta-Descriptions)
@@ -24,8 +31,8 @@ Inspiriert von "Joseph knows best" von Benjamin Jopen (kre8tiv.de) und der Weite
 - Kontaktformular mit Spam-Schutz
 - Cookie-Consent-Banner (DSGVO)
 - Social-Media-Integration
-- Benutzerdefinierte Rollen: Kreisadmin, OV-Admin, OV-Autor
-- Setup-Wizard fuer Ersteinrichtung
+- Benutzerdefinierte Rollen für Hauptverband und Untergliederungen mit getrennten Redaktionsrechten
+- Einrichtungsassistent mit verpflichtender Auswahl beider Ebenen, anpassbaren Kürzeln und URL-Präfix
 
 ## Quick Start
 

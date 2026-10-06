@@ -15,7 +15,7 @@ function gk_register_editor_patterns() {
     $patterns = array(
         'introduction'  => array(
             'title'   => __( 'Vorstellung mit Bild und Text', 'neurg-kreisverband' ),
-            'content' => '<!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><!-- wp:image /--></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><!-- wp:heading --><h2 class="wp-block-heading">Wir vor Ort</h2><!-- /wp:heading --><!-- wp:paragraph --><p>Hier stellen wir unseren Ortsverband und unsere Arbeit vor.</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns -->',
+            'content' => '<!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><!-- wp:image /--></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><!-- wp:heading --><h2 class="wp-block-heading">Wir vor Ort</h2><!-- /wp:heading --><!-- wp:paragraph --><p>Hier stellen wir unseren Verband und unsere Arbeit vor.</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns -->',
         ),
         'priorities'    => array(
             'title'   => __( 'Unsere Themen', 'neurg-kreisverband' ),
@@ -52,8 +52,8 @@ function gk_render_editor_templates_page() {
             <li><?php esc_html_e( 'Unsere Themen', 'neurg-kreisverband' ); ?></li>
             <li><?php esc_html_e( 'Mitmachen und Kontakt', 'neurg-kreisverband' ); ?></li>
         </ul>
-        <p><?php esc_html_e( 'Die Seitenvorlage wählst du rechts in den Seiteneinstellungen unter „Template“. Für die OV-Startseite nutzt du „OV-Startseite“, für weitere OV-Seiten „OV-Unterseite“. Die Inhalte bleiben deinem Verband zugeordnet.', 'neurg-kreisverband' ); ?></p>
-        <p><?php esc_html_e( 'Unter „Verband“ kannst du als OV-Admin außerdem die Darstellung deiner Startseite, Kontaktangaben und die sichtbaren Inhaltsbereiche einstellen. Bilder lädst du über „Medien“ oder direkt über einen Bildblock hoch.', 'neurg-kreisverband' ); ?></p>
+        <p><?php esc_html_e( 'Die Seitenvorlage wählst du rechts in den Seiteneinstellungen unter „Template“. Für die Startseite deiner Untergliederung nutzt du die Vorlage mit der Endung „-Startseite“, für weitere Seiten die Vorlage mit der Endung „-Unterseite“. Das Kürzel entspricht der im Setup gewählten Bezeichnung. Die Inhalte bleiben deinem Verband zugeordnet.', 'neurg-kreisverband' ); ?></p>
+        <p><?php esc_html_e( 'Unter „Verband“ kannst du als Administrator deiner Untergliederung außerdem die Darstellung deiner Startseite, Kontaktangaben und die sichtbaren Inhaltsbereiche einstellen. Bilder lädst du über „Medien“ oder direkt über einen Bildblock hoch.', 'neurg-kreisverband' ); ?></p>
         <p><a class="button button-primary" href="<?php echo esc_url( admin_url( 'edit.php?post_type=page' ) ); ?>"><?php esc_html_e( 'Seiten bearbeiten', 'neurg-kreisverband' ); ?></a></p>
     </div>
     <?php

@@ -4,21 +4,21 @@ Contributors: severinkistner
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.9.0
+Stable tag: 0.10.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-WordPress-Theme fuer GRUENE Kreisverband- und Ortsverband-Websites.
+WordPress-Theme für GRÜNE Verbände und ihre Untergliederungen.
 
 == Description ==
 
-Neurg Kreisverband ist ein spezialisiertes, kostenloses WordPress-Theme fuer GRUENE Kreisverband- und Ortsverband-Websites. Entwickelt und gepflegt unter [neurg.de](https://neurg.de).
+Neurg Kreisverband ist ein spezialisiertes, kostenloses WordPress-Theme für GRÜNE Verbände und ihre Untergliederungen. Entwickelt und gepflegt unter [neurg.de](https://neurg.de).
 
 Funktionen:
 
 * Personendatenbank mit Abteilungen und Zuordnungen
-* Interaktive SVG-Kreiskarte (OpenStreetMap-basiert)
-* Ortsverband-Verwaltung mit eigenem Routing und Templates
+* Interaktive SVG-Verbandskarte für Gemeinden, Stadtbezirke und größere Gebiete (OpenStreetMap-basiert)
+* Verwaltung von Untergliederungen mit eigenem Routing und Templates
 * Termin-/Eventmanagement mit iCal-Export
 * Flexible Shortcodes (Vorstand, Mandate, Landesliste, Gliederungen, u.v.m.)
 * Eingebautes SEO (Open Graph, JSON-LD, Meta-Descriptions)
@@ -42,15 +42,19 @@ Funktionen:
 
 Ab WordPress 6.4 mit PHP 8.1 oder hoeher.
 
-= Wie richte ich einen Ortsverband ein? =
+= Wie richte ich eine Untergliederung ein? =
 
-Als Administrator unter Verband einen Ortsverband anlegen und eine lokale Startseite oder eine externe Kontakt-Website hinterlegen. Anschliessend die Links in OV-Liste und Kreiskarte pruefen. Das vollstaendige deutsche Benutzerhandbuch liegt im Repository unter docs/BENUTZERHANDBUCH.md.
+Als Administrator unter Verband eine Untergliederung anlegen und eine lokale Startseite oder eine externe Kontakt-Website hinterlegen. Anschliessend die Links in Liste und Verbandskarte pruefen. Das vollstaendige deutsche Benutzerhandbuch liegt im Repository unter docs/BENUTZERHANDBUCH.md.
 
 = Welche Plugins werden benoetigt? =
 
 Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Theme integriert.
 
 == Changelog ==
+
+= 0.10.0 =
+* Zwei verpflichtend ausgewählte Verbandsebenen mit konfigurierbaren Bezeichnungen, Anzeige- und URL-Präfixen.
+* Verbandskarte für Gemeinden, Stadtbezirke und größere Gebiete mit mehrteiligen Grenzen und stabilen Zuordnungen beim Neuladen.
 
 = 0.9.0 =
 * Eigene OV-Startseiten mit tastaturbedienbarer Sektionsreihenfolge und Sichtbarkeit.

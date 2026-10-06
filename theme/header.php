@@ -84,7 +84,7 @@ if ( $gk_is_ov ) {
         <!-- mobile header -->
         <section class="header-mobile">
             <?php if ( $gk_is_ov ) : ?>
-                <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="kv-back" title="Zurück zum Kreisverband">KV</a>
+                <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="kv-back" title="<?php echo esc_attr( 'Zur Hauptseite: ' . gk_association_label() ); ?>"><?php echo esc_html( gk_association_label( 'primary', 'abbreviation' ) ); ?></a>
             <?php endif; ?>
             <a href="<?php echo esc_url( $gk_is_ov ? $gk_ov_home : home_url( '/' ) ); ?>" title="Zur Startseite" class="logolink">
                 <?php if ( file_exists( GK_DIR . '/lib/images/logo_small.png' ) ) : ?>
@@ -102,7 +102,7 @@ if ( $gk_is_ov ) {
             <a class="switch-menu" href="#header" role="button" aria-expanded="true" aria-label="Menü schliessen"><span class="fa fa-times" aria-hidden="true"></span>Menu schliessen</a>
             <div class="logo">
                 <?php if ( $gk_is_ov ) : ?>
-                    <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="kv-back" title="Zurück zum Kreisverband">KV</a>
+                    <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="kv-back" title="<?php echo esc_attr( 'Zur Hauptseite: ' . gk_association_label() ); ?>"><?php echo esc_html( gk_association_label( 'primary', 'abbreviation' ) ); ?></a>
                 <?php endif; ?>
                 <a href="<?php echo esc_url( $gk_is_ov ? $gk_ov_home : home_url( '/' ) ); ?>" title="Zur Startseite" class="logolink">
                     <?php if ( file_exists( GK_DIR . '/lib/images/logo_small.png' ) ) : ?>
@@ -127,7 +127,7 @@ if ( $gk_is_ov ) {
     <!-- fixed desktop menu -->
     <div class="nav-wrap" id="nav-flyin"><div class="inner">
         <?php if ( $gk_is_ov ) : ?>
-            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="kv-back" title="Zurück zum Kreisverband">KV</a>
+            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="kv-back" title="<?php echo esc_attr( 'Zur Hauptseite: ' . gk_association_label() ); ?>"><?php echo esc_html( gk_association_label( 'primary', 'abbreviation' ) ); ?></a>
         <?php endif; ?>
         <div class="logo-desktop">
             <a href="<?php echo esc_url( $gk_is_ov ? $gk_ov_home : home_url( '/' ) ); ?>" title="Zur Startseite">
@@ -150,7 +150,7 @@ if ( $gk_is_ov ) {
     <div class="nav-wrap inner" id="nav-desktop">
         <nav role="navigation" class="nav-main" id="hauptmenue"><h6 class="unsichtbar">Hauptmenue:</h6>
             <?php if ( $gk_is_ov ) : ?>
-                <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="kv-back" title="Zurück zum Kreisverband">KV</a>
+                <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="kv-back" title="<?php echo esc_attr( 'Zur Hauptseite: ' . gk_association_label() ); ?>"><?php echo esc_html( gk_association_label( 'primary', 'abbreviation' ) ); ?></a>
             <?php endif; ?>
             <a href="<?php echo esc_url( $gk_is_ov ? $gk_ov_home : home_url( '/' ) ); ?>" title="Zur Startseite" class="logolink">
                 <?php if ( file_exists( GK_DIR . '/lib/images/logo_small.png' ) ) : ?>

@@ -25,8 +25,8 @@ add_action( 'wp_ajax_gk_get_ortsverbaende', 'gk_ajax_get_ortsverbaende' );
 function gk_kreiskarte_generator_menu() {
     add_submenu_page(
         'gk-settings',
-        'Kreiskarte',
-        'Kreiskarte',
+        'Verbandskarte',
+        'Verbandskarte',
         'manage_options',
         'kreiskarte-generator',
         'gk_kreiskarte_generator_page'
@@ -39,10 +39,11 @@ add_action(
 		if ( 'verband_page_kreiskarte-generator' !== $hook ) {
 			return;
 		}
+		wp_enqueue_script( 'gk-map-geometry', GK_URI . '/lib/js/map-geometry.js', array(), GK_VERSION, true );
 		wp_enqueue_script(
             'gk-kreiskarte-generator',
             GK_URI . '/lib/js/kreiskarte-generator.js',
-            array(),
+            array( 'gk-map-geometry' ),
             GK_VERSION,
             true
 		);
@@ -50,8 +51,10 @@ add_action(
             'gk-kreiskarte-generator',
             'gkKreiskarte',
             array(
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'gk_kreiskarte' ),
+				'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+				'nonce'          => wp_create_nonce( 'gk_kreiskarte' ),
+                'secondaryLabel' => gk_association_label( 'secondary' ),
+                'urlPrefix'      => gk_association_url_prefix(),
             )
 		);
 		wp_enqueue_style(
@@ -71,6 +74,28 @@ function gk_kreiskarte_generator_page() {
     $has_map  = is_array( $map_data ) && ! empty( $map_data['municipalities'] );
     ?>
     <div class="wrap gk-kreiskarte-generator">
+        <h1>Verbandskarte</h1>
+        <p>Wähle das Gebiet des Hauptverbands und die geografischen Untergebiete. Diese können unabhängig von ihrem Namen den Untergliederungen zugeordnet werden. Mehrere Gebiete können auf dieselbe Untergliederung verweisen.</p>
+        <p><label for="gk-subdivision-level">Unterteilung der Karte</label>
+            <select id="gk-subdivision-level">
+                <?php
+                foreach ( array(
+					'auto' => 'Automatisch passend zum Gebiet',
+					'4'    => 'Bundesländer',
+					'5'    => 'Regierungsbezirke / regionale Grenzen',
+					'6'    => 'Landkreise / kreisfreie Städte',
+					'7'    => 'Verwaltungsgemeinschaften / Ämter',
+					'8'    => 'Städte / Gemeinden',
+					'9'    => 'Stadtbezirke',
+					'10'   => 'Stadtteile / Ortsteile',
+					'11'   => 'Weitere lokale Untergebiete',
+				) as $value => $label ) :
+					?>
+                <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $map_data['_meta']['subdivisionLevel'] ?? 'auto', $value ); ?>><?php echo esc_html( $label ); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+        <p class="description">Die verfügbaren Grenzen und ihre Ebenen unterscheiden sich regional. Prüfe die Vorschau vor der Übernahme. Parteigrenzen können von Verwaltungsgrenzen abweichen.</p>
 
         <!-- ============================================================
             PHASE 1 — Load a map (hidden once a map exists)
@@ -82,9 +107,9 @@ function gk_kreiskarte_generator_page() {
 		?>
         >
 
-            <h1>Kreiskarte einrichten</h1>
+            <h2>Karte einrichten</h2>
             <p class="description">
-                Suche deinen Landkreis. Das Tool l&auml;dt die Gemeindegrenzen von OpenStreetMap
+                Suche eine Stadt, einen Landkreis oder ein größeres Verbandsgebiet. Das Tool l&auml;dt die Gebietsgrenzen von OpenStreetMap
                 und erstellt eine interaktive Karte.
             </p>
 
@@ -92,7 +117,7 @@ function gk_kreiskarte_generator_page() {
             <div id="gk-search" class="gk-card">
                 <div class="gk-search-row">
                     <input type="text" id="gk-search-input"
-                            placeholder="z.B. Landkreis Starnberg, Landkreis Neuburg-Schrobenhausen..."
+                            placeholder="Stadt, Landkreis oder Region suchen…"
                             class="regular-text" autofocus />
                     <button type="button" id="gk-search-btn" class="button button-primary">Suchen</button>
                 </div>
@@ -104,7 +129,7 @@ function gk_kreiskarte_generator_page() {
                 <div class="gk-progress">
                     <div class="gk-progress-bar"></div>
                 </div>
-                <p id="gk-loading-status">Lade Gemeindegrenzen...</p>
+                <p id="gk-loading-status">Lade Gebietsgrenzen...</p>
             </div>
 
             <!-- Preview (after loading, before saving) -->
@@ -133,13 +158,13 @@ function gk_kreiskarte_generator_page() {
 		?>
         >
 
-            <h1>Kreiskarte</h1>
+            <h2>Gebiete zuordnen</h2>
 
             <div id="gk-config-map"></div>
 
-            <h2>Gemeinden konfigurieren</h2>
+            <h3>Untergebiete konfigurieren</h3>
             <p class="description">
-                W&auml;hle f&uuml;r jede Gemeinde den Typ und das gew&uuml;nschte Ziel. Die Spalte
+                W&auml;hle f&uuml;r jedes Gebiet den Typ und das gew&uuml;nschte Ziel. Die Spalte
                 &bdquo;Klickziel auf der Website&ldquo; zeigt den aktuell gespeicherten Stand.
                 &Auml;nderungen werden erst nach &bdquo;Speichern&ldquo; &ouml;ffentlich.
             </p>
@@ -165,12 +190,11 @@ function gk_kreiskarte_generator_page() {
             <details class="gk-reload-section">
                 <summary>Karte neu laden</summary>
                 <p class="description">
-                    Lade die Karte von OpenStreetMap neu. Die Gemeinde-Konfiguration bleibt erhalten,
-                    sofern die Gemeinde-Slugs &uuml;bereinstimmen.
+                    Lade die Karte von OpenStreetMap neu. Bei demselben Gebiet und derselben Unterteilung bleiben Zuordnungen anhand der OSM-Gebietskennung erhalten. Bei einem anderen Gebiet oder einer anderen Unterteilung müssen die Zuordnungen neu geprüft werden.
                 </p>
                 <div class="gk-search-row">
                     <input type="text" id="gk-reload-input"
-                            placeholder="z.B. Landkreis Starnberg..."
+                            placeholder="Stadt, Landkreis oder Region suchen…"
                             class="regular-text" />
                     <button type="button" id="gk-reload-btn" class="button button-primary">Suchen</button>
                 </div>
@@ -266,7 +290,7 @@ function gk_ajax_update_kreiskarte_mappings() {
             $ov_slug = sanitize_title( $m['ovSlug'] ?? '' );
             if ( $ov_slug ) {
                 if ( ! get_term_by( 'slug', $ov_slug, 'gk_zuordnung' ) ) {
-                    wp_send_json_error( sprintf( 'Der zugeordnete Ortsverband für %s existiert nicht.', sanitize_text_field( $muni['name'] ?? $slug ) ) );
+                    wp_send_json_error( sprintf( 'Die zugeordnete Untergliederung für %s existiert nicht.', sanitize_text_field( $muni['name'] ?? $slug ) ) );
                 }
                 $muni['ovSlug'] = $ov_slug;
             } else {
@@ -303,7 +327,7 @@ function gk_ensure_map_event_scopes( $data ) {
         $term    = get_term_by( 'slug', $ov_slug, 'gk_zuordnung' );
         if ( ! $term ) {
             $is_group = 'ortsgruppe' === ( $municipality['type'] ?? '' );
-            $name     = ( $is_group ? 'Ortsgruppe ' : 'OV ' ) . sanitize_text_field( $municipality['name'] ?? $slug );
+            $name     = ( $is_group ? 'Ortsgruppe ' : gk_association_label( 'secondary', 'abbreviation' ) . ' ' ) . sanitize_text_field( $municipality['name'] ?? $slug );
             $result   = wp_insert_term( $name, 'gk_zuordnung', array( 'slug' => $ov_slug ) );
             if ( is_wp_error( $result ) ) {
                 foreach ( $created as $id ) {
@@ -363,7 +387,7 @@ function gk_ajax_create_ortsverbaende() {
         $display_name = match ( $type ) {
             'ortsgruppe' => 'Ortsgruppe ' . $name,
             'werbung'    => 'Grüne in ' . $name,
-            default      => 'OV ' . $name,
+            default      => gk_association_label( 'secondary', 'abbreviation' ) . ' ' . $name,
         };
 
         $result = $existing ? array( 'term_id' => $existing->term_id ) : wp_insert_term( $display_name, 'gk_zuordnung', array( 'slug' => $slug ) );
@@ -380,7 +404,7 @@ function gk_ajax_create_ortsverbaende() {
         $header_text = match ( $type ) {
             'ortsgruppe' => 'Ortsgruppe Grüne ' . $name,
             'werbung'    => 'Grüne in ' . $name,
-            default      => 'Ortsverband Grüne ' . $name,
+            default      => gk_association_label( 'secondary' ) . ' Grüne ' . $name,
         };
         if ( ! $existing ) {
             update_term_meta( $term_id, '_gk_ov_header', $header_text );
@@ -456,9 +480,9 @@ function gk_ajax_get_ortsverbaende() {
                 } elseif ( str_contains( $url, 'gk_ov_info=' ) ) {
                     $kind = 'Kontaktseite';
                 } elseif ( str_starts_with( $url, trailingslashit( home_url() ) ) ) {
-                    $kind = 'Lokale OV-Seite';
+                    $kind = 'Lokale Verbandsseite';
                 } else {
-                    $kind = 'OV-Website';
+                    $kind = 'Website der Untergliederung';
                 }
             }
             $targets[ $slug ] = array(

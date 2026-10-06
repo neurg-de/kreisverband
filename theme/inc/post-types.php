@@ -102,7 +102,7 @@ function gk_register_zuordnung_taxonomy() {
         'update_item'       => __( 'Zuordnung aktualisieren', 'neurg-kreisverband' ),
         'add_new_item'      => __( 'Zuordnung hinzufuegen', 'neurg-kreisverband' ),
         'new_item_name'     => __( 'Name der Zuordnung', 'neurg-kreisverband' ),
-        'menu_name'         => __( 'Zuordnung (KV/OV)', 'neurg-kreisverband' ),
+        'menu_name'         => sprintf( 'Zuordnung (%s/%s)', gk_association_label( 'primary', 'abbreviation' ), gk_association_label( 'secondary', 'abbreviation' ) ),
     );
 
     register_taxonomy(
@@ -132,14 +132,15 @@ function gk_ensure_zuordnung_defaults() {
     // Create the default "Kreisverband" term if it doesn't exist.
     if ( ! term_exists( 'kreisverband', 'gk_zuordnung' ) ) {
         wp_insert_term(
-            'Kreisverband',
+            gk_association_label(),
             'gk_zuordnung',
             array(
 				'slug'        => 'kreisverband',
-				'description' => 'Beiträge des Kreisverbands',
+				'description' => 'Inhalte des Hauptverbands',
             )
         );
     }
+    gk_sync_association_name();
 }
 
 

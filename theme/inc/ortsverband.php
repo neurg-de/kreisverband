@@ -1040,7 +1040,7 @@ function gk_zuordnung_migration_notice() {
 
     $url = wp_nonce_url( admin_url( '?gk_run_zuordnung_migration=1' ), 'gk_zuordnung_migrate' );
     echo '<div class="notice notice-warning"><p>';
-    echo '<strong>Kreisverband-Theme:</strong> Bestehende Beiträge müssen dem Kreisverband oder einem Ortsverband zugeordnet werden. ';
+    echo '<strong>Neurg:</strong> Bestehende Beiträge müssen dem Hauptverband oder einer Untergliederung zugeordnet werden. ';
     echo '<a href="' . esc_url( $url ) . '" class="button button-primary">Jetzt zuordnen</a>';
     echo '</p></div>';
 }
@@ -1075,7 +1075,7 @@ function gk_nav_menu_migration_notice() {
 
     $url = wp_nonce_url( admin_url( '?gk_run_nav_menu_migration=1' ), 'gk_nav_menu_migrate' );
     echo '<div class="notice notice-warning"><p>';
-    echo '<strong>Kreisverband-Theme:</strong> F&uuml;r jeden Bereich kann automatisch ein Hauptmen&uuml; aus den vorhandenen Seiten erstellt werden. ';
+    echo '<strong>Neurg:</strong> F&uuml;r jeden Bereich kann automatisch ein Hauptmen&uuml; aus den vorhandenen Seiten erstellt werden. ';
     echo '<a href="' . esc_url( $url ) . '" class="button button-primary">Men&uuml;s jetzt erstellen</a>';
     echo '</p></div>';
 }

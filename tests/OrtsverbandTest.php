@@ -291,8 +291,8 @@ class OrtsverbandTest extends WP_UnitTestCase {
         $html = ob_get_clean();
         unset( $_GET['term_id'] );
         wp_set_current_user( 0 );
-        $this->assertStringContainsString( 'KV-Impressum verwenden', $html );
-        $this->assertStringContainsString( 'KV-Datenschutz verwenden', $html );
+        $this->assertStringContainsString( 'Impressum des Hauptverbands verwenden', $html );
+        $this->assertStringContainsString( 'Datenschutz des Hauptverbands verwenden', $html );
         $this->assertStringContainsString( 'aria-describedby="ov_contact_email_help"', $html );
     }
 

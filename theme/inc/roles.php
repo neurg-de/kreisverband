@@ -268,7 +268,7 @@ function gk_ov_dashboard_widget() {
 
     $ov_roles = array( 'gk_ovadmin', 'gk_ovautor' );
     if ( array_intersect( $ov_roles, $roles ) ) {
-        wp_add_dashboard_widget( 'gk_ov_welcome', 'Dein Ortsverband', 'gk_ov_welcome_widget_cb' );
+        wp_add_dashboard_widget( 'gk_ov_welcome', gk_association_label( 'secondary' ), 'gk_ov_welcome_widget_cb' );
     }
 }
 add_action( 'wp_dashboard_setup', 'gk_ov_dashboard_widget' );
@@ -283,7 +283,7 @@ function gk_ov_welcome_widget_cb() {
 
     if ( $ov_term ) {
         echo '<p>Du bist angemeldet als <strong>' . esc_html( $user->display_name ) . '</strong>';
-        echo ' für den Ortsverband <strong>' . esc_html( $ov_term->name ) . '</strong>.</p>';
+        echo ' für den Bereich <strong>' . esc_html( $ov_term->name ) . '</strong>.</p>';
         echo '<p><a href="' . esc_url( admin_url( 'edit.php' ) ) . '" class="button">Beiträge verwalten</a> ';
         echo '<a href="' . esc_url( admin_url( 'edit.php?post_type=person' ) ) . '" class="button">Personen verwalten</a></p>';
     } else {

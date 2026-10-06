@@ -12,6 +12,7 @@
     <!-- PHPCS 3 mis-tokenizes modern JavaScript operators/template literals in
          the generator. Check all JS with make js-check and browser smoke tests. -->
     <exclude-pattern>*/lib/js/kreiskarte-generator.js</exclude-pattern>
+    <exclude-pattern>*/lib/js/map-geometry.js</exclude-pattern>
 
     <!-- Sass compiler outputs are minified and PHPCS cannot tokenize them.
          Their source is validated by npm run build / make zip in CI. -->

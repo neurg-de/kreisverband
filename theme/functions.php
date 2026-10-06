@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'GK_VERSION', '0.9.0' );
+define( 'GK_VERSION', '0.10.0' );
 define( 'GK_DIR', get_template_directory() );
 define( 'GK_URI', get_template_directory_uri() );
 define( 'GK_IMAGE_DIR', GK_URI . '/lib/images/' );
@@ -31,6 +31,7 @@ if ( ! isset( $content_width ) ) {
 require_once GK_DIR . '/inc/theme-setup.php';
 
 // Custom post types: person; taxonomies: abteilung, gk_zuordnung.
+require_once GK_DIR . '/inc/association.php';
 require_once GK_DIR . '/inc/post-types.php';
 
 // Meta boxes for person & page data.

@@ -88,7 +88,7 @@ if ( ! $hero_subtitle ) {
     <div class="inner">
         <div class="gk-section-header gk-section-header--light">
             <h2>So geht&rsquo;s los</h2>
-            <p>Einen Ortsverband gr&uuml;nden ist einfacher als du denkst.</p>
+            <p>Eine lokale Gruppe gr&uuml;nden ist einfacher als du denkst.</p>
         </div>
         <div class="ov-wb-steps__grid">
             <div class="ov-wb-steps__step">
@@ -99,12 +99,12 @@ if ( ! $hero_subtitle ) {
             <div class="ov-wb-steps__step">
                 <span class="ov-wb-steps__num">2</span>
                 <h3>Lerne Gleichgesinnte kennen</h3>
-                <p>Wir vernetzen dich mit anderen Interessierten in <?php echo esc_html( $gemeinde ); ?> und im Kreisverband.</p>
+                <p>Wir vernetzen dich mit anderen Interessierten in <?php echo esc_html( $gemeinde ); ?> und im übergeordneten Verband.</p>
             </div>
             <div class="ov-wb-steps__step">
                 <span class="ov-wb-steps__num">3</span>
                 <h3>Werde aktiv</h3>
-                <p>Ob als Ortsgruppe, Stammtisch oder fester Ortsverband &mdash; ihr bestimmt das Tempo und die Form.</p>
+                <p>Ob als offene Runde oder organisierte Gruppe &mdash; ihr bestimmt das Tempo und die Form.</p>
             </div>
         </div>
     </div>

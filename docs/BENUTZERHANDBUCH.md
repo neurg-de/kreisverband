@@ -1,8 +1,8 @@
 # Benutzerhandbuch für Redaktion und Administration
 
-**Neurg Kreisverband · Release 0.9.0 · Stand: 5. Oktober 2026**
+**Neurg · Release 0.10.0 · Stand: 6. Oktober 2026**
 
-Dieses Handbuch erklärt die Arbeit mit der Website des Kreisverbands und seiner Ortsverbände. Es beschreibt den Quellcode für Release 0.9.0. Es bestätigt weder eine Installation auf der Live-Website noch die dortige Einrichtung von Seiten, E-Mail-Versand, Plugins oder Benutzerkonten. Vor dem Einsatz sind die Abläufe auf einer Testkopie mit den tatsächlich vergebenen Rechten zu prüfen.
+Dieses Handbuch erklärt die Arbeit mit der Website eines Hauptverbands und seiner Untergliederungen. Es beschreibt Release 0.10.0. Es bestätigt weder eine Installation auf der Live-Website noch die dortige Einrichtung von Seiten, E-Mail-Versand, Plugins oder Benutzerkonten. Vor dem Einsatz sind die Abläufe auf einer Testkopie mit den tatsächlich vergebenen Rechten zu prüfen.
 
 Die beschriebenen bereichsübergreifenden Redaktionsaufgaben setzen die Rolle **„KV-Autor (mit OV-Zugang)“ (`gk_kvautor_ov`)** voraus. Die tatsächlich zugewiesene Rolle prüft die Administration. Für die tägliche Redaktion sind keine Administratorrechte erforderlich. Änderungen an globalen Einstellungen, Benutzerkonten oder der technischen Installation übernimmt die Administration.
 
@@ -27,6 +27,8 @@ Die beschriebenen bereichsübergreifenden Redaktionsaufgaben setzen die Rolle **
 17. [Fehler, Rücknahme und Hilfe](#17-fehler-rücknahme-und-hilfe)
 18. [Aufnahmeplan für Screenshots](#18-aufnahmeplan-für-screenshots)
 19. [Vor der Freigabe und Quellen](#19-vor-der-freigabe-und-quellen)
+
+Die Beispiele verwenden die Standardbegriffe **Kreisverband (KV)** und **Ortsverband (OV)**. Unter **Verbands-Setup** müssen beide Ebenen ausdrücklich ausgewählt werden. Andere Bezeichnungen und Anzeigepräfixe ändern die entsprechenden Menüs, Rollenanzeigen, Seitenvorlagen und öffentlichen Suchtexte. Technische IDs wie `kreisverband`, `gk_ovadmin` und `[kreiskarte]` bleiben erhalten. Die [Konfigurationsanleitung](VERBANDSEBENEN.md) beschreibt diese Auswahl und das URL-Präfix für neue Untergliederungen.
 
 ## 1. Anmelden, Profil und Sicherheit
 
@@ -95,7 +97,7 @@ Die Übersicht erstellt keine Konten, ändert nicht das eigene Konto oder Admini
 4. Im Editor die Box **Zuordnung (KV/OV)** kontrollieren. Ein Listenfilter allein ist keine Bestätigung der gespeicherten Zuordnung.
 5. Bei einem OV-Konto zeigt das Dashboard gegebenenfalls **Dein Ortsverband** mit dem zuständigen Bereich an.
 
-**Verband**, **Menüs**, **KV-Setup**, die Benutzerverwaltung und technische Werkzeuge sind kein regulärer Arbeitsweg für die Redaktion. Ein fehlender Menüpunkt wird nicht durch eine Administratorrolle für die Geschäftsstelle behoben. Kommentare sind im Theme aus der Navigation entfernt; dieses Handbuch setzt keine Kommentarverwaltung voraus.
+**Verband**, **Menüs**, **Verbands-Setup**, die Benutzerverwaltung und technische Werkzeuge sind kein regulärer Arbeitsweg für die Redaktion. Ein fehlender Menüpunkt wird nicht durch eine Administratorrolle für die Geschäftsstelle behoben. Kommentare sind im Theme aus der Navigation entfernt; dieses Handbuch setzt keine Kommentarverwaltung voraus.
 
 ## 4. Beiträge: Entwurf, Veröffentlichung und Papierkorb
 
@@ -178,11 +180,11 @@ Jede Zuordnung hat eigene Menüplätze. Gemeinsam verwendete Menüobjekte könne
 
 **Redaktion:** Beiträge, Seiten, Personen und Termine im passenden Bereich pflegen und Änderungswünsche melden. **Administration:** KV-Stammdaten, OV-Anlage, Typ, Name, Slug und Homepage-Zuweisung. **OV-Admin:** die angebotenen Kontakt- und Darstellungsfelder des eigenen OVs.
 
-Die KV-Stammdaten liegen unter **KV-Setup**: Name, Kurzname, Anschrift, öffentliche E-Mail, Telefon, Website, Social-Media-Angaben, Verbandslinks und Pflichtseiten. Dieser Einrichtungsweg legt keine E-Mail-Postfächer an. Ein ausgefülltes Setup ist auch keine inhaltliche Prüfung der Rechtstexte.
+Die KV-Stammdaten liegen unter **Verbands-Setup**: Name, Kurzname, Anschrift, öffentliche E-Mail, Telefon, Website, Social-Media-Angaben, Verbandslinks und Pflichtseiten. Dieser Einrichtungsweg legt keine E-Mail-Postfächer an. Ein ausgefülltes Setup ist auch keine inhaltliche Prüfung der Rechtstexte.
 
 ### OV einrichten – Administration
 
-1. Unter **Verband** in der Liste **Ortsverbaende** den Eintrag bearbeiten oder **Neuen Ortsverband hinzufügen** wählen.
+1. Unter **Verband** in der Liste **Ortsverbände** den Eintrag bearbeiten oder **Ortsverband hinzufügen** wählen.
 2. Name und Slug sorgfältig festlegen. Der Slug wird für Zuordnung, URLs und OV-Kontozuständigkeit verwendet; Änderungen sind ein geplanter Administrationsvorgang.
 3. Typ wählen: **Ortsverband** (`ov`), **Ortsgruppe** (`ortsgruppe`) oder **Werbeseite** (`werbung`, Einladung zur Gründung).
 4. Bei lokaler Website eine passende veröffentlichte Seite als **Startseite** zuweisen. Bei externer Website unter **Kontaktdaten → Website** die vollständige HTTP-/HTTPS-Adresse eintragen und aufrufen.
@@ -237,7 +239,7 @@ Eine funktionierende direkte Adresse wie `/ov-beispielort/` beweist noch nicht, 
 2. Dieselbe Gemeinde in der Desktop-Kreiskarte auswählen. Stimmen Ziel und sichtbarer OV-Name mit der direkten Adresse überein?
 3. Die Seite in schmaler Mobilansicht öffnen, in der suchbaren OV-Liste dieselbe Gemeinde auswählen und anschließend über **Karte anzeigen** auch die Karte prüfen. Falls sich eine Detailansicht öffnet, deren weiterführenden Link ebenfalls testen.
 4. Mit Tabulatortaste und Eingabetaste die angebotenen Links bedienen. Prüfen, ob der Fokus sichtbar bleibt und die richtige Gemeinde erreichbar ist.
-5. Die Administration vergleicht unter **Verband → OV bearbeiten** die lokale Startseite und externe Kontakt-Website sowie unter **Verband → Kreiskarte → Gemeinden konfigurieren** die Verknüpfung. Gemeinde-Slug und OV-Slug müssen nicht identisch heißen; entscheidend ist die passende Zuordnung in der Karte.
+5. Die Administration vergleicht unter **Verband → OV bearbeiten** die lokale Startseite und externe Kontakt-Website sowie unter **Verband → Verbandskarte → Untergebiete konfigurieren** die Verknüpfung. Gemeinde-Slug und OV-Slug müssen nicht identisch heißen; entscheidend ist die passende Zuordnung in der Karte.
 6. Falls kein nutzbares Ziel existiert, einen ehrlichen Aufbauzustand vorsehen. Bei einer als aktiv dargestellten Gemeinde ohne Funktion oder einem Scheinlink wie `#` den Fehler mit Gemeinde und Oberfläche melden. „Im Aufbau“ darf keine funktionsfähige lokale Website vortäuschen.
 7. Nach Korrektur **jede konfigurierte Gemeinde** erneut über Liste, Karte, Mobilansicht und Tastatur prüfen. Pro Gemeinde Quelle, erwartete URL, erreichte URL, Seiten-/Fehlerstatus und sichtbaren OV-Kontext festhalten. Den technischen HTTP-Status kann die Administration im Browser-Netzwerkprotokoll kontrollieren.
 8. Die Prüfliste erst nach erfolgreichem Klicktest als erledigt markieren; eine Prüfung ausschließlich direkt eingegebener OV-Adressen genügt nicht.
@@ -267,7 +269,7 @@ Für eine Absage können Titel und Beschreibung zunächst deutlich **Abgesagt** 
 
 Eine externe Website oder eine Ortsgruppe kann ebenfalls Termine im gemeinsamen Kalender unter **/termine** und im iCal-Export haben. Dafür genügt eine interne Zuordnung; eine lokale OV-Unterseite ist nicht erforderlich.
 
-1. Als Administration **Verband → Kreiskarte → Gemeinden konfigurieren** öffnen.
+1. Als Administration **Verband → Verbandskarte → Untergebiete konfigurieren** öffnen.
 2. Bei der Gemeinde **Im Terminmenü anzeigen** aktivieren. Falls mehrere Gemeinden denselben Verband nutzen, den bestehenden Verband auswählen.
 3. **Speichern**. Bei Bedarf wird eine interne Zuordnung **Nur Termine** angelegt. Sie erscheint ausschließlich in der Terminverwaltung, nicht als eigener Bereich für Seiten, Beiträge, Personen, Medien, Menüs oder in der allgemeinen OV-Verwaltung. Kartenaktion und externe Zieladresse bleiben bestehen.
 4. Über **Termine verwalten** oder **Termine → gewünschter Verband** einen Termin anlegen. Vor der Veröffentlichung die Zuordnung prüfen, danach den gemeinsamen Kalender und den passenden Filter kontrollieren.
@@ -380,7 +382,7 @@ Die eingeschränkten Rollen dürfen auch Medien nicht endgültig löschen. Bei f
 
 1. Aktuelle Impressums- und Datenschutztexte als Seiten erstellen oder vorhandene Seiten prüfen.
 2. Beide Seiten veröffentlichen und ohne Anmeldung sowie ohne Passwort erreichbar machen.
-3. In **KV-Setup → Pflichtseiten** die richtigen Seiten auswählen und speichern.
+3. In **Verbands-Setup → Pflichtseiten** die richtigen Seiten auswählen und speichern.
 4. Bei Bedarf auch die WordPress-Datenschutzseite unter **Einstellungen → Datenschutz** konsistent auswählen.
 5. Footer, Cookie-Hinweis und Anfrageformular abgemeldet prüfen. Nicht nur die Beschriftung, sondern das tatsächliche Linkziel kontrollieren.
 
@@ -390,7 +392,7 @@ Automatisch vorgefüllte oder historische Mustertexte sind keine fertige Erklär
 
 1. Die für den OV freigegebene eigene Seite anlegen und veröffentlichen, falls eine eigene Erklärung gebraucht wird.
 2. Unter **Verband → betreffenden OV bearbeiten → Impressum & Datenschutz** die Auswahl öffnen; beim OV-Admin erscheint nur der eigene OV.
-3. Entweder die eigene veröffentlichte Seite wählen oder bewusst **KV-Impressum verwenden** beziehungsweise **KV-Datenschutz verwenden** setzen.
+3. Entweder die eigene veröffentlichte Seite wählen oder bewusst **Impressum des Hauptverbands verwenden** beziehungsweise **Datenschutz des Hauptverbands verwenden** setzen.
 4. Speichern und den Footer auf der OV-Startseite sowie auf einer OV-Unterseite, einem Beitrag und einem Termin öffnen.
 5. Zusätzlich etwaige manuell eingetragene Footer-/Menülinks und Links im Seitentext prüfen. Diese werden nicht allein durch eine geänderte Pflichtseiten-Auswahl korrigiert.
 
@@ -467,7 +469,7 @@ Das Theme **provisioniert keine Postfächer, Weiterleitungen oder Konten**. Word
 2. Die Anfrage geht über den intern vereinbarten Weg an die zuständige E-Mail-/IT-Administration des Verbands beziehungsweise dessen Mailanbieter. Welche Stelle dies konkret übernimmt, muss der Kreisverband benennen; das Handbuch erfindet keinen Anbieter.
 3. Die zuständige Stelle prüft Freigabe, Namensschema, Zugriffsberechtigung, Vertretung und Aufbewahrung. Sie richtet die Mailfunktion außerhalb von WordPress ein.
 4. Zugang und gegebenenfalls zweiter Faktor werden persönlich über einen sicheren Kanal übergeben. Ein initiales Passwort bei Übergabe ändern; Zugangsdaten niemals in öffentliche Theme-Felder übernehmen.
-5. Senden und Empfangen einschließlich Antworten testen. Erst dann die öffentliche Adresse im **KV-Setup** durch die Administration beziehungsweise unter **Verband → OV → Öffentliche Kontakt-E-Mail** durch Administration/OV-Admin eintragen.
+5. Senden und Empfangen einschließlich Antworten testen. Erst dann die öffentliche Adresse im **Verbands-Setup** durch die Administration beziehungsweise unter **Verband → OV → Öffentliche Kontakt-E-Mail** durch Administration/OV-Admin eintragen.
 6. Die Geschäftsstelle aktualisiert freigegebene Adressen in Seiten und Personenprofilen und prüft die öffentliche Ausgabe.
 7. Beim Rollenwechsel Zugriffe neu zuweisen, aktive Sitzungen und gegebenenfalls Geheimnisse durch die zuständige Stelle erneuern. Öffentlich angezeigte Kontakte und WordPress-Rechte separat aktualisieren.
 8. Beim Ausscheiden Zugriff zeitnah entziehen, Vertretung und notwendige Aufbewahrung klären und die Mailfunktion nach Freigabe deaktivieren oder überführen. Keine automatische unbegrenzte Weiterleitung an Privatadressen einrichten.
@@ -511,14 +513,14 @@ Die Daten der Karte müssen bereits eingerichtet sein. Die Anzeige kann zusätzl
 
 ### Karte einrichten oder korrigieren – Administration
 
-1. **Verband → Kreiskarte** öffnen. Vor dem Ersetzen die Datenbank sichern; bei älteren Theme-Versionen auch lokal geänderte Kartendateien sichern.
-2. Falls keine Karte vorliegt, den Landkreis suchen, den richtigen Treffer wählen und die geladenen Gemeindegrenzen in der Vorschau kontrollieren.
+1. **Verband → Verbandskarte** öffnen. Vor dem Ersetzen die Datenbank sichern; bei älteren Theme-Versionen auch lokal geänderte Kartendateien sichern.
+2. Falls keine Karte vorliegt, eine Stadt, einen Landkreis oder ein größeres Verbandsgebiet suchen und die passende Verwaltungsgrenze wählen. Unter **Unterteilung der Karte** automatisch oder ausdrücklich die geografische Unterebene auswählen; anschließend die Gebietsgrenzen in der Vorschau kontrollieren.
 3. Erst dann **Karte übernehmen** wählen.
-4. Unter **Gemeinden konfigurieren** je Gemeinde die gewünschte Aktion wählen: **Ortsverband/Ortsgruppe** für lokale oder im OV-Kontaktfeld hinterlegte Websites, **Externer Link** für eine ausdrücklich vorgegebene Website, **Kontaktseite** für den Kontaktweg oder **Ohne Link** für einen Eintrag im Aufbau. Die Spalte **Klickziel auf der Website** zeigt die derzeit gespeicherte öffentliche Wirkung; ungespeicherte Änderungen sind markiert.
+4. Unter **Untergebiete konfigurieren** je Gebiet die gewünschte Aktion wählen: die konfigurierte Untergliederung (standardmäßig **Ortsverband/Ortsgruppe**) für lokale oder im OV-Kontaktfeld hinterlegte Websites, **Externer Link** für eine ausdrücklich vorgegebene Website, **Kontaktseite** für den Kontaktweg oder **Ohne Link** für einen Eintrag im Aufbau. Die Spalte **Klickziel auf der Website** zeigt die derzeit gespeicherte öffentliche Wirkung; ungespeicherte Änderungen sind markiert.
 5. **Speichern** wählen. **Markierte Einträge anlegen** erzeugt zusätzliche Datensätze und ist kein bloßer Speicherschritt; vorher vorhandene OVs abgleichen.
-6. Alle Gemeinden öffentlich testen: Karte und mobile Liste müssen die gespeicherte Aktion umsetzen. Für **Externer Link** ist eine gültige vollständige HTTP-/HTTPS-Adresse Pflicht; Platzhalter wie `example.com` durch die bestätigte Website ersetzen, niemals raten.
+6. Alle Gebiete öffentlich testen: Karte und mobile Liste müssen die gespeicherte Aktion umsetzen. Für **Externer Link** ist eine gültige vollständige HTTP-/HTTPS-Adresse Pflicht; Platzhalter wie `example.com` durch die bestätigte Website ersetzen, niemals raten.
 
-**Karte neu laden** erhält Zuordnungen nur, soweit Gemeinde-Slugs weiterhin übereinstimmen. Der Generator lädt OpenStreetMap-Daten. Gespeicherte Kartendaten liegen in der WordPress-Datenbank und bleiben bei einem Theme-Update erhalten; die mitgelieferte Kartendatei dient nur als Ausgangswert, solange keine eigene Konfiguration gespeichert wurde. Vor einem Update eine Datenbanksicherung und eine öffentliche Stichprobe der Ziele einplanen.
+**Karte neu laden** erhält Zuordnungen beim selben Gebiet und derselben Unterteilung über die OSM-Kennung, auch nach einer Namens- oder Präfixänderung. Ältere Karten ohne diese Kennungen werden weiterhin anhand von Titel und Slugs abgeglichen. Beim Wechsel des Gebiets oder der Unterteilung die Zuordnungen neu prüfen und setzen. Der Generator lädt OpenStreetMap-Daten. Gespeicherte Kartendaten liegen in der WordPress-Datenbank und bleiben bei einem Theme-Update erhalten; die mitgelieferte Kartendatei dient nur als Ausgangswert, solange keine eigene Konfiguration gespeichert wurde. Vor einem Update eine Datenbanksicherung und eine öffentliche Stichprobe der Ziele einplanen.
 
 ## 14. Shortcodes und Blöcke zum Nachschlagen
 
@@ -588,7 +590,7 @@ Die Abteilungsauswahl eines OV-Blocks kann auf Abteilungen mit Personen dieses O
 
 Das Theme erzeugt außerdem kanonische URLs und strukturierte Daten für Organisation, Website, Artikel, Termine, Personen und Seitennavigation. Das garantiert weder ein bestimmtes Suchmaschinenranking noch eine besondere Suchdarstellung. Zusätzliche SEO-Plugins können doppelte Angaben erzeugen; deren Zusammenspiel prüft die Administration.
 
-KV-Profile werden im **KV-Setup**, OV-Profile unter **Verband → OV → Kontaktdaten**, persönliche Profile im Personeneintrag gepflegt. Die Eingabehinweise beachten: Manche Felder verlangen eine URL, andere erlauben einen Benutzernamen. Jeden erzeugten Link prüfen. Die Website veröffentlicht dadurch keine Beiträge automatisch auf den sozialen Netzwerken.
+KV-Profile werden im **Verbands-Setup**, OV-Profile unter **Verband → OV → Kontaktdaten**, persönliche Profile im Personeneintrag gepflegt. Die Eingabehinweise beachten: Manche Felder verlangen eine URL, andere erlauben einen Benutzernamen. Jeden erzeugten Link prüfen. Die Website veröffentlicht dadurch keine Beiträge automatisch auf den sozialen Netzwerken.
 
 Logo, globale Darstellung und Dark-Mode-Vorgabe liegen im WordPress-Customizer und gehören zur Administrationsarbeit.
 
@@ -661,7 +663,7 @@ Die folgenden Einträge sind **reproduzierbare Platzhalter, keine bereits angefe
 | S13 `13-newsletter-meldung.png` | Test-Mailtransport abfangen; Testanfrage senden, Erfolg-/Fehlerzustand separat aufnehmen | „Die Rückmeldung ist keine Zustell- oder Abonnementbestätigung.“ |
 | S14 `14-menues.png` | Administrator; Menüs → Test-OV mit Hauptmenü-/Footer-Zuweisung | „Menü und Anzeigeplatz gehören zusammen.“ |
 | S15 `15-homepage.png` | Administrator; Verband → Startseite, Landing-Modus und Sektionen | „Globale Homepage-Einstellungen sind Administrationsaufgabe.“ |
-| S16 `16-kreiskarte.png` | Administrator; Verband → Kreiskarte → Gemeinden konfigurieren | „Jede Gemeinde erhält ein geprüftes Ziel.“ |
+| S16 `16-kreiskarte.png` | Administrator; Verband → Verbandskarte → Untergebiete konfigurieren | „Jedes Gebiet erhält ein geprüftes Ziel.“ |
 | S17 `17-cookie-mobil.png` | abgemeldete Mobilansicht, Bannerbestätigung zuvor zurücksetzen | „Verstanden bestätigt den Hinweis; keine Plugin-Einwilligungsverwaltung.“ |
 | S18 `18-gemeinde-klickwege.png` | je Gemeinde Desktop-Karte, mobile Liste/Detailansicht und Tastaturziel aufrufen; nur synthetische Daten | „Tatsächlicher Klick führt auf die erwartete OV-Seite; URL, Status und OV-Kontext sind geprüft.“ |
 
@@ -693,7 +695,7 @@ Dieses Handbuch wurde mit [README](../README.md), [CONTRIBUTING](../CONTRIBUTING
 
 - [Rollen](../theme/inc/roles.php), [Bereichs- und Löschschutz](../theme/inc/role-security.php), [Theme-Rollenübersicht](../theme/inc/role-overview.php).
 - [Medienbereiche](../theme/inc/media-scope.php), [Medienprüfung und Rücknahme](../theme/inc/media-review.php).
-- [Admin-Oberflächen](../theme/inc/admin.php), [OV-Verknüpfung und Pflichtseiten](../theme/inc/ortsverband.php), [KV-Setup](../theme/inc/setup-wizard.php).
+- [Admin-Oberflächen](../theme/inc/admin.php), [OV-Verknüpfung und Pflichtseiten](../theme/inc/ortsverband.php), [Verbands-Setup](../theme/inc/setup-wizard.php).
 - [Termine und iCal](../theme/inc/events.php), [Personentypen und Zuordnungen](../theme/inc/post-types.php), [Abteilungsangaben](../theme/inc/abteilung-meta.php).
 - [Anfrageformulare](../theme/inc/contact-form.php), [Mach-mit-Vorlage](../theme/page-templates/mach-mit.php).
 - [Shortcodes](../theme/inc/shortcodes.php), [Abteilungsblock](../theme/inc/blocks.php).
