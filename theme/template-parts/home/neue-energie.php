@@ -30,7 +30,7 @@ $donate_url   = gk_get_donate_page_url( $donation );
 $donate_cta   = $donation['cta_text'] ?? 'Jetzt spenden';
 
 $kv_info = get_option( 'gk_kv_info', array() );
-$kv_name = $kv_info['name'] ?? 'Kreisverband';
+$kv_name = $kv_info['name'] ?? gk_association_label();
 
 while ( have_posts() ) :
 	the_post();
@@ -89,7 +89,7 @@ switch ( $landing_mode ) :
             <?php if ( $el_cta && $el_cta_url ) : ?>
                 <a href="<?php echo esc_url( $el_cta_url ); ?>" class="gk-btn gk-btn--primary"><?php echo esc_html( $el_cta ); ?></a>
             <?php endif; ?>
-            <a href="#ovs" class="gk-btn gk-btn--primary">Ortsverband finden</a>
+            <a href="#ovs" class="gk-btn gk-btn--primary"><?php echo esc_html( gk_association_label( 'secondary', 'plural' ) . ' finden' ); ?></a>
         </div>
     </div>
 </section>
@@ -228,7 +228,7 @@ switch ( $landing_mode ) :
     <div class="gk-hero__content inner">
         <h1 class="gk-hero__title"><?php echo esc_html( $minimal_title ? $minimal_title : $kv_name ); ?></h1>
         <div class="gk-hero__actions">
-            <a href="#ovs" class="gk-btn gk-btn--primary">Ortsverband finden &darr;</a>
+            <a href="#ovs" class="gk-btn gk-btn--primary"><?php echo esc_html( gk_association_label( 'secondary', 'plural' ) . ' finden' ); ?> &darr;</a>
         </div>
     </div>
 </section>
@@ -297,7 +297,7 @@ endswitch; // landing_mode.
 <section class="gk-map" id="ovs">
     <div class="inner">
         <div class="gk-section-header">
-            <h2>Finde deinen Ortsverband</h2>
+            <h2><?php echo esc_html( gk_association_label( 'secondary', 'plural' ) . ' vor Ort' ); ?></h2>
             <p>Wähle deinen Ort, um mehr über die Grünen in deiner Nähe zu erfahren.</p>
         </div>
         <?php
@@ -494,7 +494,7 @@ endif;
                 <h3>Komm vorbei</h3>
                 <p>Unsere Treffen und Veranstaltungen stehen allen offen. Lerne uns kennen &mdash; ganz unverbindlich.</p>
                 <a href="#ovs" class="gk-btn gk-btn--primary">
-                    Ortsverband finden
+                    <?php echo esc_html( gk_association_label( 'secondary', 'plural' ) . ' finden' ); ?>
                 </a>
             </div>
             <?php if ( $has_donation && $donate_url ) : ?>
@@ -546,7 +546,7 @@ endif;
 <!-- Sticky OV prompt (visible while above the Kreiskarte section) -->
 <div class="gk-sticky-ov" id="gk-sticky-ov" hidden>
     <a href="#ovs" class="gk-sticky-ov__link">
-        <span class="gk-sticky-ov__text">Suchst du deinen Ortsverband?</span>
+        <span class="gk-sticky-ov__text"><?php echo esc_html( gk_association_label( 'secondary', 'plural' ) . ' in deiner Nähe' ); ?></span>
         <svg class="gk-sticky-ov__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
     </a>
 </div>

@@ -72,7 +72,7 @@ function gk_can_edit_ov_home( $term_id ) {
  */
 function gk_ov_save_category( $term_id, $name, $category = 0 ) {
     if ( ! gk_can_edit_ov_home( $term_id ) ) {
-        return new WP_Error( 'gk_forbidden', __( 'Du darfst nur Rubriken deines eigenen OV bearbeiten.', 'neurg-kreisverband' ) );
+        return new WP_Error( 'gk_forbidden', __( 'Du darfst nur Rubriken deines eigenen Bereichs bearbeiten.', 'neurg-kreisverband' ) );
     }
     $name = is_string( $name ) ? sanitize_text_field( $name ) : '';
     if ( '' === $name ) {
@@ -81,7 +81,7 @@ function gk_ov_save_category( $term_id, $name, $category = 0 ) {
     $term = get_term( $term_id, 'gk_zuordnung' );
     if ( $category ) {
         if ( ! gk_ov_owned_category_ids( $term_id, array( $category ) ) ) {
-            return new WP_Error( 'gk_forbidden', __( 'Diese Rubrik gehört nicht zu deinem OV.', 'neurg-kreisverband' ) );
+            return new WP_Error( 'gk_forbidden', __( 'Diese Rubrik gehört nicht zu deinem Bereich.', 'neurg-kreisverband' ) );
         }
         // Keep the slug and archive URL stable on renames.
         $result = wp_update_term( $category, 'category', array( 'name' => $name ) );
@@ -115,7 +115,7 @@ function gk_ov_guard_category_insert( $term, $taxonomy ) {
     if ( 'category' === $taxonomy && gk_is_restricted_editor() && null !== gk_user_scope() ) {
         $scope = (int) ( $GLOBALS['gk_ov_category_write'] ?? 0 );
         if ( ! $scope || ! gk_can_edit_ov_home( $scope ) ) {
-            return new WP_Error( 'gk_forbidden', __( 'Neue OV-Rubriken bitte unter OV-Startseite gestalten anlegen.', 'neurg-kreisverband' ) );
+            return new WP_Error( 'gk_forbidden', __( 'Neue Rubriken des eigenen Bereichs bitte unter der Gestaltung der Bereichsstartseite anlegen.', 'neurg-kreisverband' ) );
         }
     }
     return $term;
@@ -209,18 +209,18 @@ add_filter( 'delete_term_metadata', 'gk_ov_category_owner_guard', 10, 3 );
  */
 function gk_ov_editable_menu( $term_id ) {
     if ( ! gk_can_edit_ov_home( $term_id ) ) {
-        return new WP_Error( 'gk_forbidden', __( 'Kein Zugriff auf dieses OV-Menü.', 'neurg-kreisverband' ) );
+        return new WP_Error( 'gk_forbidden', __( 'Kein Zugriff auf dieses Bereichsmenü.', 'neurg-kreisverband' ) );
     }
     $term      = get_term( $term_id, 'gk_zuordnung' );
     $location  = 'nav-' . $term->slug;
     $locations = get_nav_menu_locations();
     $menu_id   = (int) ( $locations[ $location ] ?? 0 );
     if ( ! $menu_id || ! wp_get_nav_menu_object( $menu_id ) ) {
-        return new WP_Error( 'gk_menu', __( 'Die Administration muss zuerst ein eigenes OV-Hauptmenü zuweisen.', 'neurg-kreisverband' ) );
+        return new WP_Error( 'gk_menu', __( 'Die Administration muss zuerst ein eigenes Hauptmenü für den Bereich zuweisen.', 'neurg-kreisverband' ) );
     }
     foreach ( $locations as $key => $id ) {
         if ( $key !== $location && (int) $id === $menu_id ) {
-            return new WP_Error( 'gk_menu_shared', __( 'Dieses Menü wird an mehreren Stellen verwendet. Die Administration muss ein eigenes OV-Menü zuweisen.', 'neurg-kreisverband' ) );
+            return new WP_Error( 'gk_menu_shared', __( 'Dieses Menü wird an mehreren Stellen verwendet. Die Administration muss ein eigenes Bereichsmenü zuweisen.', 'neurg-kreisverband' ) );
         }
     }
     return $menu_id;
@@ -251,7 +251,7 @@ function gk_ov_change_menu( $term_id, $category, $item = 0, $operation = 'add' )
         }
     }
     if ( 'add' !== $operation && ( ! $found || (int) $found->menu_item_parent ) ) {
-        return new WP_Error( 'gk_item', __( 'Bitte einen obersten Menüpunkt des eigenen OV-Menüs wählen.', 'neurg-kreisverband' ) );
+        return new WP_Error( 'gk_item', __( 'Bitte einen obersten Menüpunkt des eigenen Bereichsmenüs wählen.', 'neurg-kreisverband' ) );
     }
     if ( 'remove' === $operation ) {
         foreach ( $items as $existing ) {
@@ -263,7 +263,7 @@ function gk_ov_change_menu( $term_id, $category, $item = 0, $operation = 'add' )
     }
     $url = gk_ov_news_url( $term_id, $category );
     if ( ! $category || ! $url ) {
-        return new WP_Error( 'gk_category', __( 'Bitte eine Rubrik des eigenen OV mit erreichbarer Startseite wählen.', 'neurg-kreisverband' ) );
+        return new WP_Error( 'gk_category', __( 'Bitte eine Rubrik des eigenen Bereichs mit erreichbarer Startseite wählen.', 'neurg-kreisverband' ) );
     }
     $cat = get_term( $category, 'category' );
     return wp_update_nav_menu_item(
@@ -289,7 +289,7 @@ function gk_ov_change_menu( $term_id, $category, $item = 0, $operation = 'add' )
  */
 function gk_ov_save_home( $term_id, $input ) {
     if ( ! gk_can_edit_ov_home( $term_id ) ) {
-        return new WP_Error( 'gk_forbidden', __( 'Kein Zugriff auf diese OV-Startseite.', 'neurg-kreisverband' ) );
+        return new WP_Error( 'gk_forbidden', __( 'Kein Zugriff auf diese Bereichsstartseite.', 'neurg-kreisverband' ) );
     }
     $keys   = array_keys( gk_ov_section_labels() );
     $order  = gk_ov_valid_order( $input['section_order'] ?? array(), $keys );
@@ -320,7 +320,7 @@ function gk_ov_save_home( $term_id, $input ) {
 function gk_ov_editor_menu() {
     $scope = gk_user_scope();
     if ( current_user_can( 'manage_options' ) || ( $scope && gk_can_edit_ov_home( $scope ) ) ) {
-        $hook = add_menu_page( __( 'OV-Startseite gestalten', 'neurg-kreisverband' ), __( 'OV-Startseite', 'neurg-kreisverband' ), 'read', 'gk-ov-home', 'gk_ov_editor_page', 'dashicons-layout', 28 );
+        $hook = add_menu_page( gk_association_label( 'secondary', 'abbreviation' ) . '-Startseite gestalten', gk_association_label( 'secondary', 'abbreviation' ) . '-Startseite', 'read', 'gk-ov-home', 'gk_ov_editor_page', 'dashicons-layout', 28 );
         add_action( 'load-' . $hook, 'gk_ov_editor_preflight' );
     }
 }
@@ -333,7 +333,7 @@ function gk_ov_editor_preflight() {
     }
     $term_id = gk_ov_editor_term_id();
     if ( ! gk_can_edit_ov_home( $term_id ) ) {
-        wp_die( esc_html__( 'Kein Zugriff auf diesen OV.', 'neurg-kreisverband' ), '', array( 'response' => 403 ) );
+        wp_die( esc_html__( 'Kein Zugriff auf diesen Bereich.', 'neurg-kreisverband' ), '', array( 'response' => 403 ) );
     }
     check_admin_referer( 'gk_ov_home_' . $term_id );
 }
@@ -378,7 +378,7 @@ function gk_ov_order_controls( $name, $labels, $visible = null ) {
 function gk_ov_editor_page() {
     $term_id = gk_ov_editor_term_id();
     if ( ! $term_id && current_user_can( 'manage_options' ) ) {
-		echo '<div class="wrap"><h1>' . esc_html__( 'OV-Startseite gestalten', 'neurg-kreisverband' ) . '</h1>';
+		echo '<div class="wrap"><h1>' . esc_html( gk_association_label( 'secondary', 'abbreviation' ) . '-Startseite gestalten' ) . '</h1>';
         echo '<ul>';
         foreach ( gk_get_ov_terms() as $term ) {
             echo '<li><a href="' . esc_url( admin_url( 'admin.php?page=gk-ov-home&ov=' . $term->term_id ) ) . '">' . esc_html( $term->name ) . '</a></li>';
@@ -387,7 +387,7 @@ function gk_ov_editor_page() {
         return;
     }
     if ( ! gk_can_edit_ov_home( $term_id ) ) {
-        wp_die( esc_html__( 'Kein Zugriff auf diesen OV.', 'neurg-kreisverband' ), '', array( 'response' => 403 ) );
+        wp_die( esc_html__( 'Kein Zugriff auf diesen Bereich.', 'neurg-kreisverband' ), '', array( 'response' => 403 ) );
     }
     $result = null;
     if ( 'POST' === sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) {
@@ -409,7 +409,7 @@ function gk_ov_editor_page() {
             echo '<div class="notice ' . ( is_wp_error( $result ) ? 'notice-error' : 'notice-success' ) . '" role="status"><p>' . esc_html( is_wp_error( $result ) ? $result->get_error_message() : __( 'Gespeichert. Bitte die öffentliche Seite prüfen.', 'neurg-kreisverband' ) ) . '</p></div>';
         }
     }
-    echo '<div class="wrap"><h1>' . esc_html__( 'OV-Startseite gestalten', 'neurg-kreisverband' ) . '</h1>';
+    echo '<div class="wrap"><h1>' . esc_html( gk_association_label( 'secondary', 'abbreviation' ) . '-Startseite gestalten' ) . '</h1>';
     $term     = get_term( $term_id, 'gk_zuordnung' );
     $config   = gk_ov_home_config( $term_id );
     $sections = gk_ov_home_sections( $term_id );
@@ -425,7 +425,7 @@ function gk_ov_editor_page() {
     wp_enqueue_script( 'gk-ov-editor', GK_URI . '/lib/js/ov-editor.js', array(), GK_VERSION, true );
     ?>
     <h2><?php echo esc_html( $term->name ); ?></h2>
-    <p><?php esc_html_e( 'Diese Einstellungen gelten nur für diesen OV. Auf/Ab oder Ziehen ändert die Reihenfolge; anschließend speichern.', 'neurg-kreisverband' ); ?></p>
+    <p><?php esc_html_e( 'Diese Einstellungen gelten nur für diesen Bereich. Auf/Ab oder Ziehen ändert die Reihenfolge; anschließend speichern.', 'neurg-kreisverband' ); ?></p>
     <form method="post">
         <?php wp_nonce_field( 'gk_ov_home_' . $term_id ); ?>
         <input type="hidden" name="gk_action" value="home">
@@ -435,7 +435,7 @@ function gk_ov_editor_page() {
         <h2><?php esc_html_e( 'Titelbild', 'neurg-kreisverband' ); ?></h2>
         <p><label><input type="checkbox" name="show_text" value="1" <?php checked( $config['show_text'] ); ?>> <?php esc_html_e( 'Begrüßung/Titeltext anzeigen', 'neurg-kreisverband' ); ?></label></p>
         <p><label for="gk-title"><?php esc_html_e( 'Eigener Titeltext (leer: bisheriger Titel)', 'neurg-kreisverband' ); ?></label><br><input class="large-text" id="gk-title" name="title" value="<?php echo esc_attr( $config['title'] ); ?>"></p>
-        <p><label><input type="checkbox" name="show_label" value="1" <?php checked( $config['show_label'] ); ?>> <?php esc_html_e( 'OV-/GR-Label im Titelbild anzeigen, wenn der Einstiegsmodus eines verwendet', 'neurg-kreisverband' ); ?></label></p>
+        <p><label><input type="checkbox" name="show_label" value="1" <?php checked( $config['show_label'] ); ?>> <?php esc_html_e( 'Bereichslabel im Titelbild anzeigen, wenn der Einstiegsmodus eines verwendet', 'neurg-kreisverband' ); ?></label></p>
         <p><?php esc_html_e( 'Im Standardmodus gibt es kein zusätzliches Typ-Label. Kopfzeile und Menü bleiben eigenständig. Das Bild bleibt im Seiteneditor beziehungsweise in den bisherigen Verband-Einstellungen pflegbar.', 'neurg-kreisverband' ); ?></p>
         <h2><?php esc_html_e( 'Aktuelles', 'neurg-kreisverband' ); ?></h2>
         <p><label for="gk-count"><?php esc_html_e( 'Anzahl der Beiträge (3 bis 20)', 'neurg-kreisverband' ); ?></label> <input type="number" id="gk-count" name="news_count" min="3" max="20" value="<?php echo esc_attr( $config['news_count'] ); ?>"></p>
@@ -451,7 +451,7 @@ function gk_ov_editor_page() {
         <?php submit_button( __( 'Startseite speichern', 'neurg-kreisverband' ) ); ?>
     </form>
     <h2><?php esc_html_e( 'Eigene Rubriken', 'neurg-kreisverband' ); ?></h2>
-    <p><?php esc_html_e( 'Neue Rubriken gehören automatisch diesem OV. Zum Umbenennen eine eigene Rubrik wählen. Bestehende gemeinsame Rubriken übernimmt die Administration; Löschen bleibt bei ihr.', 'neurg-kreisverband' ); ?></p>
+    <p><?php esc_html_e( 'Neue Rubriken gehören automatisch diesem Bereich. Zum Umbenennen eine eigene Rubrik wählen. Bestehende gemeinsame Rubriken übernimmt die Administration; Löschen bleibt bei ihr.', 'neurg-kreisverband' ); ?></p>
     <form method="post">
         <?php wp_nonce_field( 'gk_ov_home_' . $term_id ); ?>
         <input type="hidden" name="gk_action" value="category">
@@ -463,7 +463,7 @@ function gk_ov_editor_page() {
         <p><label for="gk-rubric-name"><?php esc_html_e( 'Rubrikname', 'neurg-kreisverband' ); ?></label> <input id="gk-rubric-name" name="rubric_name" required></p>
         <?php submit_button( __( 'Rubrik speichern', 'neurg-kreisverband' ) ); ?>
     </form>
-    <h2><?php esc_html_e( 'Rubrik im OV-Menü', 'neurg-kreisverband' ); ?></h2>
+    <h2><?php esc_html_e( 'Rubrik im Bereichsmenü', 'neurg-kreisverband' ); ?></h2>
     <?php $menu = gk_ov_editable_menu( $term_id ); ?>
     <?php if ( is_wp_error( $menu ) ) : ?>
         <p><?php echo esc_html( $menu->get_error_message() ); ?></p>
@@ -486,7 +486,7 @@ function gk_ov_editor_page() {
         foreach ( $cats as $cat ) :
 			?>
             <option value="<?php echo esc_attr( $cat->term_id ); ?>"><?php echo esc_html( $cat->name ); ?></option><?php endforeach; ?></select></p>
-        <?php submit_button( __( 'OV-Menü ändern', 'neurg-kreisverband' ) ); ?>
+        <?php submit_button( __( 'Bereichsmenü ändern', 'neurg-kreisverband' ) ); ?>
     </form>
     <?php endif; ?>
     <h2><?php esc_html_e( 'Darstellung zurücksetzen', 'neurg-kreisverband' ); ?></h2>

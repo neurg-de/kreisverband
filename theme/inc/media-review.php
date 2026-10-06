@@ -108,7 +108,7 @@ function gk_render_media_review() {
     if ( ! current_user_can( 'manage_options' ) ) {
         wp_die( esc_html__( 'Keine Berechtigung.', 'neurg-kreisverband' ), '', array( 'response' => 403 ) );
     }
-    echo '<div class="wrap"><h1>' . esc_html__( 'Medienzuordnung prüfen', 'neurg-kreisverband' ) . '</h1><p>' . esc_html__( 'Diese Vorschau verändert nichts. Vor Änderungen Datenbank und Dateien sichern. Vorschläge beruhen auf Elternbeitrag oder dem OV-Benutzernamen; widersprüchliche und gemeinsam genutzte Bilder manuell prüfen. Nur die Zuordnung des gewählten Mediums wird geändert; Datei, Bild-ID und bestehende Beitragsbilder bleiben erhalten. Rücknahme ist möglich, solange die Zuordnung danach nicht verändert wurde.', 'neurg-kreisverband' ) . '</p>';
+    echo '<div class="wrap"><h1>' . esc_html__( 'Medienzuordnung prüfen', 'neurg-kreisverband' ) . '</h1><p>' . esc_html__( 'Diese Vorschau verändert nichts. Vor Änderungen Datenbank und Dateien sichern. Vorschläge beruhen auf Elternbeitrag oder dem Benutzernamen der Untergliederung; widersprüchliche und gemeinsam genutzte Bilder manuell prüfen. Nur die Zuordnung des gewählten Mediums wird geändert; Datei, Bild-ID und bestehende Beitragsbilder bleiben erhalten. Rücknahme ist möglich, solange die Zuordnung danach nicht verändert wurde.', 'neurg-kreisverband' ) . '</p>';
     // phpcs:disable WordPress.Security.NonceVerification.Missing -- Both mutation helpers verify the per-attachment nonce before mutation.
     if ( isset( $_POST['gk_media_id'], $_POST['gk_media_nonce'], $_POST['gk_media_action'] ) ) {
         $id     = absint( $_POST['gk_media_id'] );

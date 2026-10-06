@@ -343,7 +343,7 @@ function gk_shortcode_abteilung( $atts ) {
         <?php endif; ?>
 
         <?php if ( $show_filters ) : ?>
-        <div class="gk-abteilung__filters" role="tablist" aria-label="<?php esc_attr_e( 'Nach Ortsverband filtern', 'neurg-kreisverband' ); ?>">
+        <div class="gk-abteilung__filters" role="tablist" aria-label="<?php echo esc_attr( 'Filtern: ' . gk_association_label( 'secondary', 'plural' ) ); ?>">
             <button class="gk-btn--filter gk-btn--sm is-active" role="tab" aria-selected="true" data-filter="all">
                 Alle <span class="gk-abteilung__count"><?php echo esc_html( $total ); ?></span>
             </button>

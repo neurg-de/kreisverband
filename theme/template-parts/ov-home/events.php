@@ -42,7 +42,7 @@ if ( $show_events ) :
     <div class="inner">
         <div class="gk-section-header">
             <h2>N&auml;chste Termine</h2>
-            <a class="gk-btn gk-btn--sm" href="<?php echo esc_url( gk_event_ical_url( $ov_slug ) ); ?>"><?php esc_html_e( 'OV-Termine als iCal abonnieren', 'neurg-kreisverband' ); ?></a>
+            <a class="gk-btn gk-btn--sm" href="<?php echo esc_url( gk_event_ical_url( $ov_slug ) ); ?>"><?php esc_html_e( 'Termine dieses Bereichs als iCal abonnieren', 'neurg-kreisverband' ); ?></a>
         </div>
         <div class="gk-events__track">
             <?php

@@ -147,7 +147,7 @@ function gk_event_admin_scope_notice() {
     $screen = get_current_screen();
     $term   = $screen && 'edit-gk_event' === $screen->id ? gk_event_admin_selected_term() : false;
     if ( $term ) {
-        echo '<div class="notice notice-info"><p><strong>' . esc_html( 'Termine: ' . $term->name ) . '</strong> — ' . esc_html__( 'Neue Termine werden diesem Verband zugeordnet. Eine lokale OV-Unterseite ist dafür nicht erforderlich.', 'neurg-kreisverband' ) . '</p></div>';
+        echo '<div class="notice notice-info"><p><strong>' . esc_html( 'Termine: ' . $term->name ) . '</strong> — ' . esc_html__( 'Neue Termine werden diesem Verband zugeordnet. Eine lokale Unterseite ist dafür nicht erforderlich.', 'neurg-kreisverband' ) . '</p></div>';
     }
 }
 add_action( 'admin_notices', 'gk_event_admin_scope_notice' );

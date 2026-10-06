@@ -74,6 +74,7 @@ phpcs:
 
 js-check:
 	@set -e; for file in theme/lib/js/*.js; do node --check "$$file"; done
+	node --test tests/map-geometry.test.cjs
 
 # ── CSS Build ────────────────────────────────────────────────────────────
 

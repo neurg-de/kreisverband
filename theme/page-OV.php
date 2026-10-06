@@ -63,7 +63,7 @@ endwhile;
 if ( 'werbung' === $ov_type ) :
     $gemeinde = $ov_term ? $ov_term->name : '';
     // Strip "Grüne in " or "OV " prefix for cleaner display.
-    $gemeinde_clean = preg_replace( '/^(Gr(ü|ue)ne in |OV |Ortsverband |Ortsgruppe )/u', '', $gemeinde );
+    $gemeinde_clean = preg_replace( '/^(Gr(ü|ue)ne in |' . preg_quote( gk_association_label( 'secondary', 'abbreviation' ), '/' ) . ' |' . preg_quote( gk_association_label( 'secondary' ), '/' ) . ' |OV |Ortsverband |Ortsgruppe )/u', '', $gemeinde );
     $contact_email  = $contact['email'] ?? '';
     $kv_info        = get_option( 'gk_kv_info', array() );
     $kv_email       = $kv_info['email'] ?? '';

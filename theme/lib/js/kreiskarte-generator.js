@@ -12,9 +12,8 @@
     'use strict';
 
     const NOMINATIM = 'https://nominatim.openstreetmap.org/search';
-    const OVERPASS  = 'https://overpass-api.de/api/interpreter';
-    const SVG_WIDTH = 400;
-    const SVG_PADDING = 10;
+    const OVERPASS_ENDPOINTS = ['https://overpass-api.de/api/interpreter', 'https://overpass.private.coffee/api/interpreter'];
+    const { metadataQuery, chooseSubdivisionLevel, boundaryQuery, processOverpassData, restoreMappings } = window.gkMapGeometry;
 
     let pendingData = null;   // generated map data waiting to be saved
     let currentData = null;   // the saved kreiskarte data
@@ -25,9 +24,9 @@
     let savedMap = null;
 
     const MUNI_TYPES = {
-        ov:         { label: 'Ortsverband',   desc: 'Klick zur lokalen OV-Seite oder zur OV-Website. Fehlt beides, erscheint Im Aufbau ohne Link.' },
-        ortsgruppe: { label: 'Ortsgruppe',    desc: 'Wie Ortsverband, aber als Ortsgruppe dargestellt.' },
-        werbung:    { label: 'Kontaktseite', desc: 'Klick zur Kontaktseite. Keine eigene OV-Unterseite über die Karte.' },
+        ov:         { label: gkKreiskarte.secondaryLabel,   desc: 'Klick zur lokalen Seite oder zur Website der Untergliederung. Fehlt beides, erscheint Im Aufbau ohne Link.' },
+        ortsgruppe: { label: 'Ortsgruppe',    desc: 'Lokale Gruppe mit eigener Seite oder externer Website.' },
+        werbung:    { label: 'Kontaktseite', desc: 'Klick zur Kontaktseite. Keine eigene Unterseite über die Karte.' },
         link:       { label: 'Externer Link', desc: 'Klick genau zur angegebenen Website. Eine gültige URL ist erforderlich.' },
         keine:      { label: 'Ohne Link',     desc: 'Auf Karte und Liste sichtbar, aber nicht anklickbar (Im Aufbau).' },
     };
@@ -93,7 +92,7 @@
         console.log('[Kreiskarte] Nominatim-Suche: "%s"', q);
 
         try {
-            const url = `${NOMINATIM}?q=${encodeURIComponent(q)}&format=json&countrycodes=de&limit=8&featuretype=settlement&accept-language=de`;
+            const url = `${NOMINATIM}?q=${encodeURIComponent(q)}&format=json&countrycodes=de&limit=8&accept-language=de`;
             const resp = await fetch(url, {
                 headers: { 'User-Agent': 'GrueneKreisverbandTheme/1.0' }
             });
@@ -107,7 +106,7 @@
             );
             console.log('[Kreiskarte] Davon Kreise/Relationen: %d', kreise.length);
 
-            renderSearchResults(kreise.length > 0 ? kreise : data, resultsId, isReload);
+            renderSearchResults(kreise, resultsId, isReload);
         } catch (err) {
             console.error('[Kreiskarte] Suche fehlgeschlagen:', err);
             resultsEl.innerHTML = `<div class="notice notice-error inline"><p>Fehler bei der Suche: ${esc(err.message)}</p></div>`;
@@ -163,56 +162,40 @@
         };
 
         try {
-            setStatus('Lade Gemeindegrenzen von Overpass API...', 10);
+            setStatus('Lade Gebietsgrenzen von Overpass API...', 10);
 
-            const query = `
-                [out:json][timeout:90];
-                rel(${osmId});
-                out body;
-                >;
-                out skel qt;
-                rel(${osmId});
-                map_to_area -> .kreis;
-                (
-                    rel(area.kreis)["boundary"="administrative"]["admin_level"="8"];
-                );
-                out body;
-                >;
-                out skel qt;
-            `;
+            const metadata = await fetchOverpass(metadataQuery(osmId), statusEl);
+            const requested = document.getElementById('gk-subdivision-level').value;
+            const childLevel = chooseSubdivisionLevel(metadata, osmId, requested);
+            const query = boundaryQuery(osmId, childLevel);
 
             const resp = await fetchOverpass(query, statusEl);
             setStatus('Verarbeite Geodaten...', 70);
 
-            const result = processOverpassData(resp, parseInt(osmId), displayName);
+            const result = processOverpassData(resp, parseInt(osmId), displayName, childLevel, gkKreiskarte.urlPrefix);
             const muniCount = Object.keys(result.municipalities || {}).length;
-            console.log('[Kreiskarte] Verarbeitung abgeschlossen: %d Gemeinden', muniCount);
+            console.log('[Kreiskarte] Verarbeitung abgeschlossen: %d Gebiete', muniCount);
             setStatus('Generiere SVG-Karte...', 90);
 
             if (muniCount === 0) {
-                setStatus('Keine Gemeinden gefunden. Bitte ein anderes Ergebnis wählen.', 0);
-                console.warn('[Kreiskarte] Keine Gemeinden in Overpass-Antwort');
+                setStatus('Keine Gebiete gefunden. Bitte ein anderes Ergebnis wählen.', 0);
+                console.warn('[Kreiskarte] Keine Gebiete in Overpass-Antwort');
                 if (!isReload) show('gk-search');
+                hide(loadingId);
                 return;
             }
 
             progressBar.style.width = '100%';
 
             if (isReload) {
-                for (const [slug, municipality] of Object.entries(result.municipalities)) {
-                    const previous = savedMap?.municipalities?.[slug];
-                    if (!previous) continue;
-                    for (const key of ['type', 'link', 'ovSlug', 'eventsEnabled']) {
-                        if (Object.hasOwn(previous, key)) municipality[key] = previous[key];
-                    }
-                }
+                restoreMappings(result, savedMap);
                 setStatus('Speichere Karte...', 100);
                 await saveKreiskarte(result);
                 hide(loadingId);
                 currentData = result;
                 showConfigPhase(currentData);
                 document.getElementById('gk-config-status').innerHTML =
-                    `<div class="notice notice-success inline"><p>Karte neu geladen — ${muniCount} Gemeinden.</p></div>`;
+                    `<div class="notice notice-success inline"><p>Karte neu geladen — ${muniCount} Gebiete.</p></div>`;
                 console.log('[Kreiskarte] Reload abgeschlossen');
             } else {
                 pendingData = result;
@@ -231,11 +214,11 @@
 
     function showPreview(data) {
         const munis = Object.keys(data.municipalities).length;
-        const title = data._meta?.title || 'Landkreis';
+        const title = data._meta?.title || 'Verbandsgebiet';
 
         document.getElementById('gk-preview-map').innerHTML = renderSvgPreview(data);
         document.getElementById('gk-preview-info').innerHTML =
-            `<p class="gk-preview-summary"><strong>${esc(title)}</strong> — ${munis} Gemeinden gefunden</p>`;
+            `<p class="gk-preview-summary"><strong>${esc(title)}</strong> — ${munis} Gebiete gefunden</p>`;
 
         show('gk-preview');
     }
@@ -271,7 +254,7 @@
     }
 
     async function saveKreiskarte(data) {
-        console.log('[Kreiskarte] Speichere Karte (%d Gemeinden)...', Object.keys(data.municipalities || {}).length);
+        console.log('[Kreiskarte] Speichere Karte (%d Gebiete)...', Object.keys(data.municipalities || {}).length);
         const resp = await fetch(gkKreiskarte.ajaxUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -291,7 +274,7 @@
 
 
     // ════════════════════════════════════════════════════════════════════════
-    //  PHASE 2 — Configure Gemeinden
+    //  PHASE 2 — Configure Gebiete
     // ════════════════════════════════════════════════════════════════════════
 
     async function showConfigPhase(data) {
@@ -318,7 +301,7 @@
         ).join('');
 
         let html = '<table class="widefat gk-mapping-table"><thead><tr>' +
-            '<th>Gemeinde</th><th>Typ</th><th>Details / Termine</th><th class="gk-col-create">Lokalen Eintrag anlegen</th><th>Klickziel auf der Website</th>' +
+            '<th>Gebiet</th><th>Typ</th><th>Details / Termine</th><th class="gk-col-create">Lokalen Eintrag anlegen</th><th>Klickziel auf der Website</th>' +
             '</tr></thead><tbody>';
 
         for (const [slug, muni] of entries) {
@@ -331,7 +314,7 @@
             savedMappings[slug] = { ...mappings[slug] };
 
             const missingOV = muni.ovSlug && !linkedOV
-                ? `<option value="${esc(muni.ovSlug)}" disabled>OV fehlt: ${esc(muni.ovSlug)}</option>` : '';
+                ? `<option value="${esc(muni.ovSlug)}" disabled>Zuordnung fehlt: ${esc(muni.ovSlug)}</option>` : '';
 
             html += `<tr data-slug="${esc(slug)}">` +
                 `<td><strong>${esc(muni.name)}</strong></td>` +
@@ -340,7 +323,7 @@
                     `<p class="gk-type-desc description"></p>` +
                 `</td>` +
                 `<td class="gk-details-cell">` +
-                    `<select class="gk-ov-select" aria-label="Ortsverband für ${esc(muni.name)}"><option value="">— Neu erstellen —</option>${ovOpts}${missingOV}</select>` +
+                    `<select class="gk-ov-select" aria-label="${esc(gkKreiskarte.secondaryLabel)} für ${esc(muni.name)}"><option value="">— Neu erstellen —</option>${ovOpts}${missingOV}</select>` +
                     `<input type="url" class="gk-link-input" aria-label="Externe Website für ${esc(muni.name)}" placeholder="https://example.com" value="${esc(link)}" />` +
                     `<label class="gk-events-label"><input type="checkbox" class="gk-events-check" ${eventsEnabled ? 'checked' : ''} aria-label="${esc(muni.name)} im Terminmenü anzeigen" /> Im Terminmenü anzeigen</label>` +
                     '<p class="gk-events-status description"></p>' +
@@ -410,7 +393,7 @@
         const target = liveTargets[slug];
         let html = '';
         if (dirty) html += '<span class="gk-badge gk-badge--warn">Noch nicht gespeichert</span><br><small>Derzeit öffentlich:</small><br>';
-        if (missingOV) html += '<span class="gk-link-error">Zugeordneter OV fehlt. Bitte neu auswählen.</span><br>';
+        if (missingOV) html += '<span class="gk-link-error">Zugeordnete Untergliederung fehlt. Bitte neu auswählen.</span><br>';
         if (invalidLink) html += '<span class="gk-link-error">Gültige externe URL eingeben.</span><br>';
         if (target) {
             html += `<span class="gk-badge ${target.url ? 'gk-badge--ok' : 'gk-badge--muted'}">${esc(target.kind)}</span>`;
@@ -456,7 +439,7 @@
         }
         const missingOV = firstMissingOV();
         if (missingOV) {
-            statusEl.innerHTML = '<div class="notice notice-error inline"><p>Bitte den fehlenden Ortsverband neu zuordnen.</p></div>';
+            statusEl.innerHTML = '<div class="notice notice-error inline"><p>Bitte die fehlende Untergliederung neu zuordnen.</p></div>';
             missingOV.querySelector('.gk-ov-select').focus();
             return;
         }
@@ -499,7 +482,7 @@
         }
         const missingOV = firstMissingOV();
         if (missingOV) {
-            statusEl.innerHTML = '<div class="notice notice-error inline"><p>Bitte den fehlenden Ortsverband neu zuordnen.</p></div>';
+            statusEl.innerHTML = '<div class="notice notice-error inline"><p>Bitte die fehlende Untergliederung neu zuordnen.</p></div>';
             missingOV.querySelector('.gk-ov-select').focus();
             return;
         }
@@ -599,76 +582,61 @@
         }
     }
 
-    async function fetchOverpass(query, statusEl, retries = 2) {
-        for (let attempt = 0; attempt <= retries; attempt++) {
-            if (attempt > 0) {
-                const wait = attempt * 5;
-                console.log('[Kreiskarte] Overpass: Versuch %d/%d, warte %ds...', attempt + 1, retries + 1, wait);
-                if (statusEl) statusEl.textContent = `Overpass API überlastet — neuer Versuch in ${wait}s...`;
-                await new Promise(r => setTimeout(r, wait * 1000));
-                if (statusEl) statusEl.textContent = `Lade Gemeindegrenzen (Versuch ${attempt + 1}/${retries + 1})...`;
-            }
-
-            console.log('[Kreiskarte] Overpass-Anfrage (Versuch %d/%d)...', attempt + 1, retries + 1);
-            const resp = await fetch(OVERPASS, {
-                method: 'POST',
-                body: 'data=' + encodeURIComponent(query),
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            });
-            console.log('[Kreiskarte] Overpass-Antwort: HTTP %d', resp.status);
-
-            if (!resp.ok) {
-                if (resp.status === 429 || resp.status === 504) {
-                    console.warn('[Kreiskarte] Overpass %d — Retry...', resp.status);
-                    continue;
+    async function fetchOverpass(query, statusEl) {
+        let lastError;
+        for (const endpoint of OVERPASS_ENDPOINTS) {
+            try {
+                const response = await fetch(endpoint + '?data=' + encodeURIComponent(query), {
+                    signal: AbortSignal.timeout(210000),
+                });
+                if (!response.ok) {
+                    if (response.status === 429 || response.status === 406) {
+                        if (statusEl) statusEl.textContent = 'Kartendienst ausgelastet — warte vor dem nächsten Versuch…';
+                        await new Promise(resolve => setTimeout(resolve, 30000));
+                    }
+                    throw new Error(`Overpass API Fehler ${response.status}`);
                 }
-                throw new Error(`Overpass API Fehler ${resp.status}`);
+                const data = await response.json();
+                if (data.remark || !Array.isArray(data.elements)) throw new Error(data.remark || 'Unvollständige Antwort der Overpass API.');
+                return data;
+            } catch (error) {
+                lastError = error;
+                if (statusEl) statusEl.textContent = 'Kartendienst nicht erreichbar — versuche einen weiteren OpenStreetMap-Dienst…';
             }
-
-            const ct = resp.headers.get('content-type') || '';
-            if (!ct.includes('json')) {
-                console.warn('[Kreiskarte] Overpass: kein JSON (%s)', ct);
-                if (attempt < retries) continue;
-                throw new Error('Overpass API hat kein JSON zurückgegeben. Bitte in 30s erneut versuchen.');
-            }
-
-            const data = await resp.json();
-            console.log('[Kreiskarte] Overpass: %d Elemente empfangen', data.elements?.length ?? 0);
-            return data;
         }
-        throw new Error('Overpass API nicht erreichbar. Bitte später erneut versuchen.');
+        throw new Error('Die Kartendienste sind zurzeit nicht erreichbar. Bitte später erneut versuchen. ' + (lastError?.message || ''));
     }
 
     function renderSvgPreview(data) {
         const vb = data._meta?.viewBox || '0 0 400 400';
-        let svg = `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">`;
+        let svg = `<svg viewBox="${esc(vb)}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">`;
         svg += `<style>
-            .gk-gen polygon { fill:#CCE7D7; stroke:#005538; stroke-width:0.5; transition:fill .2s; cursor:pointer; }
-            .gk-gen polygon:hover { fill:#005538; }
+            .gk-gen polygon, .gk-gen path { fill:#CCE7D7; stroke:#005538; stroke-width:0.5; transition:fill .2s; cursor:pointer; }
+            .gk-gen polygon:hover, .gk-gen path:hover { fill:#005538; }
             .gk-gen .district { fill:#005538; opacity:.12; }
             .gk-gen-water path { fill:#3CB4E4; stroke:#0981B1; stroke-width:0.3; opacity:.7; }
             .gk-gen text { font-family:sans-serif; font-size:7px; pointer-events:none; fill:#333; }
         </style>`;
 
-        if (data.district?.fill) svg += `<path class="district" d="${data.district.fill}"/>`;
+        if (data.district?.fill) svg += `<path class="district" d="${esc(data.district.fill)}" fill-rule="evenodd"/>`;
 
         svg += '<g class="gk-gen">';
         for (const muni of Object.values(data.municipalities)) {
-            svg += `<polygon points="${muni.polygon}"><title>${esc(muni.name)}</title></polygon>`;
+            svg += muni.path ? `<path d="${esc(muni.path)}" fill-rule="evenodd"><title>${esc(muni.name)}</title></path>` : `<polygon points="${esc(muni.polygon)}"><title>${esc(muni.name)}</title></polygon>`;
         }
         svg += '</g>';
 
         if (data.water) {
             svg += '<g class="gk-gen-water">';
             for (const [id, path] of Object.entries(data.water)) {
-                svg += `<path d="${path}"><title>${esc(id)}</title></path>`;
+                svg += `<path d="${esc(path)}"><title>${esc(id)}</title></path>`;
             }
             svg += '</g>';
         }
 
         for (const muni of Object.values(data.municipalities)) {
             if (muni.label) {
-                svg += `<text transform="${muni.label.transform}"><tspan x="0" y="0">${esc(muni.label.text)}</tspan></text>`;
+                svg += `<text transform="${esc(muni.label.transform)}"><tspan x="0" y="0">${esc(muni.label.text)}</tspan></text>`;
             }
         }
 
@@ -676,159 +644,6 @@
         return svg;
     }
 
-
-    // ── Geo Processing ──────────────────────────────────────────────────────
-
-    function processOverpassData(data, kreisOsmId, displayName) {
-        const nodes = {};
-        data.elements.filter(e => e.type === 'node').forEach(n => { nodes[n.id] = [n.lat, n.lon]; });
-
-        const ways = {};
-        data.elements.filter(e => e.type === 'way').forEach(w => {
-            ways[w.id] = (w.nodes || []).map(nid => nodes[nid]).filter(Boolean);
-        });
-
-        const allLevel8 = data.elements.filter(e =>
-            e.type === 'relation' && e.tags?.name && e.tags['admin_level'] === '8');
-
-        const waterRels = [], gemeindeRels = [];
-        for (const rel of allLevel8) {
-            const tags = rel.tags;
-            const ags = tags['de:amtlicher_gemeindeschluessel'] || '';
-            const agsLast3 = ags.length >= 3 ? parseInt(ags.slice(-3), 10) : 0;
-            const isFrei = agsLast3 >= 401 || tags.natural === 'water' ||
-                (tags['name:prefix'] || '').toLowerCase().includes('gemeindefrei');
-            (isFrei ? waterRels : gemeindeRels).push(rel);
-        }
-
-        const gemeinden = gemeindeRels
-            .map(rel => ({ name: rel.tags.name, coords: extractRelCoords(rel, ways) }))
-            .filter(g => g.coords.length > 2);
-
-        const kreisRel = data.elements.find(e => e.type === 'relation' && e.id === kreisOsmId);
-        const kreisCoords = kreisRel ? extractRelCoords(kreisRel, ways) : [];
-
-        if (gemeinden.length === 0) return { municipalities: {} };
-
-        // Bounding box
-        let minLat = Infinity, maxLat = -Infinity, minLon = Infinity, maxLon = -Infinity;
-        for (const [lat, lon] of [...gemeinden.flatMap(g => g.coords), ...kreisCoords]) {
-            if (lat < minLat) minLat = lat; if (lat > maxLat) maxLat = lat;
-            if (lon < minLon) minLon = lon; if (lon > maxLon) maxLon = lon;
-        }
-
-        const latRange = maxLat - minLat, lonRange = maxLon - minLon;
-        const latCos = Math.cos((minLat + maxLat) / 2 * Math.PI / 180);
-        const aspect = latRange / (lonRange * latCos);
-        const svgW = SVG_WIDTH, svgH = svgW * aspect;
-        const uW = svgW - 2 * SVG_PADDING, uH = svgH - 2 * SVG_PADDING;
-
-        const project = ([lat, lon]) => [
-            Math.round((SVG_PADDING + ((lon - minLon) / lonRange) * uW) * 1000) / 1000,
-            Math.round((SVG_PADDING + ((maxLat - lat) / latRange) * uH) * 1000) / 1000,
-        ];
-
-        const municipalities = {};
-        for (const g of gemeinden) {
-            const slug = 'ov-' + slugify(g.name);
-            const simp = simplify(g.coords.map(project), 0.5);
-            if (simp.length < 3) continue;
-            const c = centroid(simp);
-            municipalities[slug] = {
-                name: g.name,
-                polygon: simp.map(p => p.join(' ')).join(' '),
-                arrow: `translate(${c[0] - 5} ${c[1] - 5}) scale(.287)`,
-                label: { text: g.name, transform: `translate(${c[0] - 15} ${c[1] - 15})` },
-            };
-        }
-
-        const district = {};
-        if (kreisCoords.length > 2) {
-            const p = polygonPath(simplify(kreisCoords.map(project), 0.8));
-            district.shadow = p; district.fill = p;
-        }
-
-        const water = {};
-        for (const rel of waterRels) {
-            const coords = extractRelCoords(rel, ways);
-            if (coords.length < 3) continue;
-            const s = simplify(coords.map(project), 0.4);
-            if (s.length >= 3) water[slugify(rel.tags.name)] = polygonPath(s);
-        }
-
-        return {
-            _meta: {
-                title: displayName.split(',')[0],
-                description: 'Generiert aus OpenStreetMap-Daten',
-                viewBox: `0 0 ${Math.round(svgW)} ${Math.round(svgH)}`,
-                source: 'openstreetmap',
-                generated: new Date().toISOString().split('T')[0],
-            },
-            municipalities, district, water,
-        };
-    }
-
-    function extractRelCoords(rel, ways) {
-        const ids = (rel.members || [])
-            .filter(m => m.type === 'way' && (m.role === 'outer' || m.role === ''))
-            .map(m => m.ref);
-        return joinSegs(ids.map(id => ways[id]).filter(Boolean));
-    }
-
-    function joinSegs(segs) {
-        if (segs.length <= 1) return segs[0] || [];
-        const result = [...segs[0]];
-        const used = new Set([0]);
-        for (let iter = 0; iter < segs.length * 2; iter++) {
-            const last = result[result.length - 1];
-            let found = false;
-            for (let i = 0; i < segs.length; i++) {
-                if (used.has(i) || !segs[i]?.length) continue;
-                if (close(last, segs[i][0])) { result.push(...segs[i].slice(1)); used.add(i); found = true; break; }
-                if (close(last, segs[i][segs[i].length - 1])) { result.push(...[...segs[i]].reverse().slice(1)); used.add(i); found = true; break; }
-            }
-            if (!found || used.size === segs.length) break;
-        }
-        return result;
-    }
-
-    function close(a, b) { return a && b && Math.abs(a[0] - b[0]) < 0.0001 && Math.abs(a[1] - b[1]) < 0.0001; }
-
-    function simplify(pts, eps) {
-        if (pts.length < 3) return pts;
-        let mx = 0, mi = 0;
-        for (let i = 1; i < pts.length - 1; i++) {
-            const d = perpDist(pts[i], pts[0], pts[pts.length - 1]);
-            if (d > mx) { mx = d; mi = i; }
-        }
-        if (mx > eps) {
-            const l = simplify(pts.slice(0, mi + 1), eps);
-            return [...l.slice(0, -1), ...simplify(pts.slice(mi), eps)];
-        }
-        return [pts[0], pts[pts.length - 1]];
-    }
-
-    function perpDist(pt, a, b) {
-        const dx = b[0] - a[0], dy = b[1] - a[1];
-        const len = Math.sqrt(dx * dx + dy * dy);
-        if (!len) return Math.sqrt((pt[0] - a[0]) ** 2 + (pt[1] - a[1]) ** 2);
-        return Math.abs(dy * pt[0] - dx * pt[1] + b[0] * a[1] - b[1] * a[0]) / len;
-    }
-
-    function centroid(pts) {
-        let cx = 0, cy = 0;
-        for (const [x, y] of pts) { cx += x; cy += y; }
-        const n = pts.length;
-        return [Math.round(cx / n * 100) / 100, Math.round(cy / n * 100) / 100];
-    }
-
-    function polygonPath(pts) { return pts.length ? 'M' + pts.map(p => p.join(',')).join('L') + 'Z' : ''; }
-
-    function slugify(s) {
-        return s.toLowerCase()
-            .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
-            .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    }
 
     function esc(s) {
         const el = document.createElement('span');

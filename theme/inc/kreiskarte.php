@@ -196,12 +196,14 @@ function gk_polylabel( $polygon, $precision = 1.0 ) {
  * @param array $data Data.
  */
 function gk_get_municipality_labels( $data ) {
-    static $cache = null;
-    if ( null !== $cache ) {
+    static $cache          = null;
+    static $municipalities = null;
+    if ( null !== $cache && $municipalities === $data['municipalities'] ) {
         return $cache;
     }
 
-    $cache = array();
+    $municipalities = $data['municipalities'];
+    $cache          = array();
     foreach ( $data['municipalities'] as $slug => $muni ) {
         $polygon = gk_parse_polygon_points( $muni['polygon'] );
         $result  = gk_polylabel( $polygon, 1.0 );
@@ -451,8 +453,8 @@ function gk_render_kreiskarte( $args = array() ) {
         <svg id="kreiskarte-svg" xmlns="http://www.w3.org/2000/svg"
             version="1.1" viewBox="<?php echo esc_attr( $view_box ); ?>" role="group"
             aria-labelledby="kreiskarte-title kreiskarte-desc">
-            <title id="kreiskarte-title"><?php echo esc_html( $data['_meta']['title'] ?? 'Kreiskarte' ); ?> – Gemeindekarte</title>
-            <desc id="kreiskarte-desc">Interaktive Karte der Ortsverbände (<?php echo count( $data['municipalities'] ); ?> Gemeinden).</desc>
+            <title id="kreiskarte-title"><?php echo esc_html( $data['_meta']['title'] ?? 'Verbandskarte' ); ?> – Verbandskarte</title>
+            <desc id="kreiskarte-desc"><?php echo esc_html( 'Interaktive Karte: ' . gk_association_label( 'secondary', 'plural' ) . ' (' . count( $data['municipalities'] ) . ' Gebiete).' ); ?></desc>
 
             <style>
                 /*
@@ -498,7 +500,7 @@ function gk_render_kreiskarte( $args = array() ) {
                 .district-fill   { fill: var(--kk-district); }
 
                 /* ── Polygons ──────────────────────────────── */
-                #kreiskarte-municipalities polygon {
+                #kreiskarte-municipalities :is(polygon, path) {
                     fill: var(--kk-fill-ov);
                     stroke: var(--kk-stroke);
                     stroke-width: 1;
@@ -508,27 +510,27 @@ function gk_render_kreiskarte( $args = array() ) {
                     transition: fill .2s ease;
                     cursor: pointer;
                 }
-                #kreiskarte-municipalities a:hover polygon,
-                #kreiskarte-municipalities a:focus polygon {
+                #kreiskarte-municipalities a:hover :is(polygon, path),
+                #kreiskarte-municipalities a:focus :is(polygon, path) {
                     fill: var(--kk-hover);
                 }
-                #kreiskarte-municipalities a:focus-visible polygon {
+                #kreiskarte-municipalities a:focus-visible :is(polygon, path) {
                     stroke: var(--kk-focus);
                     stroke-width: 3;
                 }
 
                 /* Type variants */
-                #kreiskarte-municipalities .ov-ortsgruppe polygon {
+                #kreiskarte-municipalities .ov-ortsgruppe :is(polygon, path) {
                     fill: var(--kk-fill-og);
                 }
-                #kreiskarte-municipalities .ov-werbung polygon {
+                #kreiskarte-municipalities .ov-werbung :is(polygon, path) {
                     fill: var(--kk-fill-werbung);
                     stroke-dasharray: 4 2;
                 }
-                #kreiskarte-municipalities .ov-link polygon {
+                #kreiskarte-municipalities .ov-link :is(polygon, path) {
                     fill: var(--kk-fill-link);
                 }
-                #kreiskarte-municipalities .ov-inactive polygon {
+                #kreiskarte-municipalities .ov-inactive :is(polygon, path) {
                     fill: var(--kk-fill-keine);
                     cursor: default;
                     opacity: .6;
@@ -582,8 +584,8 @@ function gk_render_kreiskarte( $args = array() ) {
 
             <!-- District outline -->
             <g id="kreiskarte-districts">
-                <path class="district-shadow" d="<?php echo esc_attr( $data['district']['shadow'] ); ?>"/>
-                <path class="district-fill" d="<?php echo esc_attr( $data['district']['fill'] ); ?>"/>
+                <path class="district-shadow" d="<?php echo esc_attr( $data['district']['shadow'] ); ?>" fill-rule="evenodd"/>
+                <path class="district-fill" d="<?php echo esc_attr( $data['district']['fill'] ); ?>" fill-rule="evenodd"/>
             </g>
 
             <!-- Municipality polygons -->
@@ -602,7 +604,11 @@ function gk_render_kreiskarte( $args = array() ) {
                     <?php else : ?>
                     <g class="ov-inactive <?php echo esc_attr( $type_class ); ?>" data-ov-slug="<?php echo esc_attr( $slug ); ?>" aria-label="<?php echo esc_attr( $muni['name'] . ' – ' . __( 'Im Aufbau', 'neurg-kreisverband' ) ); ?>">
                     <?php endif; ?>
+                        <?php if ( ! empty( $muni['path'] ) ) : ?>
+                        <path d="<?php echo esc_attr( $muni['path'] ); ?>" fill-rule="evenodd"/>
+                        <?php else : ?>
                         <polygon points="<?php echo esc_attr( $muni['polygon'] ); ?>"/>
+                        <?php endif; ?>
                         <title><?php echo esc_html( $muni['name'] . ( $link ? '' : ' – ' . __( 'Im Aufbau', 'neurg-kreisverband' ) ) ); ?></title>
                     <?php if ( $link ) : ?>
                     </a>
@@ -647,6 +653,7 @@ function gk_render_kreiskarte( $args = array() ) {
             </g>
 
         </svg>
+        <p class="gk-map-attribution"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap-Mitwirkende</a></p>
     </div>
     <?php
     return ob_get_clean();
@@ -721,8 +728,8 @@ function gk_render_kreiskarte_responsive( $args = array() ) {
             <div class="gk-ov-search-wrap">
                 <input type="text"
                         class="gk-ov-search"
-                        placeholder="Ortsverband suchen&hellip;"
-                        aria-label="Ortsverband suchen" />
+                        placeholder="<?php echo esc_attr( gk_association_label( 'secondary' ) . ' suchen…' ); ?>"
+                        aria-label="<?php echo esc_attr( gk_association_label( 'secondary' ) . ' suchen' ); ?>" />
                 <span class="gk-ov-search-icon" aria-hidden="true">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </span>
@@ -742,7 +749,7 @@ function gk_render_kreiskarte_responsive( $args = array() ) {
         </div>
 
         <!-- LIST VIEW (default on mobile) -->
-        <div class="gk-ov-list-view" role="navigation" aria-label="<?php esc_attr_e( 'Ortsverbände', 'neurg-kreisverband' ); ?>">
+        <div class="gk-ov-list-view" role="navigation" aria-label="<?php echo esc_attr( gk_association_label( 'secondary', 'plural' ) ); ?>">
             <?php
             foreach ( $ov_items as $item ) :
                 $type_label = '';
@@ -784,7 +791,7 @@ else :
 	?>
                     </div><?php endif; ?>
             <?php endforeach; ?>
-            <p class="gk-ov-no-results" hidden>Kein Ortsverband gefunden.</p>
+            <p class="gk-ov-no-results" hidden>Keine passende Untergliederung gefunden.</p>
         </div>
 
         <?php if ( $has_map ) : ?>

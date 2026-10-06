@@ -57,8 +57,8 @@ function gk_zuordnung_submenu( $menu_slug, $capability ) {
         if ( $kv_term ) {
             add_submenu_page(
                 $menu_slug,
-                'Kreisverband',
-                'Kreisverband',
+                gk_association_label(),
+                gk_association_label(),
                 $capability,
                 $menu_slug . $sep . 'gk_zuordnung=' . $kv_term->slug
             );
@@ -166,7 +166,7 @@ function gk_ov_settings_notice() {
     $message  = sanitize_key( wp_unslash( $_GET['message'] ?? '' ) );
     $messages = array(
         'saved'          => __( 'Gespeichert.', 'neurg-kreisverband' ),
-        'deleted'        => __( 'Ortsverband gelöscht.', 'neurg-kreisverband' ),
+        'deleted'        => __( 'Untergliederung gelöscht.', 'neurg-kreisverband' ),
         'media-rejected' => __( 'Die neue Bildauswahl gehört nicht zu deinem Bereich oder ist kein freigegebenes Bild. Die bisherige Bildzuordnung bleibt erhalten; die übrigen Angaben wurden gespeichert.', 'neurg-kreisverband' ),
     );
     if ( isset( $messages[ $message ] ) ) {
@@ -196,7 +196,7 @@ function gk_settings_page() {
             gk_ortsverband_edit_page();
         } else {
             echo '<div class="wrap"><h1>Verband</h1>';
-            echo '<p>Kein Ortsverband f&uuml;r deinen Account gefunden.</p></div>';
+            echo '<p>Keine Untergliederung f&uuml;r deinen Account gefunden.</p></div>';
         }
         return;
     }
@@ -261,7 +261,7 @@ function gk_ortsverband_handle_save() {
         $requested_page = wp_unslash( $_POST[ 'ov_' . $legal_type . '_page' ] ?? '0' );
         if ( ! is_scalar( $requested_page ) || ( absint( $requested_page ) && ! gk_public_page_id( $requested_page ) ) ) {
             wp_die(
-                esc_html__( 'Bitte eine veröffentlichte, nicht passwortgeschützte Seite wählen oder die KV-Seite übernehmen. Es wurden keine Änderungen gespeichert.', 'neurg-kreisverband' ),
+                esc_html__( 'Bitte eine veröffentlichte, nicht passwortgeschützte Seite wählen oder die Seite des Hauptverbands übernehmen. Es wurden keine Änderungen gespeichert.', 'neurg-kreisverband' ),
                 '',
                 array(
 					'response'  => 400,
@@ -282,7 +282,7 @@ function gk_ortsverband_handle_save() {
         $valid = gk_validate_event_only_term( $term_id );
         if ( absint( $_POST['ov_homepage_id'] ?? 0 ) || is_wp_error( $valid ) ) {
             wp_die(
-                esc_html( is_wp_error( $valid ) ? $valid->get_error_message() : 'Eine lokale Startseite benötigt einen vollständigen OV-Bereich.' ),
+                esc_html( is_wp_error( $valid ) ? $valid->get_error_message() : 'Eine lokale Startseite benötigt einen vollständigen Verbandsbereich.' ),
                 '',
                 array(
 					'response'  => 400,
@@ -310,7 +310,7 @@ function gk_ortsverband_handle_save() {
             $name,
             'gk_zuordnung',
             array(
-				'slug' => $slug ? $slug : sanitize_title( $name ),
+				'slug' => $slug ? $slug : gk_association_new_slug( $name ),
             )
         );
         if ( is_wp_error( $result ) ) {
@@ -344,7 +344,7 @@ function gk_ortsverband_handle_save() {
         $header_value    = match ( $type_for_header ) {
             'ortsgruppe' => 'Ortsgruppe Grüne ' . $name,
             'werbung'    => 'Grüne in ' . $name,
-            default      => 'Ortsverband Grüne ' . $name,
+            default      => gk_association_label( 'secondary' ) . ' Grüne ' . $name,
         };
     }
     update_term_meta( $term_id, '_gk_ov_header', $header_value );
@@ -488,6 +488,7 @@ function gk_settings_main_page() {
     ?>
     <div class="wrap">
         <h1>Verband</h1>
+        <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=gk-setup' ) ); ?>">Verbandsebenen und Stammdaten ändern</a></p>
 
         <!-- ── KV Setup: Startseite ──────────────────────── -->
         <form method="post" action="options.php">
@@ -521,8 +522,8 @@ function gk_settings_main_page() {
         <?php
         $ov_terms = gk_get_ov_terms();
         ?>
-        <h2 class="wp-heading-inline">Ortsverbaende</h2>
-        <a href="<?php echo esc_url( admin_url( 'admin.php?page=gk-settings&action=edit&term_id=0' ) ); ?>" class="page-title-action">Neuen Ortsverband hinzuf&uuml;gen</a>
+        <h2 class="wp-heading-inline"><?php echo esc_html( gk_association_label( 'secondary', 'plural' ) ); ?></h2>
+        <a href="<?php echo esc_url( admin_url( 'admin.php?page=gk-settings&action=edit&term_id=0' ) ); ?>" class="page-title-action"><?php echo esc_html( gk_association_label( 'secondary' ) . ' hinzufügen' ); ?></a>
         <hr class="wp-header-end" />
 
         <table class="wp-list-table widefat fixed striped">
@@ -538,7 +539,7 @@ function gk_settings_main_page() {
             </thead>
             <tbody>
             <?php if ( empty( $ov_terms ) ) : ?>
-                <tr><td colspan="6">Noch keine Ortsverb&auml;nde angelegt.</td></tr>
+                <tr><td colspan="6"><?php echo esc_html( 'Noch keine ' . gk_association_label( 'secondary', 'plural' ) . ' angelegt.' ); ?></td></tr>
 				<?php
             else :
 				foreach ( $ov_terms as $term ) :
@@ -549,7 +550,7 @@ function gk_settings_main_page() {
 					$delete_url  = admin_url( 'admin.php?page=gk-settings&action=delete&term_id=' . $term->term_id );
 
 					$type_labels = array(
-						'ov'         => 'Ortsverband',
+						'ov'         => gk_association_label( 'secondary' ),
 						'ortsgruppe' => 'Ortsgruppe',
 						'werbung'    => 'Werbeseite',
 					);
@@ -654,7 +655,7 @@ function gk_ortsverband_edit_page() {
     $contact  = $is_new ? array() : gk_get_ov_contact( $term_id );
     $hp       = $is_new ? array() : gk_get_ov_homepage_options( $term_id );
 
-    $title = $is_new ? 'Neuen Ortsverband hinzufügen' : ( $is_admin ? 'Ortsverband bearbeiten' : $name );
+    $title = $is_new ? gk_association_label( 'secondary' ) . ' hinzufügen' : ( $is_admin ? gk_association_label( 'secondary' ) . ' bearbeiten' : $name );
     ?>
     <div class="wrap">
         <h1><?php echo esc_html( $title ); ?></h1>
@@ -677,7 +678,7 @@ function gk_ortsverband_edit_page() {
                 <tr>
                     <th><label for="ov_slug">Slug</label></th>
                     <td><input type="text" name="ov_slug" id="ov_slug" value="<?php echo esc_attr( $slug ); ?>" class="regular-text" />
-                    <p class="description">URL-Slug (z.B. "ov-starnberg"). Wird automatisch generiert wenn leer.</p></td>
+                    <p class="description">URL-Slug. Leer verwendet das im Verbands-Setup gewählte URL-Präfix. Bei bestehenden Einträgen den Slug beibehalten: Auch die Kontozuordnung verwendet diesen Slug.</p></td>
                 </tr>
                 <tr>
                     <th>Verwendung</th>
@@ -689,9 +690,9 @@ function gk_ortsverband_edit_page() {
                     <td>
                         <?php
                         $types = array(
-                            'ov'         => array( 'Ortsverband', 'Vollständiger Ortsverband mit eigenem Vorstand' ),
+                            'ov'         => array( gk_association_label( 'secondary' ), 'Eigener redaktioneller Bereich' ),
                             'ortsgruppe' => array( 'Ortsgruppe', 'Aktive Mitglieder vor Ort, kein eigener Verband' ),
-                            'werbung'    => array( 'Werbeseite', 'Einladung zum Mitmachen und Gründen eines OV' ),
+                            'werbung'    => array( 'Werbeseite', 'Einladung zum Mitmachen und zur Gründung einer lokalen Gruppe' ),
                         );
                         foreach ( $types as $value => $info ) :
 							?>
@@ -716,7 +717,7 @@ function gk_ortsverband_edit_page() {
                             )
                         );
                         ?>
-                        <p class="description">Die Startseite des OV. Kann nicht geloescht werden.</p>
+                        <p class="description">Die Startseite dieser Untergliederung. Kann nicht geloescht werden.</p>
                     </td>
                 </tr>
             </table>
@@ -728,7 +729,7 @@ function gk_ortsverband_edit_page() {
                     <th><label for="ov_header">Header-Text</label></th>
                     <td>
                         <input type="text" name="ov_header" id="ov_header" value="<?php echo esc_attr( $header ); ?>" class="regular-text" />
-                        <p class="description">Anzeigename im Header der Website (z.B. &bdquo;Ortsverband Gr&uuml;ne Starnberg&ldquo;). Wenn leer, wird der Name verwendet.</p>
+                        <p class="description">Anzeigename im Header der Website (z.B. &bdquo;Gr&uuml;ne Musterort&ldquo;). Wenn leer, wird der Name verwendet.</p>
                     </td>
                 </tr>
             </table>
@@ -877,9 +878,9 @@ function gk_ortsverband_edit_page() {
                 </table>
             </div>
 
-            <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=gk-ov-home&ov=' . $term_id ) ); ?>"><?php esc_html_e( 'OV-Startseite gestalten: Reihenfolge, Sichtbarkeit, Aktuelles, Team und Rubriken', 'neurg-kreisverband' ); ?></a></p>
+            <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=gk-ov-home&ov=' . $term_id ) ); ?>"><?php echo esc_html( gk_association_label( 'secondary', 'abbreviation' ) . '-Startseite gestalten: Reihenfolge, Sichtbarkeit, Aktuelles, Team und Rubriken' ); ?></a></p>
 				<?php if ( metadata_exists( 'term', $term_id, '_gk_home_sections' ) ) : ?>
-            <p><?php esc_html_e( 'Für diesen OV ist die neue Sektionssteuerung gespeichert. Ihre Sichtbarkeit hat Vorrang vor den älteren Bereichscheckboxen unten.', 'neurg-kreisverband' ); ?></p>
+            <p><?php esc_html_e( 'Für diesen Bereich ist die neue Sektionssteuerung gespeichert. Ihre Sichtbarkeit hat Vorrang vor den älteren Bereichscheckboxen unten.', 'neurg-kreisverband' ); ?></p>
             <?php endif; ?>
 
             <!-- Section toggles -->
@@ -985,12 +986,12 @@ function gk_ortsverband_edit_page() {
 								'id'                => 'ov_impressum_page',
 								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes its option values, labels and attributes; selected is a numeric page ID.
 								'selected'          => $ov_impressum,
-								'show_option_none'  => '&mdash; KV-Impressum verwenden &mdash;',
+								'show_option_none'  => '&mdash; Impressum des Hauptverbands verwenden &mdash;',
 								'option_none_value' => 0,
                             )
                         );
                         ?>
-                        <p class="description">Veröffentlichte eigene Impressum-Seite wählen oder bewusst „KV-Impressum verwenden“ auswählen. Nicht veröffentlichte Seiten fallen auf die KV-Seite zurück.</p>
+                        <p class="description">Veröffentlichte eigene Impressum-Seite wählen oder bewusst „Impressum des Hauptverbands verwenden“ auswählen. Nicht veröffentlichte Seiten fallen auf die Seite des Hauptverbands zurück.</p>
                     </td>
                 </tr>
                 <tr>
@@ -1004,18 +1005,18 @@ function gk_ortsverband_edit_page() {
 								'id'                => 'ov_datenschutz_page',
 								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes its option values, labels and attributes; selected is a numeric page ID.
 								'selected'          => $ov_datenschutz,
-								'show_option_none'  => '&mdash; KV-Datenschutz verwenden &mdash;',
+								'show_option_none'  => '&mdash; Datenschutz des Hauptverbands verwenden &mdash;',
 								'option_none_value' => 0,
                             )
                         );
                         ?>
-                        <p class="description">Veröffentlichte eigene Datenschutz-Seite wählen oder bewusst „KV-Datenschutz verwenden“ auswählen. Nicht veröffentlichte Seiten fallen auf die KV-Seite zurück.</p>
+                        <p class="description">Veröffentlichte eigene Datenschutz-Seite wählen oder bewusst „Datenschutz des Hauptverbands verwenden“ auswählen. Nicht veröffentlichte Seiten fallen auf die Seite des Hauptverbands zurück.</p>
                     </td>
                 </tr>
             </table>
             <?php endif; ?>
 
-            <?php submit_button( $is_new ? 'Ortsverband anlegen' : 'Speichern' ); ?>
+            <?php submit_button( $is_new ? gk_association_label( 'secondary' ) . ' anlegen' : 'Speichern' ); ?>
         </form>
     </div>
     <?php
@@ -1038,7 +1039,7 @@ function gk_ortsverband_delete_page() {
     $count = gk_get_zuordnung_content_count( $term_id );
     ?>
     <div class="wrap">
-        <h1>Ortsverband l&ouml;schen</h1>
+        <h1><?php echo esc_html( gk_association_label( 'secondary' ) . ' löschen' ); ?></h1>
 
         <div class="notice notice-error inline">
             <p><strong><?php echo esc_html( $term->name ); ?></strong> hat
@@ -1053,7 +1054,7 @@ function gk_ortsverband_delete_page() {
             <input type="hidden" name="term_id" value="<?php echo esc_attr( $term_id ); ?>" />
             <p>
                 <button type="submit" class="button button-primary" style="background:#d63638;border-color:#d63638;">
-                    Ja, Ortsverband und alle Inhalte l&ouml;schen
+                    Ja, Untergliederung und alle Inhalte l&ouml;schen
                 </button>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=gk-settings' ) ); ?>" class="button">Abbrechen</a>
             </p>

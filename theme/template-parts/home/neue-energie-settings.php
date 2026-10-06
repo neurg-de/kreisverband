@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Landing mode definitions.
  *
- * Each mode changes the Hero + Intro sections above the Kreiskarte.
+ * Each mode changes the Hero + Intro sections above the Verbandskarte.
  * The rest of the page (map, news, events, engage) stays the same.
  */
 function gk_get_landing_modes() {
@@ -47,7 +47,7 @@ function gk_get_landing_modes() {
         'minimal'     => array(
             'label' => 'Direkt zum OV',
             'icon'  => '&#x1F4CD;',
-            'desc'  => 'Minimaler Hero, schneller Einstieg zur Kreiskarte. Wenn der Fokus auf den Ortsverbänden liegt.',
+            'desc'  => 'Minimaler Hero, schneller Einstieg zur Verbandskarte. Wenn der Fokus auf den Untergliederungen liegt.',
         ),
     );
 }
@@ -63,7 +63,7 @@ function gk_home_neue_energie_render( $s ) {
     $active = $s['landing_mode'] ?? 'standard';
     ?>
     <h3>Landing-Modus</h3>
-    <p class="description" style="margin-bottom:1rem;">Bestimmt, wie die Startseite oberhalb der Kreiskarte aussieht. Wähle den Modus, der zu eurer aktuellen Situation passt.</p>
+    <p class="description" style="margin-bottom:1rem;">Bestimmt, wie die Startseite oberhalb der Verbandskarte aussieht. Wähle den Modus, der zu eurer aktuellen Situation passt.</p>
 
     <div class="gk-landing-modes" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px; margin-bottom:2rem;">
         <?php foreach ( $modes as $slug => $mode ) : ?>
@@ -402,7 +402,7 @@ function gk_home_neue_energie_render( $s ) {
 		echo 'style="display:none"';}
 	?>
     >
-        <p class="description" style="padding:1rem 0;">Minimaler Modus: Zeigt einen Titel und einen Pfeil zur Kreiskarte.</p>
+        <p class="description" style="padding:1rem 0;">Minimaler Modus: Zeigt einen Titel und einen Pfeil zur Verbandskarte.</p>
         <table class="form-table">
             <tr>
                 <th><label>Titel</label></th>
@@ -410,7 +410,7 @@ function gk_home_neue_energie_render( $s ) {
                     <input type="text" name="<?php echo esc_attr( $prefix ); ?>[minimal_title]"
                             value="<?php echo esc_attr( $s['minimal_title'] ?? '' ); ?>"
                             class="regular-text"
-                            placeholder="<?php echo esc_attr( ( gk_get_kv_info( 'name' ) ? gk_get_kv_info( 'name' ) : 'Kreisverband' ) ); ?>" />
+                            placeholder="<?php echo esc_attr( ( gk_get_kv_info( 'name' ) ? gk_get_kv_info( 'name' ) : gk_association_label() ) ); ?>" />
                     <p class="description">Leer lassen, um den Namen aus der Ersteinrichtung zu verwenden.</p>
                 </td>
             </tr>
@@ -420,16 +420,16 @@ function gk_home_neue_energie_render( $s ) {
     <h3>Sektionen</h3>
     <table class="form-table">
         <tr>
-            <th>Kreiskarte</th>
+            <th>Verbandskarte</th>
             <td>
                 <label>
                     <input type="checkbox" name="<?php echo esc_attr( $prefix ); ?>[show_kreiskarte]" value="1"
                             <?php checked( $s['show_kreiskarte'] ?? true ); ?> />
-                    Kreiskarte prominent anzeigen
+                    Verbandskarte prominent anzeigen
                 </label>
                 <?php if ( ! function_exists( 'gk_has_kreiskarte_data' ) || ! gk_has_kreiskarte_data() ) : ?>
                     <p class="description" style="color:#b32d2e;">
-                        Noch keine Kreiskarte vorhanden.
+                        Noch keine Verbandskarte vorhanden.
                         <a href="<?php echo esc_url( admin_url( 'admin.php?page=kreiskarte-generator' ) ); ?>">Jetzt erstellen &rarr;</a>
                     </p>
                 <?php endif; ?>

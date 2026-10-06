@@ -24,7 +24,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function gk_setup_is_complete() {
     $kv = get_option( 'gk_kv_info', array() );
-    return ! empty( $kv['name'] )
+    return is_array( $kv )
+        && null !== gk_association_level( $kv, 'primary' )
+        && null !== gk_association_level( $kv, 'secondary' )
+        && ! empty( $kv['name'] )
         && ! empty( $kv['impressum_page'] )
         && ! empty( $kv['datenschutz_page'] );
 }
@@ -54,7 +57,7 @@ function gk_setup_admin_notice() {
         echo '<div class="notice notice-warning is-dismissible">';
         echo '<p><strong>Neurg Kreisverband:</strong> Bitte schliesse die ';
         echo '<a href="' . esc_url( $url ) . '">Ersteinrichtung</a> ab ';
-        echo '(Impressum, Datenschutz, KV-Daten).</p>';
+        echo '(Verbandsebenen, Impressum, Datenschutz, Verbandsdaten).</p>';
         echo '</div>';
         return;
     }
@@ -73,7 +76,7 @@ function gk_setup_admin_notice() {
         echo '<div class="notice notice-error">';
         echo '<p><strong>Rechtliche Pflichtseiten fehlen im Footer:</strong> ';
         echo esc_html( implode( ', ', $problems ) ) . '. ';
-        echo 'Bitte unter <a href="' . esc_url( $url ) . '">KV-Setup</a> prüfen. ';
+        echo 'Bitte unter <a href="' . esc_url( $url ) . '">Verbands-Setup</a> prüfen. ';
         echo 'Impressum und Datenschutz müssen veröffentlicht sein, damit sie im Footer erscheinen.</p>';
         echo '</div>';
     }
@@ -89,7 +92,7 @@ add_action( 'admin_notices', 'gk_setup_admin_notice' );
 function gk_setup_menu() {
     add_menu_page(
         'Ersteinrichtung',
-        'KV-Setup',
+        'Verbands-Setup',
         'edit_theme_options',
         'gk-setup',
         'gk_setup_page_cb',
@@ -163,6 +166,7 @@ function gk_sanitize_kv_info( $input ) {
         }
     }
     $clean['verbaende'] = $verbaende;
+    $clean              = array_merge( $clean, gk_sanitize_association_structure( $input ) );
 
     // Auto-create Impressum page if requested.
     if ( ! empty( $input['create_impressum'] ) && empty( $clean['impressum_page'] ) ) {
@@ -275,7 +279,8 @@ function gk_setup_page_cb() {
     );
     ?>
     <div class="wrap">
-        <h1>Kreisverband Ersteinrichtung</h1>
+        <h1>Verband einrichten</h1>
+        <?php settings_errors( 'gk_kv_info' ); ?>
 
         <?php if ( $complete ) : ?>
             <div class="notice notice-success"><p>Einrichtung abgeschlossen!</p></div>
@@ -286,15 +291,19 @@ function gk_setup_page_cb() {
         <form method="post" action="options.php">
             <?php settings_fields( 'gk_setup' ); ?>
 
-            <h2>Kreisverband</h2>
+            <h2>1. Verbandsebenen auswählen</h2>
+            <p>Die Website hat einen Hauptverband und optional mehrere Untergliederungen auf einer zweiten Ebene. Beide Bezeichnungen sind frei kombinierbar und können hier später geändert werden. Untergliederungen können auch später angelegt werden.</p>
+            <?php gk_render_association_setup( $kv ); ?>
+
+            <h2>2. Angaben zum Hauptverband</h2>
             <table class="form-table">
             <tr>
                 <th><label for="gk_kv_name">Name *</label></th>
-                <td><input type="text" name="gk_kv_info[name]" id="gk_kv_name" value="<?php echo esc_attr( $kv['name'] ); ?>" class="regular-text" required /><br><span class="description">z.B. "BÜNDNIS 90/DIE GRÜNEN Kreisverband Starnberg"</span></td>
+                <td><input type="text" name="gk_kv_info[name]" id="gk_kv_name" value="<?php echo esc_attr( $kv['name'] ); ?>" class="regular-text" required /><br><span class="description">Vollständiger Name, z.B. „BÜNDNIS 90/DIE GRÜNEN Stadtverband Musterstadt“.</span></td>
             </tr>
             <tr>
                 <th><label for="gk_kv_short">Kurzname</label></th>
-                <td><input type="text" name="gk_kv_info[short_name]" id="gk_kv_short" value="<?php echo esc_attr( $kv['short_name'] ); ?>" class="regular-text" /><br><span class="description">z.B. "Grüne Starnberg" (für Anzeige in Navigation etc.)</span></td>
+                <td><input type="text" name="gk_kv_info[short_name]" id="gk_kv_short" value="<?php echo esc_attr( $kv['short_name'] ); ?>" class="regular-text" /><br><span class="description">z.B. „Grüne Musterstadt“ (für Anzeige in Navigation etc.)</span></td>
             </tr>
             <tr>
                 <th><label for="gk_kv_address">Anschrift *</label></th>

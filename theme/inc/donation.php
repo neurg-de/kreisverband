@@ -184,7 +184,7 @@ function gk_donation_settings_section() {
     $config = gk_get_donation_config();
     ?>
     <h2>Spenden</h2>
-    <p class="description">Konfiguriere die Spendenmöglichkeiten für den Kreisverband.</p>
+    <p class="description">Konfiguriere die Spendenmöglichkeiten für den Hauptverband.</p>
     <table class="form-table">
     <tr>
         <th><label for="gk_donation_enabled">Spenden aktiviert</label></th>
