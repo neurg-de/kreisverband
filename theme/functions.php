@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'GK_VERSION', '0.10.0' );
+define( 'GK_VERSION', '0.11.0' );
 define( 'GK_DIR', get_template_directory() );
 define( 'GK_URI', get_template_directory_uri() );
 define( 'GK_IMAGE_DIR', GK_URI . '/lib/images/' );
@@ -49,6 +49,7 @@ require_once GK_DIR . '/inc/team-carousel.php';
 require_once GK_DIR . '/inc/ortsverband.php';
 require_once GK_DIR . '/inc/ov-home.php';
 require_once GK_DIR . '/inc/ov-editor.php';
+require_once GK_DIR . '/inc/ov-subpages.php';
 
 // Custom roles: Kreisadmin, OV-Admin, OV-Autor.
 require_once GK_DIR . '/inc/roles.php';

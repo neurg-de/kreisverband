@@ -19,6 +19,7 @@ $ov_term    = $ov_context ? gk_get_ov_term( $ov_context ) : false;
 $context_label = $ov_term ? $ov_term->name : '';
 ?>
 
+<main id="main">
 <section id="content">
 <div class="inner">
 
@@ -68,5 +69,6 @@ $context_label = $ov_term ? $ov_term->name : '';
 
 </div>
 </section>
+</main>
 
 <?php get_footer(); ?>

@@ -100,7 +100,7 @@ else :
 <article id="post-<?php the_ID(); ?>" <?php post_class( 'gk-person gk-person--' . esc_attr( $variant ) . ' clearfix' ); ?> role="article">
     <?php if ( has_post_thumbnail() ) : ?>
         <?php if ( $link_thumb ) : ?>
-            <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail( 'thumbnail' ); ?></a>
+            <a href="<?php the_permalink(); ?>" aria-hidden="true" tabindex="-1"><?php the_post_thumbnail( 'thumbnail' ); ?></a>
         <?php else : ?>
             <?php the_post_thumbnail( 'thumbnail' ); ?>
         <?php endif; ?>

@@ -77,6 +77,7 @@ while ( have_posts() ) :
     </div>
 </div>
 
+<main id="main">
 <article id="post-<?php the_ID(); ?>" <?php post_class( 'gk-event-single' ); ?>>
 
     <!-- Header: Date badge + Title + Quick meta -->
@@ -209,6 +210,7 @@ while ( have_posts() ) :
     <?php endif; ?>
 
 </article>
+</main>
 
 <?php endwhile; ?>
 

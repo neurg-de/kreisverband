@@ -24,7 +24,7 @@ if ( $ov_contact_is_kv ) {
 get_header();
 ?>
 <main id="content" class="content-area">
-    <article class="entry-content" style="max-width: 48rem; margin: 3rem auto; padding: 1.5rem;">
+    <article id="main" class="entry-content" style="max-width: 48rem; margin: 3rem auto; padding: 1.5rem;">
         <h1><?php echo esc_html( $ov_info['name'] ); ?></h1>
         <p><?php esc_html_e( 'Für diesen Ort ist derzeit noch keine eigene Website hinterlegt.', 'neurg-kreisverband' ); ?></p>
         <h2><?php esc_html_e( 'Kontakt und Mitmachen', 'neurg-kreisverband' ); ?></h2>

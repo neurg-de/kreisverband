@@ -4,7 +4,7 @@ Contributors: severinkistner
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.10.0
+Stable tag: 0.11.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,14 @@ Als Administrator unter Verband eine Untergliederung anlegen und eine lokale Sta
 Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Theme integriert.
 
 == Changelog ==
+
+= 0.11.0 =
+* Eigene Termine- und Mitmachen-Seiten im Untergliederungsbereich mit lokalen Kontakt- und Social-Links; pro Bereich aktivierbar, bestehende Seiten behalten Vorrang.
+* Automatische Bereichsmenü-Einträge mit konfigurierbaren Labels sowie REST-Zugriff auf die neuen Einstellungen.
+* Seiten und ihre Unterseiten lassen sich in der Bereichsseitenleiste ausblenden, ohne sie zu löschen.
+* Neutrale Initialen für fehlende Personenbilder und Hinweis auf die verfügbare Beitragszahl im Startseiteneditor.
+* Newsletter-Empfänger installationsbezogen konfigurierbar; keine fest verdrahtete Adresse im Theme.
+* Verbesserte mobile Navigation, Tastaturbedienung, Kontraste, Social- und Teilen-Schaltflächen.
 
 = 0.10.0 =
 * Zwei verpflichtend ausgewählte Verbandsebenen mit konfigurierbaren Bezeichnungen, Anzeige- und URL-Präfixen.

@@ -2,21 +2,30 @@
 // Context Social Bar & Back-to-top
 // ==========================================================================
 
+// Desktop only: on phones the bar covered content and the footer already
+// carries the same links. JS adds .is-hidden while the footer is visible.
 .gk-social-bar {
     position: fixed;
     z-index: 100;
-    opacity: 0.55;
-    transition: opacity 0.3s ease;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: opacity 0.2s ease, visibility 0.2s ease;
 
-    &:hover { opacity: 1; }
+    &.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
 
     ul {
         display: flex;
+        flex-direction: column;
         gap: 0.375rem;
         list-style: none;
         margin: 0;
         padding: 0.375rem;
         background: var(--social-bar-bg, var(--tanne-800));
+        border-radius: var(--radius-lg) 0 0 var(--radius-lg);
         box-shadow: var(--shadow-md);
     }
 
@@ -24,45 +33,29 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 2.125rem;
-        height: 2.125rem;
+        width: 2.5rem;
+        height: 2.5rem;
         border-radius: var(--radius-full);
         background: var(--social-bar-link-bg, var(--tanne-700));
         color: var(--social-bar-link-color, var(--sand-200));
-        font-size: 0.85rem;
+        font-size: 1rem;
         text-decoration: none;
         transition: background-color 0.2s, color 0.2s, transform 0.2s;
 
         &:hover {
             background: var(--color-cta);
-            color: var(--color-text);
+            color: var(--color-on-cta);
             transform: scale(1.1);
         }
-    }
-}
 
-// Mobile: bottom center, horizontal pill
-@media (max-width: 767px) {
-    .gk-social-bar {
-        bottom: var(--space-4);
-        left: 50%;
-        transform: translateX(-50%);
-
-        ul { border-radius: var(--radius-full); }
-    }
-}
-
-// Desktop: right edge, vertical, centered
-@media (min-width: 768px) {
-    .gk-social-bar {
-        right: 0;
-        top: 50%;
-        transform: translateY(-50%);
-
-        ul {
-            flex-direction: column;
-            border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+        &:focus-visible {
+            outline: 2px solid var(--color-cta);
+            outline-offset: 2px;
         }
+    }
+
+    @media (max-width: 767px) {
+        display: none;
     }
 }
 
@@ -97,14 +90,19 @@
 
     &:hover {
         background-color: var(--color-cta);
-        color: var(--color-text);
+        color: var(--color-on-cta);
         transform: translateY(-3px);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-info);
+        outline-offset: 2px;
     }
 
     &.visible { display: flex; }
 
     @media (max-width: 767px) {
-        bottom: var(--space-6);
-        right: var(--space-6);
+        bottom: var(--space-4);
+        right: var(--space-4);
     }
 }

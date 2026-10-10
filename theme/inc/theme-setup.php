@@ -71,7 +71,7 @@ function gk_enqueue_scripts() {
     }
 
     // Styles.
-    wp_enqueue_style( 'gk-fontawesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', array(), '6.5.1' );
+    wp_enqueue_style( 'gk-fontawesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css', array(), '6.7.2' );
     wp_enqueue_style( 'gk-main', GK_URI . '/lib/css/main.css', array(), GK_VERSION );
 
     // Scripts.
@@ -251,6 +251,12 @@ function gk_nav_main() {
 function gk_nav_ov( $ov_slug ) {
     $location = 'nav-' . $ov_slug;
     if ( ! has_nav_menu( $location ) ) {
+        // Without an assigned menu, still offer the automatic OV subpages.
+        $term  = function_exists( 'gk_ov_subpage_menu_html' ) ? gk_get_ov_term( $ov_slug ) : null;
+        $items = $term ? gk_ov_subpage_menu_html( $term ) : '';
+        if ( $items ) {
+            echo '<ul class="navigation clearfix nav-ov">' . $items . '</ul>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built from escaped parts in gk_ov_subpage_menu_html().
+        }
         return;
     }
     wp_nav_menu(

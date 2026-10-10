@@ -341,11 +341,11 @@ if ( gk_homepage_option( 'show_aktuelles', true ) ) :
 				?>
             <article class="gk-card <?php echo $is_featured ? 'gk-card--featured' : ''; ?>">
                 <?php if ( has_post_thumbnail() ) : ?>
-                    <a href="<?php the_permalink(); ?>" class="gk-card__thumb">
+                    <a href="<?php the_permalink(); ?>" class="gk-card__thumb" aria-hidden="true" tabindex="-1">
                         <?php the_post_thumbnail( $thumb_size ); ?>
                     </a>
                 <?php elseif ( $is_featured ) : ?>
-                    <a href="<?php the_permalink(); ?>" class="gk-card__thumb gk-card__thumb--placeholder"></a>
+                    <a href="<?php the_permalink(); ?>" class="gk-card__thumb gk-card__thumb--placeholder" aria-hidden="true" tabindex="-1"></a>
                 <?php endif; ?>
                 <div class="gk-card__body">
                     <time class="gk-card__date" datetime="<?php echo get_the_date( 'c' ); ?>">

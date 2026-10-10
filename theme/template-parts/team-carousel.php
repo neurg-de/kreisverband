@@ -32,7 +32,7 @@ $groups  = $args['groups'];
                                     <?php if ( has_post_thumbnail( $person['id'] ) ) : ?>
                                         <?php echo get_the_post_thumbnail( $person['id'], 'medium', array( 'alt' => '' ) ); ?>
                                     <?php else : ?>
-                                        <svg class="gk-team__placeholder" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><circle cx="100" cy="78" r="36" fill="currentColor" opacity=".25"/><ellipse cx="100" cy="176" rx="56" ry="46" fill="currentColor" opacity=".18"/></svg>
+                                        <span class="gk-team__placeholder" aria-hidden="true"><?php echo esc_html( gk_person_initials( $person['name'] ) ); ?></span>
                                     <?php endif; ?>
                                 </div>
                                 <h4 class="gk-team__name"><?php echo esc_html( $person['name'] ); ?></h4>

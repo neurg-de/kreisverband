@@ -12,7 +12,7 @@ $shortbio = get_post_meta( get_the_ID(), 'kr8mb_pers_excerpt', true );
 ?>
 <article id="post-<?php the_ID(); ?>" <?php post_class( 'clearfix' ); ?> role="article">
     <?php if ( has_post_thumbnail() ) : ?>
-        <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail( 'thumbnail' ); ?></a>
+        <a href="<?php the_permalink(); ?>" aria-hidden="true" tabindex="-1"><?php the_post_thumbnail( 'thumbnail' ); ?></a>
     <?php endif; ?>
 
     <header class="article-header">

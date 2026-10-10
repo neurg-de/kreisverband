@@ -40,13 +40,19 @@ function gk_ov_home_config( $term_id ) {
     $raw = get_term_meta( $term_id, '_gk_home_editor', true );
     $raw = is_array( $raw ) ? $raw : array();
     return array(
-        'show_text'  => ! isset( $raw['show_text'] ) || '1' === $raw['show_text'],
-        'show_label' => ! isset( $raw['show_label'] ) || '1' === $raw['show_label'],
-        'title'      => is_string( $raw['title'] ?? null ) ? $raw['title'] : '',
-        'news_count' => max( 3, min( 20, (int) ( $raw['news_count'] ?? 6 ) ) ),
-        'archive'    => isset( $raw['archive'] ) && '1' === $raw['archive'],
-        'excluded'   => gk_ov_owned_category_ids( $term_id, $raw['excluded'] ?? array() ),
-        'team_order' => is_array( $raw['team_order'] ?? null ) ? array_filter( $raw['team_order'], 'is_string' ) : array(),
+        'show_text'       => ! isset( $raw['show_text'] ) || '1' === $raw['show_text'],
+        'show_label'      => ! isset( $raw['show_label'] ) || '1' === $raw['show_label'],
+        'title'           => is_string( $raw['title'] ?? null ) ? $raw['title'] : '',
+        'news_count'      => max( 3, min( 20, (int) ( $raw['news_count'] ?? 6 ) ) ),
+        'archive'         => isset( $raw['archive'] ) && '1' === $raw['archive'],
+        'excluded'        => gk_ov_owned_category_ids( $term_id, $raw['excluded'] ?? array() ),
+        'team_order'      => is_array( $raw['team_order'] ?? null ) ? array_filter( $raw['team_order'], 'is_string' ) : array(),
+        // Own subpages (inc/ov-subpages.php); off by default for compatibility.
+        'menu_termine'    => isset( $raw['menu_termine'] ) && '1' === $raw['menu_termine'],
+        'menu_mitmachen'  => isset( $raw['menu_mitmachen'] ) && '1' === $raw['menu_mitmachen'],
+        'label_termine'   => is_string( $raw['label_termine'] ?? null ) ? $raw['label_termine'] : '',
+        'label_mitmachen' => is_string( $raw['label_mitmachen'] ?? null ) ? $raw['label_mitmachen'] : '',
+        'mitmachen_text'  => is_string( $raw['mitmachen_text'] ?? null ) ? $raw['mitmachen_text'] : '',
     );
 }
 

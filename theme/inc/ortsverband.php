@@ -623,19 +623,89 @@ function gk_ov_navi( $ov_slug ) {
         )
     );
 
-    if ( empty( $pages ) ) {
+    // Pages hidden from the area navigation (and everything below them) stay reachable by URL.
+    $pages = array_values(
+        array_filter(
+            $pages,
+            static function ( $page_id ) {
+                foreach ( array_merge( array( $page_id ), get_post_ancestors( $page_id ) ) as $id ) {
+                    if ( get_post_meta( $id, '_gk_hide_in_ov_nav', true ) ) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        )
+    );
+
+    $term  = gk_get_ov_term( $ov_slug );
+    $extra = $term && function_exists( 'gk_ov_subpage_menu_html' ) ? gk_ov_subpage_menu_html( $term ) : '';
+    if ( empty( $pages ) && '' === $extra ) {
         return;
     }
 
     echo '<ul class="ovnavi">' . "\n";
-    wp_list_pages(
-        array(
-			'include'  => implode( ',', $pages ),
-			'title_li' => '',
-        )
-    );
+    if ( ! empty( $pages ) ) {
+        wp_list_pages(
+            array(
+				'include'  => implode( ',', $pages ),
+				'title_li' => '',
+            )
+        );
+    }
+    echo $extra; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built from escaped parts in gk_ov_subpage_menu_html().
     echo "</ul>\n";
 }
+
+/** Per-page switch: hide a page from the area navigation. */
+function gk_register_ov_nav_meta() {
+    register_post_meta(
+        'page',
+        '_gk_hide_in_ov_nav',
+        array(
+			'type'          => 'boolean',
+			'single'        => true,
+			'default'       => false,
+			'show_in_rest'  => true,
+			'auth_callback' => static fn( $allowed, $meta_key, $post_id ) => current_user_can( 'edit_post', $post_id ),
+        )
+    );
+}
+add_action( 'init', 'gk_register_ov_nav_meta' );
+
+/** Meta box on pages that belong to an area. */
+function gk_ov_nav_meta_box() {
+    add_meta_box( 'gk_ov_nav', __( 'Bereichsnavigation', 'neurg-kreisverband' ), 'gk_ov_nav_meta_box_cb', 'page', 'side' );
+}
+add_action( 'add_meta_boxes', 'gk_ov_nav_meta_box' );
+
+/**
+ * Render the navigation switch.
+ *
+ * @param WP_Post $post Page.
+ */
+function gk_ov_nav_meta_box_cb( $post ) {
+    wp_nonce_field( 'gk_ov_nav_' . $post->ID, 'gk_ov_nav_nonce' );
+    echo '<label><input type="checkbox" name="gk_hide_in_ov_nav" value="1" ' . checked( (bool) get_post_meta( $post->ID, '_gk_hide_in_ov_nav', true ), true, false ) . '> ' . esc_html__( 'In der Bereichsnavigation (Seitenleiste) ausblenden', 'neurg-kreisverband' ) . '</label>';
+    echo '<p class="description">' . esc_html__( 'Gilt auch für alle Unterseiten. Die Seite bleibt über ihre Adresse und Menülinks erreichbar.', 'neurg-kreisverband' ) . '</p>';
+}
+
+/**
+ * Save the navigation switch.
+ *
+ * @param int $post_id Page ID.
+ */
+function gk_ov_nav_meta_save( $post_id ) {
+    if ( ! isset( $_POST['gk_ov_nav_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['gk_ov_nav_nonce'] ) ), 'gk_ov_nav_' . $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
+        return;
+    }
+    if ( empty( $_POST['gk_hide_in_ov_nav'] ) ) {
+        delete_post_meta( $post_id, '_gk_hide_in_ov_nav' );
+    } else {
+        update_post_meta( $post_id, '_gk_hide_in_ov_nav', true );
+    }
+}
+add_action( 'save_post_page', 'gk_ov_nav_meta_save' );
 
 // Backwards compatibility.
 /**

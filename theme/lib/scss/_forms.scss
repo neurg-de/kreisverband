@@ -4,6 +4,7 @@
 
 // Sass list of text-like input types to reduce selector repetition
 $text-inputs: (
+    'input:not([type])',
     'input[type="text"]',
     'input[type="email"]',
     'input[type="url"]',
@@ -46,6 +47,7 @@ select {
     font-size: 1rem;
     line-height: 1.5;
     padding: 0.5rem 0.75rem;
+    min-height: 44px;
     border: 1px solid var(--color-border);
     border-radius: 2px;
     background: var(--color-surface);
@@ -158,15 +160,17 @@ input[type="checkbox"] {
 label:has(> input[type="checkbox"]),
 .checkbox-label {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start; // multi-line consent texts keep the box on the first line
     gap: var(--space-2);
     font-weight: 400;
+    line-height: 1.5;
     cursor: pointer;
     user-select: none;
 
     input[type="checkbox"] {
+        flex-shrink: 0;
         width: 1.25rem;
-        margin: 0;
+        margin: 0.0625rem 0 0;
     }
 }
 

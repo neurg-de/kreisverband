@@ -131,3 +131,24 @@ function gk_shortcode_team_carousel( $atts ) {
     return gk_render_team_carousel( $atts );
 }
 add_shortcode( 'team_carousel', 'gk_shortcode_team_carousel' );
+
+/**
+ * Initials for a neutral photo placeholder ("Anna Beispiel" → "AB").
+ *
+ * @param string $name Display name.
+ * @return string
+ */
+function gk_person_initials( $name ) {
+    $words = preg_split( '/\s+/u', trim( wp_strip_all_tags( (string) $name ) ), -1, PREG_SPLIT_NO_EMPTY );
+    // Skip titles ("Dr.") and lowercase particles ("von", "de") when real name parts exist.
+    $names    = array_values( array_filter( $words, static fn( $word ) => (bool) preg_match( '/^\p{Lu}/u', $word ) && '.' !== mb_substr( $word, -1 ) ) );
+    $words    = $names ? $names : array_values( array_filter( $words, static fn( $word ) => (bool) preg_match( '/^\p{L}/u', $word ) && '.' !== mb_substr( $word, -1 ) ) );
+    $initials = '';
+    if ( $words ) {
+        $initials .= mb_substr( $words[0], 0, 1 );
+        if ( count( $words ) > 1 ) {
+            $initials .= mb_substr( end( $words ), 0, 1 );
+        }
+    }
+    return mb_strtoupper( $initials );
+}

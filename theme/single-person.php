@@ -50,6 +50,7 @@ $has_content = trim( get_the_content() ) !== '';
 
 ?>
 
+<main id="main">
 <article id="post-<?php the_ID(); ?>" <?php post_class( 'gk-profile' ); ?>>
 
     <?php // ── Hero section: photo + identity ──────────────────────────────── ?>
@@ -174,5 +175,6 @@ $has_content = trim( get_the_content() ) !== '';
     <?php endif; ?>
 
 </article>
+</main>
 
 <?php get_footer(); ?>

@@ -79,7 +79,8 @@
         border-radius: var(--radius-full);
         font-size: 0.85rem;
         font-weight: 600;
-        white-space: nowrap;
+        max-width: 100%;
+        overflow-wrap: anywhere;
 
         // Header is always dark — force white for both spans and links.
         &, &:visited, &:hover {
@@ -133,6 +134,7 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.6rem 1.2rem;
+        min-height: 44px;
         background: var(--color-surface);
         border-radius: var(--radius-full);
         text-decoration: none;
@@ -258,6 +260,11 @@
 
         .gk-social-links {
             justify-content: center;
+
+            a {
+                flex: 1 1 auto;
+                justify-content: center;
+            }
         }
 
         &__body {

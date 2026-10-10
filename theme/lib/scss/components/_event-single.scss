@@ -9,8 +9,10 @@
 // ==========================================================================
 
 // --- Back navigation bar ---
+// Header area is always dark (like the hero): pin tanne so white text keeps
+// its contrast in dark mode, where --color-primary turns light green.
 .gk-event-single__back {
-    background: var(--color-primary);
+    background: var(--tanne-600);
     padding: var(--space-3) 0;
 
     &-link {
@@ -31,7 +33,7 @@
 
 // --- Header ---
 .gk-event-single__header {
-    background: var(--color-primary);
+    background: var(--tanne-600);
     padding: var(--space-6) 0 var(--space-12);
     position: relative;
     overflow: hidden;
@@ -219,7 +221,7 @@
     margin-top: var(--space-2);
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--color-primary);
+    color: var(--color-link);
     text-decoration: none;
 
     &:hover {

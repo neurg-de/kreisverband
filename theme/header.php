@@ -25,7 +25,8 @@ language_attributes(); ?> class="no-js">
 <?php
     // Determine OV context via zuordnung taxonomy.
     global $post;
-    $gk_archive = gk_ov_news_context();
+    $gk_archive = gk_ov_subpage_context();
+    $gk_archive = $gk_archive ? $gk_archive : gk_ov_news_context();
     $gk_ov_slug = $gk_archive ? $gk_archive['term']->slug : ( isset( $post ) ? gk_public_post_zuordnung_slug( $post->ID ) : '' );
     $gk_is_ov   = '' !== $gk_ov_slug && 'kreisverband' !== $gk_ov_slug;
 
@@ -39,10 +40,9 @@ if ( $gk_is_ov ) {
 <body <?php body_class( $gk_is_ov ? 'gk-ov-context' : '' ); ?>>
     
     <nav class="gk-skip-links" aria-label="Sprungmarken"><ul>
-        <li><a href="#content" class="gk-skip-link">Direkt zum Inhalt</a></li>
-        <li><a href="#hauptmenue" class="gk-skip-link">Zur Navigation</a></li>
-        <li><a href="#sidebar1" class="gk-skip-link">Seitenleiste</a></li>
-        <li><a href="#footer" class="gk-skip-link">Fussbereich</a></li>
+        <li><a href="#main" class="gk-skip-link">Direkt zum Inhalt</a></li>
+        <li><a href="#hauptmenue" class="gk-skip-link gk-skip-link--desktop">Zur Navigation</a></li>
+        <li><a href="#footer" class="gk-skip-link">Zum Fußbereich</a></li>
     </ul></nav>
     <style>
         .gk-skip-links { position: absolute; }
@@ -56,6 +56,7 @@ if ( $gk_is_ov ) {
             overflow: hidden;
             z-index: 100000;
         }
+        @media (max-width: 767px) { .gk-skip-link--desktop { display: none; } }
         .gk-skip-link:focus {
             position: fixed;
             top: 6px;
@@ -90,16 +91,16 @@ if ( $gk_is_ov ) {
                 <?php if ( file_exists( GK_DIR . '/lib/images/logo_small.png' ) ) : ?>
                     <img src="<?php echo esc_url( GK_IMAGE_DIR . 'logo_small.png' ); ?>" width="500" height="500" alt="<?php bloginfo( 'name' ); ?>" />
                 <?php endif; ?>
-                <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : esc_html( get_bloginfo( 'name' ) ); ?></h2>
+                <span class="gk-site-name"><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : esc_html( get_bloginfo( 'name' ) ); ?></span>
             </a>
-            <a class="switch-menu" href="#nav-mobile" role="button" aria-expanded="false" aria-label="Menü öffnen"><span class="fa fa-bars" aria-hidden="true"></span><span class="hidden">Menu</span></a>
+            <a class="switch-menu" href="#nav-mobile" role="button" aria-expanded="false" aria-controls="nav-mobile" aria-label="Menü öffnen"><span class="fa fa-bars" aria-hidden="true"></span></a>
         </section>
     </header>
 
     <!-- mobile menu -->
-    <div id="nav-mobile">
+    <div id="nav-mobile" aria-label="Menü">
         <div class="nav-mobile-view">
-            <a class="switch-menu" href="#header" role="button" aria-expanded="true" aria-label="Menü schliessen"><span class="fa fa-times" aria-hidden="true"></span>Menu schliessen</a>
+            <a class="switch-menu" href="#header" role="button"><span class="fa fa-times" aria-hidden="true"></span> Menü schließen</a>
             <div class="logo">
                 <?php if ( $gk_is_ov ) : ?>
                     <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="kv-back" title="<?php echo esc_attr( 'Zur Hauptseite: ' . gk_association_label() ); ?>"><?php echo esc_html( gk_association_label( 'primary', 'abbreviation' ) ); ?></a>
@@ -108,7 +109,7 @@ if ( $gk_is_ov ) {
                     <?php if ( file_exists( GK_DIR . '/lib/images/logo_small.png' ) ) : ?>
                         <img src="<?php echo esc_url( GK_IMAGE_DIR . 'logo_small.png' ); ?>" width="500" height="500" alt="<?php bloginfo( 'name' ); ?>" />
                     <?php endif; ?>
-                    <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : esc_html( get_bloginfo( 'name' ) ); ?></h2>
+                    <span class="gk-site-name"><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : esc_html( get_bloginfo( 'name' ) ); ?></span>
                 </a>
                 <span class="clearfix"></span>
             </div>
@@ -116,10 +117,10 @@ if ( $gk_is_ov ) {
             <?php get_search_form(); ?>
 
             <?php if ( $gk_is_ov ) : ?>
-                <nav role="navigation" class="ov"><?php gk_ov_navi( $gk_ov_slug ); ?></nav>
+                <nav class="ov" aria-label="Ortsverbandsmenü"><?php gk_ov_navi( $gk_ov_slug ); ?></nav>
             <?php endif; ?>
 
-            <nav role="navigation" class="kv"><h6 class="unsichtbar">Hauptmenue:</h6><?php gk_nav_mobile(); ?></nav>
+            <nav class="kv" aria-label="Hauptmenü"><?php gk_nav_mobile(); ?></nav>
         </div>
         <div class="mobile-overlay"></div>
     </div>
@@ -134,10 +135,10 @@ if ( $gk_is_ov ) {
                 <?php if ( file_exists( GK_DIR . '/lib/images/logo_small.png' ) ) : ?>
                     <img src="<?php echo esc_url( GK_IMAGE_DIR . 'logo_small.png' ); ?>" width="500" height="500" alt="<?php bloginfo( 'name' ); ?>" />
                 <?php endif; ?>
-                <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : esc_html( get_bloginfo( 'name' ) ); ?></h2>
+                <span class="gk-site-name"><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : esc_html( get_bloginfo( 'name' ) ); ?></span>
             </a>
         </div>
-        <nav role="navigation" class="nav-main"><h6 class="unsichtbar">Hauptmenue:</h6>
+        <nav class="nav-main" aria-label="Hauptmenü">
             <?php
             if ( $gk_is_ov ) {
 				gk_nav_ov( $gk_ov_slug ); }
@@ -148,7 +149,7 @@ if ( $gk_is_ov ) {
 
     <!-- normal desktop menu -->
     <div class="nav-wrap inner" id="nav-desktop">
-        <nav role="navigation" class="nav-main" id="hauptmenue"><h6 class="unsichtbar">Hauptmenue:</h6>
+        <nav class="nav-main" id="hauptmenue" aria-label="Hauptmenü">
             <?php if ( $gk_is_ov ) : ?>
                 <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="kv-back" title="<?php echo esc_attr( 'Zur Hauptseite: ' . gk_association_label() ); ?>"><?php echo esc_html( gk_association_label( 'primary', 'abbreviation' ) ); ?></a>
             <?php endif; ?>
@@ -156,7 +157,7 @@ if ( $gk_is_ov ) {
                 <?php if ( file_exists( GK_DIR . '/lib/images/logo_small.png' ) ) : ?>
                     <img src="<?php echo esc_url( GK_IMAGE_DIR . 'logo_small.png' ); ?>" width="500" height="500" alt="<?php bloginfo( 'name' ); ?>" />
                 <?php endif; ?>
-                <h2><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : esc_html( get_bloginfo( 'name' ) ); ?></h2>
+                <span class="gk-site-name"><?php echo $gk_is_ov ? esc_html( $gk_ov_header ) : esc_html( get_bloginfo( 'name' ) ); ?></span>
             </a>
             <?php
             if ( $gk_is_ov ) {
@@ -169,7 +170,7 @@ if ( $gk_is_ov ) {
     <!-- search desktop (below nav) -->
     <div class="search-desktop" id="suche"><div class="inner">
         <?php get_search_form(); ?>
-        <a href="#header" aria-label="Suche schliessen"><i class="fa fa-times" aria-hidden="true"></i> Suche schliessen</a>
+        <a href="#header"><i class="fa fa-times" aria-hidden="true"></i> Suche schließen</a>
     </div></div>
 
     <?php gk_context_social_bar(); ?>

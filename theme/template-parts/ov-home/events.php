@@ -11,7 +11,7 @@ if ( $show_events ) :
 			'post_type'      => 'gk_event',
 			'post_status'    => 'publish',
 			'has_password'   => false,
-			'posts_per_page' => 5,
+			'posts_per_page' => isset( $events_limit ) ? (int) $events_limit : 5,
 			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required taxonomy/date constraints preserve the configured content scope; WordPress caches these queries.
 			'meta_key'       => 'gk_event_start_date',
 			'orderby'        => 'meta_value',
@@ -83,6 +83,10 @@ if ( $show_events ) :
 			wp_reset_postdata();
 			?>
         </div>
+        <?php $ov_termine_url = $ov_term ? gk_ov_subpage_url( $ov_term->term_id, 'termine' ) : ''; ?>
+        <?php if ( $ov_termine_url ) : ?>
+        <p class="gk-events__more"><a href="<?php echo esc_url( $ov_termine_url ); ?>" class="gk-btn gk-btn--primary"><?php esc_html_e( 'Alle Termine', 'neurg-kreisverband' ); ?></a></p>
+        <?php endif; ?>
     </div>
 </section>
 		<?php

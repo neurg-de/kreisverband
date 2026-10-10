@@ -24,9 +24,23 @@
 
     .logolink {
         padding: var(--nav-bar-padding-y) 0;
+        flex: 1 1 auto;
+        min-width: 0;
 
         img {
             height: var(--nav-bar-logo-height-mobile);
+        }
+
+        // Long association names wrap to two lines instead of pushing the menu button off-screen.
+        .gk-site-name {
+            min-width: 0;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.3; // room for umlaut dots under the line clamp
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
     }
 
@@ -43,6 +57,7 @@
     align-items: center;
     justify-content: center;
     margin-left: auto;
+    flex-shrink: 0;
     min-width: 44px;
     min-height: 44px;
     cursor: pointer;

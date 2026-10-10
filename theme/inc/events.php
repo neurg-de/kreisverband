@@ -301,7 +301,7 @@ function gk_event_details_cb( $post ) {
     </tr>
     <tr>
         <th><label for="gk_event_location">Ort</label></th>
-        <td><input type="text" name="gk_event_location" id="gk_event_location" value="<?php echo esc_attr( $location ); ?>" class="regular-text" /><br><span class="description">z.B. "Rathaus Starnberg"</span></td>
+        <td><input type="text" name="gk_event_location" id="gk_event_location" value="<?php echo esc_attr( $location ); ?>" class="regular-text" /><br><span class="description">z.B. "Rathaus Musterstadt"</span></td>
         <th><label for="gk_event_address">Adresse</label></th>
         <td><input type="text" name="gk_event_address" id="gk_event_address" value="<?php echo esc_attr( $address ); ?>" class="regular-text" /><br><span class="description">Strasse, PLZ Ort</span></td>
     </tr>

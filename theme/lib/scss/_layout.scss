@@ -2,6 +2,28 @@
 // Container & Grid
 // ==========================================================================
 
+// Sticky footer: short pages keep the footer at the bottom of the viewport.
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    > * {
+        flex-shrink: 0;
+    }
+
+    > .inner {
+        width: 100%;
+    }
+
+    // The last content block absorbs spare height, so no strip of page
+    // background shows between it and the footer.
+    > :has(+ .site-footer) {
+        flex-grow: 1;
+    }
+}
+
 .inner {
     max-width: 1200px;
     margin: 0 auto;

@@ -19,6 +19,7 @@
         align-items: center;
         gap: 0.4rem;
         padding: 0.5rem 1rem;
+        min-height: 44px;
         background: var(--color-surface);
         border-radius: var(--radius-full);
         text-decoration: none;
@@ -35,6 +36,11 @@
             transform: translateY(-2px);
         }
 
+        &:focus-visible {
+            outline: 2px solid var(--color-info);
+            outline-offset: 2px;
+        }
+
         i {
             font-size: 1rem;
             width: 1.1em;
@@ -49,6 +55,9 @@
 
         a {
             padding: 0.35rem 0.75rem;
+            min-height: 40px;
+            min-width: 40px;
+            justify-content: center;
             font-size: 0.8rem;
             box-shadow: none;
 
@@ -102,11 +111,11 @@
 // Footer variant: collapse to big icon-only circles on mobile
 @media (max-width: 639px) {
     .gk-social-links--footer {
-        gap: var(--space-3);
+        gap: var(--space-2);
 
         a {
-            width: 3.5rem;
-            height: 3.5rem;
+            width: 3rem;
+            height: 3rem;
             padding: 0;
             justify-content: center;
             border-radius: var(--radius-full);
@@ -154,4 +163,49 @@
         }
     }
   }
+}
+
+// ==========================================================================
+// Component: Share buttons (single posts)
+// ==========================================================================
+
+.gk-social-share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-8);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+
+    .share-label {
+        font-weight: 700;
+        font-size: 0.875rem;
+        color: var(--color-text-muted);
+        margin-right: var(--space-2);
+    }
+
+    a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-full);
+        background: var(--color-bg);
+        color: var(--color-primary);
+        font-size: 1.125rem;
+        text-decoration: none;
+        transition: background-color 0.2s, color 0.2s;
+
+        &:hover {
+            background: var(--color-cta);
+            color: var(--color-on-cta);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-info);
+            outline-offset: 2px;
+        }
+    }
 }
