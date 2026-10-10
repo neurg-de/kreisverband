@@ -29,7 +29,7 @@ function gk_ov_subpage_types() {
  * Subpage settings of one OV, normalized.
  *
  * @param int $term_id OV ID.
- * @return array{termine: bool, mitmachen: bool, label_termine: string, label_mitmachen: string, mitmachen_text: string}
+ * @return array{termine: bool, mitmachen: bool, label_termine: string, label_mitmachen: string, mitmachen_text: string, menu_first: bool}
  */
 function gk_ov_subpage_config( $term_id ) {
     $config = gk_ov_home_config( $term_id );
@@ -39,6 +39,7 @@ function gk_ov_subpage_config( $term_id ) {
         $result[ 'label_' . $type ] = '' !== $config[ 'label_' . $type ] ? $config[ 'label_' . $type ] : $label;
     }
     $result['mitmachen_text'] = $config['mitmachen_text'];
+    $result['menu_first']     = $config['menu_first'];
     return $result;
 }
 
@@ -131,6 +132,7 @@ add_action(
  */
 function gk_ov_subpage_query_vars( $vars ) {
     $vars[] = 'gk_ov_page';
+    $vars[] = 'gk_ov_rubric_path';
     return $vars;
 }
 add_filter( 'query_vars', 'gk_ov_subpage_query_vars' );
@@ -149,8 +151,14 @@ function gk_ov_subpage_rewrite_rules() {
             'index.php?gk_ov_page=$matches[1]&gk_ov_context=' . rawurlencode( $slug ),
             'top'
         );
+        // Readable rubric archives: /{ov-homepage}/rubrik/{rubric}/.
+        add_rewrite_rule(
+            '^' . preg_quote( $path, '#' ) . '/rubrik/([^/]+)/?$',
+            'index.php?gk_ov_news=1&gk_ov_context=' . rawurlencode( $slug ) . '&gk_ov_rubric=$matches[1]&gk_ov_rubric_path=1',
+            'top'
+        );
     }
-    $signature = md5( (string) wp_json_encode( $paths ) );
+    $signature = md5( 'v2' . wp_json_encode( $paths ) );
     if ( get_option( 'gk_ov_subpage_rules' ) !== $signature ) {
         update_option( 'gk_ov_subpage_rules', $signature, true );
         add_action(
@@ -191,6 +199,50 @@ function gk_ov_subpage_request( $vars ) {
     return $vars;
 }
 add_filter( 'request', 'gk_ov_subpage_request' );
+
+/**
+ * Short rubric slug in URLs: area rubrics are stored as "{ov-slug}-{name}";
+ * the readable route omits the repeated area prefix.
+ *
+ * @param WP_Term $term     OV term.
+ * @param WP_Term $category Owned category.
+ * @return string
+ */
+function gk_ov_rubric_url_slug( $term, $category ) {
+    $prefix = $term->slug . '-';
+    return 0 === strpos( $category->slug, $prefix ) && strlen( $category->slug ) > strlen( $prefix ) ? substr( $category->slug, strlen( $prefix ) ) : $category->slug;
+}
+
+/**
+ * Resolve the readable rubric route: a real page at the path wins, the short
+ * slug is expanded back to the stored category slug.
+ *
+ * @param array $vars Parsed request.
+ * @return array
+ */
+function gk_ov_rubric_request( $vars ) {
+    if ( empty( $vars['gk_ov_rubric_path'] ) || empty( $vars['gk_ov_rubric'] ) || ! is_string( $vars['gk_ov_rubric'] ) ) {
+        return $vars;
+    }
+    unset( $vars['gk_ov_rubric_path'] );
+    $term = isset( $vars['gk_ov_context'] ) && is_string( $vars['gk_ov_context'] ) ? gk_get_ov_term( sanitize_title( $vars['gk_ov_context'] ) ) : null;
+    $home = $term ? gk_get_ov_public_homepage_id( $term->term_id ) : 0;
+    if ( ! $home ) {
+        return $vars;
+    }
+    $short = sanitize_title( $vars['gk_ov_rubric'] );
+    $path  = get_page_uri( $home ) . '/rubrik/' . $short;
+    $page  = get_page_by_path( $path, OBJECT, 'page' );
+    if ( $page && 'publish' === $page->post_status ) {
+        return array( 'pagename' => $path );
+    }
+    $prefixed = get_term_by( 'slug', $term->slug . '-' . $short, 'category' );
+    if ( $prefixed && gk_ov_owned_category_ids( $term->term_id, array( $prefixed->term_id ) ) ) {
+        $vars['gk_ov_rubric'] = $prefixed->slug;
+    }
+    return $vars;
+}
+add_filter( 'request', 'gk_ov_rubric_request' );
 
 /**
  * Validated subpage context for the current request.
@@ -350,7 +402,11 @@ function gk_ov_subpage_nav_items( $items, $args ) {
         return $items;
     }
     $term = gk_get_ov_term( substr( $location, 4 ) );
-    return $term ? $items . gk_ov_subpage_menu_html( $term ) : $items;
+    if ( ! $term ) {
+        return $items;
+    }
+    $auto = gk_ov_subpage_menu_html( $term );
+    return gk_ov_subpage_config( $term->term_id )['menu_first'] ? $auto . $items : $items . $auto;
 }
 add_filter( 'wp_nav_menu_items', 'gk_ov_subpage_nav_items', 10, 2 );
 
@@ -456,6 +512,7 @@ function gk_ov_subpage_rest_routes() {
                     'label_termine'   => array( 'type' => 'string' ),
                     'label_mitmachen' => array( 'type' => 'string' ),
                     'mitmachen_text'  => array( 'type' => 'string' ),
+                    'menu_first'      => array( 'type' => 'boolean' ),
                 ),
             ),
         )
@@ -526,6 +583,9 @@ function gk_ov_subpage_rest_update( $request ) {
         if ( null !== $request[ 'label_' . $type ] ) {
             $raw[ 'label_' . $type ] = sanitize_text_field( $request[ 'label_' . $type ] );
         }
+    }
+    if ( null !== $request['menu_first'] ) {
+        $raw['menu_first'] = $request['menu_first'] ? '1' : '0';
     }
     if ( null !== $request['mitmachen_text'] ) {
         $raw['mitmachen_text'] = sanitize_textarea_field( $request['mitmachen_text'] );

@@ -305,6 +305,7 @@ function gk_ov_save_home( $term_id, $input ) {
         'team_order'      => gk_ov_valid_order( $input['team_order'] ?? array(), $groups ),
         'menu_termine'    => empty( $input['menu_termine'] ) ? '0' : '1',
         'menu_mitmachen'  => empty( $input['menu_mitmachen'] ) ? '0' : '1',
+        'menu_first'      => empty( $input['menu_first'] ) ? '0' : '1',
         'label_termine'   => is_string( $input['label_termine'] ?? null ) ? sanitize_text_field( $input['label_termine'] ) : '',
         'label_mitmachen' => is_string( $input['label_mitmachen'] ?? null ) ? sanitize_text_field( $input['label_mitmachen'] ) : '',
         'mitmachen_text'  => is_string( $input['mitmachen_text'] ?? null ) ? sanitize_textarea_field( $input['mitmachen_text'] ) : '',
@@ -484,6 +485,7 @@ function gk_ov_editor_page() {
 			?>
             <br><code><?php echo esc_html( trailingslashit( $home_url ) . 'mitmachen/' ); ?></code><?php endif; ?></p>
         <p><label for="gk-label-mitmachen"><?php esc_html_e( 'Menütext (leer: Mitmachen)', 'neurg-kreisverband' ); ?></label><br><input id="gk-label-mitmachen" name="label_mitmachen" value="<?php echo esc_attr( $config['label_mitmachen'] ); ?>"></p>
+        <p><label><input type="checkbox" name="menu_first" value="1" <?php checked( $config['menu_first'] ); ?>> <?php esc_html_e( 'Diese Einträge an den Anfang des Bereichsmenüs stellen (sonst ans Ende)', 'neurg-kreisverband' ); ?></label></p>
         <p><label for="gk-mitmachen-text"><?php esc_html_e( 'Eigener Hinweis auf der Mitmachen-Seite, z. B. Treffpunkt und Rhythmus (optional)', 'neurg-kreisverband' ); ?></label><br><textarea class="large-text" rows="4" id="gk-mitmachen-text" name="mitmachen_text"><?php echo esc_textarea( $config['mitmachen_text'] ); ?></textarea></p>
         <h2><?php esc_html_e( 'Team-Gruppen', 'neurg-kreisverband' ); ?></h2>
         <?php gk_ov_order_controls( 'team_order', $groups ); ?>

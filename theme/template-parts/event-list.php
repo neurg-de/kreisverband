@@ -8,12 +8,14 @@
  *     @type WP_Query $events Event query.
  *     @type string   $scope     Area slug for the iCal link ('' = all).
  *     @type bool     $show_area Show the area badge on each event.
+ *     @type string   $empty_text Message when no events match.
  * }
  */
 
 $events            = $args['events'];
 $current_zuordnung = $args['scope'] ?? '';
 $show_area         = $args['show_area'] ?? true;
+$empty_text        = $args['empty_text'] ?? '';
 ?>
 <?php
 if ( $events->have_posts() ) :
@@ -78,7 +80,7 @@ if ( $events->have_posts() ) :
 
 <?php else : ?>
             <div class="gk-events__empty">
-                <p>Aktuell keine kommenden Termine.</p>
+                <p><?php echo esc_html( $empty_text ? $empty_text : 'Aktuell keine kommenden Termine.' ); ?></p>
                 <a href="<?php echo esc_url( gk_event_ical_url( $current_zuordnung ) ); ?>" class="gk-btn gk-btn--primary gk-btn--sm">
                     iCal abonnieren
                 </a>

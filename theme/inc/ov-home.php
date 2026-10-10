@@ -50,6 +50,7 @@ function gk_ov_home_config( $term_id ) {
         // Own subpages (inc/ov-subpages.php); off by default for compatibility.
         'menu_termine'    => isset( $raw['menu_termine'] ) && '1' === $raw['menu_termine'],
         'menu_mitmachen'  => isset( $raw['menu_mitmachen'] ) && '1' === $raw['menu_mitmachen'],
+        'menu_first'      => isset( $raw['menu_first'] ) && '1' === $raw['menu_first'],
         'label_termine'   => is_string( $raw['label_termine'] ?? null ) ? $raw['label_termine'] : '',
         'label_mitmachen' => is_string( $raw['label_mitmachen'] ?? null ) ? $raw['label_mitmachen'] : '',
         'mitmachen_text'  => is_string( $raw['mitmachen_text'] ?? null ) ? $raw['mitmachen_text'] : '',
@@ -187,6 +188,10 @@ function gk_ov_news_url( $term_id, $category = 0 ) {
     $cat = $category ? get_term( $category, 'category' ) : null;
     if ( $category && ( ! $cat instanceof WP_Term || ! gk_ov_owned_category_ids( $term_id, array( $category ) ) ) ) {
         return '';
+    }
+    // Readable rubric URL with pretty permalinks; query URLs keep working.
+    if ( $cat && get_option( 'permalink_structure' ) && function_exists( 'gk_ov_rubric_url_slug' ) ) {
+        return home_url( user_trailingslashit( get_page_uri( gk_get_ov_public_homepage_id( $term_id ) ) . '/rubrik/' . gk_ov_rubric_url_slug( $term, $cat ) ) );
     }
     $vars = array(
 		'gk_ov_news'    => '1',

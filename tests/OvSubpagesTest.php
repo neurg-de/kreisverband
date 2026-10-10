@@ -152,4 +152,29 @@ class OvSubpagesTest extends WP_UnitTestCase {
         $this->assertSame( 'E', gk_person_initials( 'Elvira' ) );
         $this->assertSame( '', gk_person_initials( '   ' ) );
     }
+
+    public function test_readable_rubric_url_resolves_to_the_owned_category() {
+        wp_set_current_user( $this->admin );
+        $category = gk_ov_save_category( $this->ov, 'Aus dem Rat' );
+        $this->assertSame( 'ov-sub-a-aus-dem-rat', get_term( $category )->slug );
+        $this->assertSame( home_url( '/ov-beispiel/rubrik/aus-dem-rat/' ), gk_ov_news_url( $this->ov, $category ) );
+        $vars = gk_ov_rubric_request( array( 'gk_ov_news' => '1', 'gk_ov_context' => 'ov-sub-a', 'gk_ov_rubric' => 'aus-dem-rat', 'gk_ov_rubric_path' => '1' ) );
+        $this->assertSame( 'ov-sub-a-aus-dem-rat', $vars['gk_ov_rubric'] );
+        $this->assertArrayNotHasKey( 'gk_ov_rubric_path', $vars );
+
+        self::factory()->post->create( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_name' => 'rubrik', 'post_parent' => $this->home ) );
+        $parent = get_page_by_path( 'ov-beispiel/rubrik' );
+        self::factory()->post->create( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_name' => 'aus-dem-rat', 'post_parent' => $parent->ID ) );
+        $vars = gk_ov_rubric_request( array( 'gk_ov_news' => '1', 'gk_ov_context' => 'ov-sub-a', 'gk_ov_rubric' => 'aus-dem-rat', 'gk_ov_rubric_path' => '1' ) );
+        $this->assertSame( array( 'pagename' => 'ov-beispiel/rubrik/aus-dem-rat' ), $vars, 'A real page at the same path wins.' );
+    }
+
+    public function test_menu_entries_can_be_placed_first() {
+        update_term_meta( $this->ov, '_gk_home_editor', array( 'menu_termine' => '1', 'menu_first' => '1' ) );
+        $html = gk_ov_subpage_nav_items( '<li>Bestehend</li>', (object) array( 'theme_location' => 'nav-ov-sub-a' ) );
+        $this->assertStringStartsWith( '<li class="menu-item', $html );
+        update_term_meta( $this->ov, '_gk_home_editor', array( 'menu_termine' => '1' ) );
+        $html = gk_ov_subpage_nav_items( '<li>Bestehend</li>', (object) array( 'theme_location' => 'nav-ov-sub-a' ) );
+        $this->assertStringStartsWith( '<li>Bestehend</li>', $html );
+    }
 }

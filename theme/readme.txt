@@ -52,6 +52,12 @@ Keine. Alle Funktionen (Events, SEO, Kontaktformular, Cookie-Consent) sind im Th
 
 == Changelog ==
 
+= 0.11.1 =
+* Kürzere Rubrikadressen unterhalb der Bereichsstartseite (/{bereich}/rubrik/{rubrik}/); bestehende Query-Links bleiben gültig, echte Seiten behalten Vorrang.
+* Bereichs-Termine-Seite mit Ansicht der vergangenen Termine.
+* Automatische Bereichsmenü-Einträge wahlweise am Anfang des Menüs.
+* Größere Tippfläche für den Zurück-Link zum Hauptverband.
+
 = 0.11.0 =
 * Eigene Termine- und Mitmachen-Seiten im Untergliederungsbereich mit lokalen Kontakt- und Social-Links; pro Bereich aktivierbar, bestehende Seiten behalten Vorrang.
 * Automatische Bereichsmenü-Einträge mit konfigurierbaren Labels sowie REST-Zugriff auf die neuen Einstellungen.

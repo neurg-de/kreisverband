@@ -573,6 +573,7 @@ body.gk-ov-context nav.nav-main > ul:not(.nav-ov) > li:not(.suche):not(.cta) {
     text-decoration: none;
     flex-shrink: 0;
     line-height: 1;
+    min-height: 44px; // touch target
     transition: opacity 0.15s;
 
     &::before {

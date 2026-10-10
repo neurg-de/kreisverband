@@ -644,7 +644,12 @@ function gk_ov_navi( $ov_slug ) {
         return;
     }
 
+    $first = $term && '' !== $extra && gk_ov_subpage_config( $term->term_id )['menu_first'];
     echo '<ul class="ovnavi">' . "\n";
+    if ( $first ) {
+        echo $extra; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built from escaped parts in gk_ov_subpage_menu_html().
+        $extra = '';
+    }
     if ( ! empty( $pages ) ) {
         wp_list_pages(
             array(
