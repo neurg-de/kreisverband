@@ -114,6 +114,7 @@
     font-size: 0.8125rem;
     line-height: 1.6;
     padding: 0.375rem 1rem;
+    min-height: 40px;
 }
 
 // --- PRIMARY (filled) ---
@@ -236,6 +237,15 @@
 .gk-btn--filter.gk-btn--sm {
     font-size: 0.8125rem;
     padding: 0.375rem 1rem;
+    min-height: 40px;
+}
+
+// Touch devices: small buttons still get a 44px hit area (WCAG 2.5.5).
+@media (pointer: coarse) {
+    .gk-btn--sm,
+    .gk-btn--filter.gk-btn--sm {
+        min-height: 44px;
+    }
 }
 
 // --- WordPress block-editor buttons ---
@@ -293,7 +303,7 @@
 
 @media (prefers-color-scheme: dark) {
   body:not(.no-dark-mode) {
-    .gk-btn,
+    .gk-btn:not(.gk-btn--filter):not(.gk-btn--icon-only),
     .gk-btn--primary,
     .morebutton,
     .more-link {
@@ -304,6 +314,12 @@
             background-color: var(--color-cta);
             color: var(--color-on-cta);
         }
+    }
+
+    // Outline chips: light text keeps small labels above 4.5:1 on dark surfaces.
+    .gk-btn--filter:not(.is-active):not(:hover):not(:active) {
+        color: var(--color-text);
+        fill: var(--color-text);
     }
 
     .wp-block-button__link {
@@ -320,7 +336,7 @@
 
 // Light-mode class overrides
 body.design-grundlagen2024.light-mode {
-    .gk-btn,
+    .gk-btn:not(.gk-btn--filter):not(.gk-btn--icon-only),
     .gk-btn--primary,
     .morebutton,
     .more-link {

@@ -296,13 +296,18 @@ function gk_ov_save_home( $term_id, $input ) {
     $shown  = array_intersect( is_array( $input['visible'] ?? null ) ? $input['visible'] : array(), $keys );
     $groups = array_keys( gk_ov_team_groups( $term_id ) );
     $config = array(
-        'show_text'  => empty( $input['show_text'] ) ? '0' : '1',
-        'show_label' => empty( $input['show_label'] ) ? '0' : '1',
-        'title'      => is_string( $input['title'] ?? null ) ? sanitize_text_field( $input['title'] ) : '',
-        'news_count' => max( 3, min( 20, is_scalar( $input['news_count'] ?? null ) ? (int) $input['news_count'] : 6 ) ),
-        'archive'    => empty( $input['archive'] ) ? '0' : '1',
-        'excluded'   => gk_ov_owned_category_ids( $term_id, $input['excluded'] ?? array() ),
-        'team_order' => gk_ov_valid_order( $input['team_order'] ?? array(), $groups ),
+        'show_text'       => empty( $input['show_text'] ) ? '0' : '1',
+        'show_label'      => empty( $input['show_label'] ) ? '0' : '1',
+        'title'           => is_string( $input['title'] ?? null ) ? sanitize_text_field( $input['title'] ) : '',
+        'news_count'      => max( 3, min( 20, is_scalar( $input['news_count'] ?? null ) ? (int) $input['news_count'] : 6 ) ),
+        'archive'         => empty( $input['archive'] ) ? '0' : '1',
+        'excluded'        => gk_ov_owned_category_ids( $term_id, $input['excluded'] ?? array() ),
+        'team_order'      => gk_ov_valid_order( $input['team_order'] ?? array(), $groups ),
+        'menu_termine'    => empty( $input['menu_termine'] ) ? '0' : '1',
+        'menu_mitmachen'  => empty( $input['menu_mitmachen'] ) ? '0' : '1',
+        'label_termine'   => is_string( $input['label_termine'] ?? null ) ? sanitize_text_field( $input['label_termine'] ) : '',
+        'label_mitmachen' => is_string( $input['label_mitmachen'] ?? null ) ? sanitize_text_field( $input['label_mitmachen'] ) : '',
+        'mitmachen_text'  => is_string( $input['mitmachen_text'] ?? null ) ? sanitize_textarea_field( $input['mitmachen_text'] ) : '',
     );
     update_term_meta( $term_id, '_gk_home_editor', $config );
     update_term_meta(
@@ -394,8 +399,10 @@ function gk_ov_editor_page() {
         check_admin_referer( 'gk_ov_home_' . $term_id );
         $action = isset( $_POST['gk_action'] ) ? sanitize_key( wp_unslash( $_POST['gk_action'] ) ) : '';
         if ( 'home' === $action ) {
-            $input  = map_deep( wp_unslash( $_POST ), 'sanitize_text_field' );
-            $result = gk_ov_save_home( $term_id, $input );
+            $input = map_deep( wp_unslash( $_POST ), 'sanitize_text_field' );
+            // Keep line breaks of the free-text block; it is sanitized again on save.
+            $input['mitmachen_text'] = isset( $_POST['mitmachen_text'] ) && is_string( $_POST['mitmachen_text'] ) ? sanitize_textarea_field( wp_unslash( $_POST['mitmachen_text'] ) ) : '';
+            $result                  = gk_ov_save_home( $term_id, $input );
         } elseif ( 'category' === $action ) {
             $result = gk_ov_save_category( $term_id, sanitize_text_field( wp_unslash( $_POST['rubric_name'] ?? '' ) ), absint( $_POST['rubric_id'] ?? 0 ) );
         } elseif ( 'menu' === $action ) {
@@ -439,12 +446,45 @@ function gk_ov_editor_page() {
         <p><?php esc_html_e( 'Im Standardmodus gibt es kein zusätzliches Typ-Label. Kopfzeile und Menü bleiben eigenständig. Das Bild bleibt im Seiteneditor beziehungsweise in den bisherigen Verband-Einstellungen pflegbar.', 'neurg-kreisverband' ); ?></p>
         <h2><?php esc_html_e( 'Aktuelles', 'neurg-kreisverband' ); ?></h2>
         <p><label for="gk-count"><?php esc_html_e( 'Anzahl der Beiträge (3 bis 20)', 'neurg-kreisverband' ); ?></label> <input type="number" id="gk-count" name="news_count" min="3" max="20" value="<?php echo esc_attr( $config['news_count'] ); ?>"></p>
+        <?php
+        $available = count(
+            get_posts(
+                array_merge(
+                    gk_ov_news_args( $term_id ),
+                    array(
+						'posts_per_page' => 20,
+						'fields'         => 'ids',
+						'paged'          => 1,
+                    )
+                )
+            )
+        );
+        if ( $available < $config['news_count'] ) :
+			?>
+        <p class="description"><?php echo esc_html( sprintf( /* translators: 1: available posts, 2: configured count */ __( 'Hinweis: Für Aktuelles sind derzeit nur %1$d von %2$d Beiträgen vorhanden. Die Startseite zeigt alle vorhandenen an.', 'neurg-kreisverband' ), $available, $config['news_count'] ) ); ?></p>
+        <?php endif; ?>
         <p><label><input type="checkbox" name="archive" value="1" <?php checked( $config['archive'] || ! metadata_exists( 'term', $term_id, '_gk_home_editor' ) ); ?>> <?php esc_html_e( 'Link „Alle Beiträge“ anzeigen', 'neurg-kreisverband' ); ?></label></p>
         <fieldset><legend><?php esc_html_e( 'Diese Rubriken aus Aktuelles ausblenden (im Archiv bleiben sie sichtbar)', 'neurg-kreisverband' ); ?></legend>
         <?php foreach ( $cats as $cat ) : ?>
         <p><label><input type="checkbox" name="excluded[]" value="<?php echo esc_attr( $cat->term_id ); ?>" <?php checked( in_array( (int) $cat->term_id, $config['excluded'], true ) ); ?>> <?php echo esc_html( $cat->name ); ?></label></p>
         <?php endforeach; ?>
         </fieldset>
+        <h2><?php esc_html_e( 'Eigene Seiten im Bereichsmenü', 'neurg-kreisverband' ); ?></h2>
+        <p><?php esc_html_e( 'Erzeugt eigene Seiten im Bereich, ohne dass Seiten angelegt werden müssen. Die Einträge erscheinen am Ende des Bereichsmenüs. Gleichnamige Einträge des Hauptmenüs blendet das Theme hier aus, wenn die Administration sie mit der CSS-Klasse gk-kv-termine bzw. gk-kv-mitmachen markiert hat.', 'neurg-kreisverband' ); ?></p>
+        <?php $home_url = get_permalink( gk_get_ov_public_homepage_id( $term_id ) ); ?>
+        <p><label><input type="checkbox" name="menu_termine" value="1" <?php checked( $config['menu_termine'] ); ?>> <?php esc_html_e( 'Seite „Termine“ anzeigen (nur Termine dieses Bereichs)', 'neurg-kreisverband' ); ?></label>
+        <?php
+        if ( $home_url ) :
+			?>
+            <br><code><?php echo esc_html( trailingslashit( $home_url ) . 'termine/' ); ?></code><?php endif; ?></p>
+        <p><label for="gk-label-termine"><?php esc_html_e( 'Menütext (leer: Termine)', 'neurg-kreisverband' ); ?></label><br><input id="gk-label-termine" name="label_termine" value="<?php echo esc_attr( $config['label_termine'] ); ?>"></p>
+        <p><label><input type="checkbox" name="menu_mitmachen" value="1" <?php checked( $config['menu_mitmachen'] ); ?>> <?php esc_html_e( 'Seite „Mitmachen“ anzeigen (Werde aktiv, nächste Termine, Kontakt dieses Bereichs)', 'neurg-kreisverband' ); ?></label>
+        <?php
+        if ( $home_url ) :
+			?>
+            <br><code><?php echo esc_html( trailingslashit( $home_url ) . 'mitmachen/' ); ?></code><?php endif; ?></p>
+        <p><label for="gk-label-mitmachen"><?php esc_html_e( 'Menütext (leer: Mitmachen)', 'neurg-kreisverband' ); ?></label><br><input id="gk-label-mitmachen" name="label_mitmachen" value="<?php echo esc_attr( $config['label_mitmachen'] ); ?>"></p>
+        <p><label for="gk-mitmachen-text"><?php esc_html_e( 'Eigener Hinweis auf der Mitmachen-Seite, z. B. Treffpunkt und Rhythmus (optional)', 'neurg-kreisverband' ); ?></label><br><textarea class="large-text" rows="4" id="gk-mitmachen-text" name="mitmachen_text"><?php echo esc_textarea( $config['mitmachen_text'] ); ?></textarea></p>
         <h2><?php esc_html_e( 'Team-Gruppen', 'neurg-kreisverband' ); ?></h2>
         <?php gk_ov_order_controls( 'team_order', $groups ); ?>
         <p><?php esc_html_e( 'Die Positionen und Funktionen der Personen innerhalb einer Gruppe bleiben erhalten. Neue Gruppen erscheinen nach den gespeicherten Gruppen.', 'neurg-kreisverband' ); ?></p>

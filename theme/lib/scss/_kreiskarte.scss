@@ -28,14 +28,18 @@ input.gk-ov-search {
     padding: .75rem 1rem .75rem 2.75rem;
     border: 2px solid var(--color-border);
     border-radius: var(--radius-full);
-    font-size: .95rem;
+    font-size: 1rem; // ≥16px prevents iOS zoom-on-focus
     font-family: inherit;
     background: var(--color-surface);
-    transition: border-color .2s;
+    color: var(--color-text);
+    transition: border-color .2s, box-shadow .2s;
     outline: none;
     box-sizing: border-box;
 
-    &:focus { border-color: var(--color-primary); }
+    &:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px var(--color-info);
+    }
 }
 
 .gk-ov-search-icon {
@@ -113,6 +117,11 @@ button.gk-ov-toggle {
     transition: all .15s ease;
     cursor: pointer;
 
+    &:focus-visible {
+        outline: 2px solid var(--color-info);
+        outline-offset: 2px;
+    }
+
     &:hover,
     &:focus {
         background: var(--color-primary);
@@ -124,10 +133,15 @@ button.gk-ov-toggle {
         .gk-ov-chip__arrow { color: var(--color-text-inverse); }
     }
 
+    // Not yet linked: readable, but visibly not interactive (dashed, muted).
     &--inactive {
-        opacity: .5;
         cursor: default;
         pointer-events: none;
+        border-style: dashed;
+        color: var(--color-text-muted);
+        background: transparent;
+
+        .gk-ov-chip__arrow { display: none; }
     }
 
     &__arrow {
@@ -137,7 +151,7 @@ button.gk-ov-toggle {
     }
 
     &__badge {
-        font-size: .7rem;
+        font-size: .75rem;
         font-weight: 400;
         background: var(--color-bg-light);
         color: var(--color-text-muted);
@@ -163,6 +177,21 @@ button.gk-ov-toggle {
     .kreiskarte {
         width: 100%;
         height: auto;
+    }
+
+    // Tall districts must not push the rest of the page several screens down;
+    // the SVG letterboxes inside the capped box (preserveAspectRatio meet).
+    .kreiskarte > svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-height: min(80vh, 760px);
+    }
+
+    .gk-map-attribution {
+        margin: var(--space-2) 0 0;
+        text-align: center;
+        font-size: 0.8125rem;
     }
 }
 

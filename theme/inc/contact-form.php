@@ -42,7 +42,7 @@ function gk_contact_privacy_url() {
  * @return string
  */
 function gk_shortcode_kontaktformular( $atts ) {
-	$atts        = shortcode_atts(
+	$atts       = shortcode_atts(
         array(
 			'empfaenger' => '',
 			'betreff'    => '',
@@ -50,15 +50,26 @@ function gk_shortcode_kontaktformular( $atts ) {
         ),
         $atts
     );
-	$newsletter  = (bool) $atts['newsletter'];
-	$mode        = $newsletter ? 'newsletter' : 'contact';
-	$recipient   = $atts['empfaenger'] ? $atts['empfaenger'] : gk_get_kv_info( 'email' );
-	$recipient   = $recipient ? $recipient : get_option( 'admin_email' );
-	$recipient   = $newsletter ? 'info@gruene-starnberg.de' : $recipient;
-	$privacy_url = gk_contact_privacy_url();
-	$errors      = array();
-	$success     = false;
-	$submitted   = '1' === gk_contact_value( 'gk_contact_submit' ) && gk_contact_value( 'gk_contact_form_id' ) === $mode;
+	$newsletter = (bool) $atts['newsletter'];
+	$mode       = $newsletter ? 'newsletter' : 'contact';
+	// Only configured public addresses are named in the form; admin_email stays a silent fallback.
+	$public_recipient = $atts['empfaenger'] ? $atts['empfaenger'] : gk_get_kv_info( 'email' );
+	if ( $newsletter ) {
+		$newsletter_email = gk_validate_public_email( gk_get_kv_info( 'newsletter_email' ) );
+		$public_recipient = $newsletter_email ? $newsletter_email : $public_recipient;
+		/**
+		 * Filter the address that receives newsletter interest requests.
+		 *
+		 * @param string $recipient Configured newsletter recipient, else the KV email.
+		 */
+		$public_recipient = (string) apply_filters( 'gk_newsletter_recipient', $public_recipient );
+	}
+	$public_recipient = is_email( $public_recipient ) ? $public_recipient : '';
+	$recipient        = $public_recipient ? $public_recipient : get_option( 'admin_email' );
+	$privacy_url      = gk_contact_privacy_url();
+	$errors           = array();
+	$success          = false;
+	$submitted        = '1' === gk_contact_value( 'gk_contact_submit' ) && gk_contact_value( 'gk_contact_form_id' ) === $mode;
 	// Bind a submission to this configured form; multiple shortcodes may share a page.
 	$target = wp_hash( $mode . '|' . $recipient . '|' . $atts['betreff'] );
 	if ( $submitted && ! hash_equals( $target, gk_contact_value( 'gk_contact_target' ) ) ) {
@@ -147,14 +158,23 @@ function gk_shortcode_kontaktformular( $atts ) {
 		<input type="hidden" name="gk_contact_target" value="<?php echo esc_attr( $target ); ?>" />
 		<div hidden aria-hidden="true"><label><?php esc_html_e( 'Bitte leer lassen', 'neurg-kreisverband' ); ?><input type="text" name="gk_website_url" tabindex="-1" autocomplete="off" /></label></div>
 		<?php if ( ! $newsletter ) : ?>
-		<p class="gk-field"><label for="<?php echo esc_attr( $id ); ?>name"><?php esc_html_e( 'Name *', 'neurg-kreisverband' ); ?></label><input id="<?php echo esc_attr( $id ); ?>name" name="gk_contact_name" value="<?php echo esc_attr( $name ); ?>" maxlength="200" autocomplete="name" required /></p>
+		<p class="gk-field"><label for="<?php echo esc_attr( $id ); ?>name"><?php esc_html_e( 'Name *', 'neurg-kreisverband' ); ?></label><input type="text" id="<?php echo esc_attr( $id ); ?>name" name="gk_contact_name" value="<?php echo esc_attr( $name ); ?>" maxlength="200" autocomplete="name" required /></p>
 		<?php endif; ?>
 		<p class="gk-field"><label for="<?php echo esc_attr( $id ); ?>email"><?php esc_html_e( 'E-Mail *', 'neurg-kreisverband' ); ?></label><input type="email" id="<?php echo esc_attr( $id ); ?>email" name="gk_contact_email" value="<?php echo esc_attr( $email ); ?>" maxlength="254" autocomplete="email" required /></p>
 		<?php if ( ! $newsletter ) : ?>
-		<p class="gk-field"><label for="<?php echo esc_attr( $id ); ?>subject"><?php esc_html_e( 'Betreff', 'neurg-kreisverband' ); ?></label><input id="<?php echo esc_attr( $id ); ?>subject" name="gk_contact_subject" value="<?php echo esc_attr( $subject ); ?>" maxlength="200" /></p>
+		<p class="gk-field"><label for="<?php echo esc_attr( $id ); ?>subject"><?php esc_html_e( 'Betreff', 'neurg-kreisverband' ); ?></label><input type="text" id="<?php echo esc_attr( $id ); ?>subject" name="gk_contact_subject" value="<?php echo esc_attr( $subject ); ?>" maxlength="200" /></p>
 		<p class="gk-field"><label for="<?php echo esc_attr( $id ); ?>message"><?php esc_html_e( 'Nachricht *', 'neurg-kreisverband' ); ?></label><textarea id="<?php echo esc_attr( $id ); ?>message" name="gk_contact_message" rows="6" maxlength="10000" required><?php echo esc_textarea( $body ); ?></textarea></p>
 		<?php else : ?>
-		<p><?php esc_html_e( 'Wir übermitteln deine E-Mail-Adresse an info@gruene-starnberg.de. Die Geschäftsstelle prüft deine Anfrage und bestätigt mit dir die Aufnahme. Das Formular trägt dich nicht automatisch in einen Verteiler ein.', 'neurg-kreisverband' ); ?></p>
+		<p>
+			<?php
+			if ( $public_recipient ) {
+				/* translators: %s: recipient email address */
+				echo esc_html( sprintf( __( 'Wir übermitteln deine E-Mail-Adresse an %s. Die Geschäftsstelle prüft deine Anfrage und bestätigt mit dir die Aufnahme. Das Formular trägt dich nicht automatisch in einen Verteiler ein.', 'neurg-kreisverband' ), $public_recipient ) );
+			} else {
+				esc_html_e( 'Wir übermitteln deine E-Mail-Adresse an die Geschäftsstelle. Sie prüft deine Anfrage und bestätigt mit dir die Aufnahme. Das Formular trägt dich nicht automatisch in einen Verteiler ein.', 'neurg-kreisverband' );
+			}
+			?>
+		</p>
 		<p><label><input type="checkbox" name="gk_contact_newsletter" value="1" required /> <?php esc_html_e( 'Ich möchte zum Newsletter kontaktiert werden und willige in die Übermittlung meiner E-Mail-Adresse an die Geschäftsstelle zu diesem Zweck ein. Diese Einwilligung kann ich dort jederzeit widerrufen. *', 'neurg-kreisverband' ); ?></label></p>
 		<?php endif; ?>
 		<p><label><input type="checkbox" name="gk_contact_privacy" value="1" required /> <?php esc_html_e( 'Ich habe den Datenschutzhinweis gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung dieser Anfrage zu. *', 'neurg-kreisverband' ); ?></label>

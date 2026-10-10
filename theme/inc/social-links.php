@@ -30,14 +30,14 @@ function gk_social_platforms() {
         'instagram' => array(
             'label'   => 'Instagram',
             'icon'    => 'fab fa-instagram',
-            'color'   => '#E4405F',
+            'color'   => '#D62E5C',
             'base'    => 'https://www.instagram.com/%s',
             'extract' => '#instagram\.com/([^/?]+)#i',
         ),
         'facebook'  => array(
             'label'   => 'Facebook',
             'icon'    => 'fab fa-facebook-f',
-            'color'   => '#1877F2',
+            'color'   => '#0866FF',
             'base'    => 'https://www.facebook.com/%s',
             'extract' => '#facebook\.com/([^/?]+)#i',
         ),
@@ -65,21 +65,21 @@ function gk_social_platforms() {
         'bluesky'   => array(
             'label'   => 'Bluesky',
             'icon'    => 'fab fa-bluesky',
-            'color'   => '#0085FF',
+            'color'   => '#1366D6',
             'base'    => 'https://bsky.app/profile/%s',
             'extract' => '#bsky\.app/profile/([^/?]+)#i',
         ),
         'mastodon'  => array(
             'label'   => 'Mastodon',
             'icon'    => 'fab fa-mastodon',
-            'color'   => '#6364FF',
+            'color'   => '#563ACC',
             'base'    => '',   // Mastodon URLs are instance-specific, stored as full URL.
             'extract' => '',
         ),
         'youtube'   => array(
             'label'   => 'YouTube',
             'icon'    => 'fab fa-youtube',
-            'color'   => '#FF0000',
+            'color'   => '#CC0000',
             'base'    => 'https://www.youtube.com/%s',
             'extract' => '#youtube\.com/(?:@|channel/|c/)?([^/?]+)#i',
         ),

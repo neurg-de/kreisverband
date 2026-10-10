@@ -117,7 +117,7 @@
 						value: meta.gk_event_location || '',
 						onChange: function ( v ) {
 							setMeta( 'gk_event_location', v ); },
-						help: 'z.B. "Rathaus Starnberg"',
+						help: 'z.B. "Rathaus Musterstadt"',
                     }
                 ),
                 el(

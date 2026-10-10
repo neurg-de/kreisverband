@@ -29,7 +29,10 @@ function gk_person_affiliation_label( $post_id ) {
  * @return string
  */
 function gk_public_post_zuordnung_slug( $post_id ) {
-    $archive = gk_ov_news_context();
+    $archive = function_exists( 'gk_ov_subpage_context' ) ? gk_ov_subpage_context() : null;
+    if ( ! $archive ) {
+        $archive = gk_ov_news_context();
+    }
     if ( $archive ) {
         return $archive['term']->slug;
     }

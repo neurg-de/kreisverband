@@ -27,6 +27,7 @@
 			var keyboardFocus = false;
 			var visible       = false;
 			var resumeAt      = 0;
+			var fits          = false;
 			var timer;
 			var interval = 6000;
 
@@ -44,10 +45,14 @@
                     }
                 ).filter( Boolean );
 				status.textContent = shown.length ? shown[0] + '–' + shown[shown.length - 1] + ' von ' + cards.length : cards.length + ' Mitglieder';
+				// When the whole group is visible, paging and autoplay only duplicate the tabs.
+				fits              = row.scrollWidth <= row.clientWidth + 2;
+				navigation.hidden = expanded || fits;
+				schedule();
 			}
 
 			function canRun() {
-				return ! expanded && ! paused && ! keyboardFocus && visible && ! document.hidden;
+				return ! expanded && ! fits && ! paused && ! keyboardFocus && visible && ! document.hidden;
 			}
 
 			function schedule() {

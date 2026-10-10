@@ -29,7 +29,8 @@ class ContactFormTest extends WP_UnitTestCase {
     private function submit( $newsletter = false ) {
         $GLOBALS['gk_contact_processed'] = array();
         $mode = $newsletter ? 'newsletter' : 'contact';
-        $recipient = $newsletter ? 'info@gruene-starnberg.de' : ( gk_get_kv_info( 'email' ) ?: get_option( 'admin_email' ) );
+        $recipient = $newsletter ? apply_filters( 'gk_newsletter_recipient', gk_get_kv_info( 'newsletter_email' ) ?: gk_get_kv_info( 'email' ) ) : gk_get_kv_info( 'email' );
+        $recipient = is_email( $recipient ) ? $recipient : get_option( 'admin_email' );
         $_POST = array(
             'gk_contact_submit' => '1',
             'gk_contact_form_id' => $mode,
@@ -58,12 +59,30 @@ class ContactFormTest extends WP_UnitTestCase {
     }
 
     public function test_newsletter_sends_only_interest_to_fixed_recipient() {
+        $filter = function () {
+            return 'newsletter@example.org';
+        };
+        add_filter( 'gk_newsletter_recipient', $filter );
         $this->submit( true );
         $_POST['empfaenger'] = 'attacker@example.org';
         $html = do_shortcode( '[newsletter_anfrage]' );
+        remove_filter( 'gk_newsletter_recipient', $filter );
         $this->assertCount( 1, $this->mails );
-        $this->assertSame( 'info@gruene-starnberg.de', $this->mails[0]['to'] );
+        $this->assertSame( 'newsletter@example.org', $this->mails[0]['to'] );
+        $this->assertStringNotContainsString( 'attacker@example.org', $html );
         $this->assertStringContainsString( 'noch kein Abonnement', $html );
+    }
+
+    public function test_newsletter_uses_configured_recipient_setting() {
+        update_option( 'gk_kv_info', array( 'email' => 'kontakt@example.org', 'newsletter_email' => 'newsletter@example.org' ) );
+        $this->submit( true );
+        $html = do_shortcode( '[newsletter_anfrage]' );
+        $this->assertCount( 1, $this->mails );
+        $this->assertSame( 'newsletter@example.org', $this->mails[0]['to'] );
+        $this->submit();
+        $_POST['gk_contact_newsletter'] = '';
+        do_shortcode( '[kontaktformular]' );
+        $this->assertSame( 'kontakt@example.org', $this->mails[1]['to'] );
     }
 
     public function test_missing_nonce_honeypot_and_array_input_do_not_send() {

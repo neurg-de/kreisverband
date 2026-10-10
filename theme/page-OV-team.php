@@ -75,6 +75,7 @@ uksort(
 );
 ?>
 
+<main id="main">
 <section id="content" class="gk-ov-team-page">
 <div class="inner">
 
@@ -153,5 +154,6 @@ uksort(
 
 </div>
 </section>
+</main>
 
 <?php get_footer(); ?>

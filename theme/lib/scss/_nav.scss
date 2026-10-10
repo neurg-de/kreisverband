@@ -27,13 +27,14 @@
     text-decoration: none;
 }
 
-.logolink h2,
-.logo-desktop h2 {
+.logolink .gk-site-name,
+.logo-desktop .gk-site-name {
     display: inline-block;
     color: var(--color-primary) !important;
     font-size: var(--nav-bar-logo-font);
     font-family: var(--font-heading);
     font-weight: 700;
+    line-height: 1.25;
     vertical-align: middle;
     padding: 0;
     margin: 0;
@@ -168,8 +169,13 @@ nav.nav-main {
                 > a:hover,
                 &.current-menu-item > a {
                     background-color: var(--color-cta);
-                    color: var(--color-text);
-                    fill: var(--color-text);
+                    color: var(--color-on-cta);
+                    fill: var(--color-on-cta);
+                }
+
+                > a:focus-visible {
+                    outline: 2px solid var(--color-info);
+                    outline-offset: 2px;
                 }
 
                 li a {
@@ -187,7 +193,9 @@ nav.nav-main {
                 color: var(--color-text-muted);
                 font-size: 0;
                 position: relative;
-                padding: var(--space-3) var(--space-2);
+                padding: var(--space-3);
+                min-width: 44px;
+                text-align: center;
 
                 &::before {
                     content: '';
@@ -394,11 +402,22 @@ nav.nav-main > .nav-fallback > ul > li.gk-nav-hidden {
     width: 85%;
     max-width: 360px;
     height: 100vh;
+    height: 100dvh;
     z-index: 1000;
-    transition: left 0.3s ease;
+    // Hidden drawer must leave the tab order; visibility flips after the slide-out.
+    visibility: hidden;
+    transition: left 0.3s ease, visibility 0s linear 0.3s;
     overflow: hidden;
 
-    &.is-open { left: 0; }
+    &.is-open {
+        left: 0;
+        visibility: visible;
+        transition: left 0.3s ease, visibility 0s;
+    }
+}
+
+body.nav-open {
+    overflow: hidden;
 }
 
 .nav-mobile-view {
@@ -408,11 +427,20 @@ nav.nav-main > .nav-fallback > ul > li.gk-nav-hidden {
     padding: var(--space-4);
 
     .switch-menu {
-        display: block;
-        text-align: right;
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--space-2);
         margin-bottom: var(--space-4);
         font-size: 1rem;
+        font-weight: 700;
         color: var(--color-text-inverse);
+
+        &:hover { color: var(--color-cta); }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-text-inverse);
+            outline-offset: 2px;
+        }
     }
 
     .logo {
@@ -425,7 +453,14 @@ nav.nav-main > .nav-fallback > ul > li.gk-nav-hidden {
             margin: 0 auto var(--space-2);
         }
 
-        h2 {
+        // Beats the shared `.logolink .gk-site-name` brand colour (green on green here).
+        .logolink .gk-site-name {
+            color: var(--color-text-inverse) !important;
+            white-space: normal;
+        }
+
+        .gk-site-name {
+            display: block;
             font-family: var(--font-heading);
             font-weight: 700;
             color: var(--color-text-inverse);
@@ -442,7 +477,7 @@ nav.nav-main > .nav-fallback > ul > li.gk-nav-hidden {
             a {
                 display: block;
                 color: var(--color-text-inverse);
-                padding: var(--space-2) 0;
+                padding: var(--space-3) 0;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.15);
                 font-family: var(--font-body);
                 font-weight: 700;
@@ -481,9 +516,10 @@ nav.nav-main > .nav-fallback > ul > li.gk-nav-hidden {
         background: rgba(255, 255, 255, 0.1);
         color: var(--color-text-inverse);
         border-radius: var(--radius-sm);
-        font-size: 0.9375rem;
+        font-size: 1rem; // ≥16px prevents iOS zoom-on-focus
+        min-width: 0;
 
-        &::placeholder { color: rgba(255, 255, 255, 0.5); }
+        &::placeholder { color: rgba(255, 255, 255, 0.7); }
     }
 
     .button-submit {
@@ -497,7 +533,7 @@ nav.nav-main > .nav-fallback > ul > li.gk-nav-hidden {
 
         &:hover {
             background: var(--color-cta);
-            color: var(--color-text);
+            color: var(--color-on-cta);
         }
     }
 }

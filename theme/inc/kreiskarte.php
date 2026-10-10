@@ -2,7 +2,7 @@
 /**
  * Kreiskarte (District Map) Component
  *
- * Renders an interactive SVG map of Landkreis Starnberg.
+ * Renders an interactive SVG map of the configured district.
  * Bundled polygons are defaults; edited map data is stored in a WordPress option.
  * Links are resolved dynamically from gk_zuordnung taxonomy terms.
  *

@@ -32,36 +32,36 @@ function gk_social_share( $echo = true ) { // phpcs:ignore Universal.NamingConve
     ob_start();
     ?>
     <div class="gk-social-share">
-        <span class="share-label">Teilen:</span>
+        <span class="share-label">Teilen</span>
 
         <a href="<?php echo esc_url( 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( $raw_url ) ); ?>"
             target="_blank" rel="noopener noreferrer" class="share-facebook" title="Auf Facebook teilen">
-            <span class="fa fa-facebook" aria-hidden="true"></span>
-            <span class="sr-only">Facebook</span>
+            <span class="fa-brands fa-facebook-f" aria-hidden="true"></span>
+            <span class="sr-only">Auf Facebook teilen</span>
         </a>
 
         <a href="<?php echo esc_url( 'https://x.com/intent/post?url=' . rawurlencode( $raw_url ) . '&text=' . rawurlencode( $title ) ); ?>"
             target="_blank" rel="noopener noreferrer" class="share-x" title="Auf X teilen">
-            <span class="fab fa-x-twitter" aria-hidden="true"></span>
-            <span class="sr-only">X</span>
+            <span class="fa-brands fa-x-twitter" aria-hidden="true"></span>
+            <span class="sr-only">Auf X teilen</span>
         </a>
 
         <a href="<?php echo esc_url( 'https://bsky.app/intent/compose?text=' . rawurlencode( $title . ' ' . $raw_url ) ); ?>"
             target="_blank" rel="noopener noreferrer" class="share-bluesky" title="Auf Bluesky teilen">
-            <span aria-hidden="true">&#x1F58A;</span>
-            <span class="sr-only">Bluesky</span>
+            <span class="fa-brands fa-bluesky" aria-hidden="true"></span>
+            <span class="sr-only">Auf Bluesky teilen</span>
         </a>
 
         <a href="<?php echo esc_url( 'https://wa.me/?text=' . rawurlencode( $title . ' ' . $raw_url ) ); ?>"
             target="_blank" rel="noopener noreferrer" class="share-whatsapp" title="Per WhatsApp teilen">
-            <span class="fa fa-whatsapp" aria-hidden="true"></span>
-            <span class="sr-only">WhatsApp</span>
+            <span class="fa-brands fa-whatsapp" aria-hidden="true"></span>
+            <span class="sr-only">Per WhatsApp teilen</span>
         </a>
 
         <a href="<?php echo esc_url( 'mailto:?subject=' . rawurlencode( $title ) . '&body=' . rawurlencode( $raw_excerpt . "\n\n" . $raw_url ) ); ?>"
             class="share-email" title="Per E-Mail teilen">
-            <span class="fa fa-envelope" aria-hidden="true"></span>
-            <span class="sr-only">E-Mail</span>
+            <span class="fa-solid fa-envelope" aria-hidden="true"></span>
+            <span class="sr-only">Per E-Mail teilen</span>
         </a>
     </div>
     <?php

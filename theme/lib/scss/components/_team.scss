@@ -22,6 +22,8 @@
         font-size: 0.9rem;
         font-weight: 700;
         padding: 0.5rem 1.25rem;
+        min-height: 44px;
+        min-width: 44px;
         border-radius: var(--radius-full);
         cursor: pointer;
         transition: all 0.25s ease;
@@ -79,11 +81,20 @@
         }
     }
 
+    // No photo: neutral tile with the person's initials.
     &__placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 100%;
         height: 100%;
-        color: var(--color-text);
+        font-family: var(--font-heading);
+        font-size: clamp(2rem, 8vw, 3rem);
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: var(--color-primary);
         background: var(--color-bg-light);
+        user-select: none;
     }
 
     &__card:hover &__photo img {

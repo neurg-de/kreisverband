@@ -109,7 +109,7 @@
         &.current_page_item > a,
         &.current_page_ancestor > a {
             background: var(--color-bg-light);
-            color: var(--color-primary);
+            color: var(--color-link);
         }
 
         // Child pages
@@ -135,7 +135,7 @@
                 }
 
                 &.current_page_item > a {
-                    color: var(--color-primary);
+                    color: var(--color-link);
                     font-weight: 700;
                 }
 
@@ -161,7 +161,7 @@
                     }
 
                     > li.current_page_item > a {
-                        color: var(--color-primary);
+                        color: var(--color-link);
                         font-weight: 700;
                     }
                 }

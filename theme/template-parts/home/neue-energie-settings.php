@@ -241,7 +241,7 @@ function gk_home_neue_energie_render( $s ) {
                     <input type="text" name="<?php echo esc_attr( $prefix ); ?>[candidate_role]"
                             value="<?php echo esc_attr( $s['candidate_role'] ?? '' ); ?>"
                             class="large-text"
-                            placeholder="z.B. Direktkandidatin für den Wahlkreis Starnberg" />
+                            placeholder="z.B. Direktkandidatin für den Wahlkreis Musterstadt" />
                 </td>
             </tr>
             <tr>

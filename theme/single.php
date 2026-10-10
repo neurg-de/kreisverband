@@ -42,7 +42,6 @@ get_header(); ?>
                 </section>
 
                 <footer class="article-footer">
-                    <?php gk_social_share(); ?>
                     <p class="tags"><?php the_tags( '<span class="tags-title">Tags:</span> ', ', ', '' ); ?></p>
                 </footer>
 

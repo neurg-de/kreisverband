@@ -137,6 +137,7 @@ function gk_sanitize_kv_info( $input ) {
         'short_name'       => sanitize_text_field( $input['short_name'] ?? '' ),
         'address'          => sanitize_textarea_field( $input['address'] ?? '' ),
         'email'            => gk_validate_public_email( $input['email'] ?? '' ),
+        'newsletter_email' => gk_validate_public_email( $input['newsletter_email'] ?? '' ),
         'phone'            => sanitize_text_field( $input['phone'] ?? '' ),
         'website'          => esc_url_raw( $input['website'] ?? '' ),
         'impressum_page'   => gk_public_page_id( $input['impressum_page'] ?? 0 ),
@@ -249,6 +250,7 @@ function gk_setup_page_cb() {
 			'short_name'       => '',
 			'address'          => '',
 			'email'            => '',
+			'newsletter_email' => '',
 			'phone'            => '',
 			'website'          => '',
 			'impressum_page'   => 0,
@@ -312,6 +314,10 @@ function gk_setup_page_cb() {
             <tr>
                 <th><label for="gk_kv_email">E-Mail *</label></th>
                 <td><input type="email" name="gk_kv_info[email]" id="gk_kv_email" value="<?php echo esc_attr( $kv['email'] ); ?>" class="regular-text" required /></td>
+            </tr>
+            <tr>
+                <th><label for="gk_kv_newsletter_email">Newsletter-Empfänger</label></th>
+                <td><input type="email" name="gk_kv_info[newsletter_email]" id="gk_kv_newsletter_email" value="<?php echo esc_attr( $kv['newsletter_email'] ); ?>" class="regular-text" /><br><span class="description">Empfängt Anfragen aus <code>[newsletter_anfrage]</code>. Leer: die E-Mail-Adresse oben.</span></td>
             </tr>
             <tr>
                 <th><label for="gk_kv_phone">Telefon</label></th>

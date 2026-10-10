@@ -20,7 +20,7 @@ $news_query = $args['query'];
                 ?>
             <article class="gk-card <?php echo $featured ? 'gk-card--featured' : ''; ?>">
                 <?php if ( has_post_thumbnail() ) : ?>
-                <a href="<?php the_permalink(); ?>" class="gk-card__thumb"><?php the_post_thumbnail( $featured ? 'large' : 'listenansicht' ); ?></a>
+                <a href="<?php the_permalink(); ?>" class="gk-card__thumb" aria-hidden="true" tabindex="-1"><?php the_post_thumbnail( $featured ? 'large' : 'listenansicht' ); ?></a>
                 <?php endif; ?>
                 <div class="gk-card__body">
                     <time class="gk-card__date" datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>

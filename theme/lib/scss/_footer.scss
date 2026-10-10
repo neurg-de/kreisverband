@@ -3,7 +3,7 @@
 // ==========================================================================
 
 .site-footer {
-    margin-top: var(--space-16);
+    margin-top: auto;
 
     // Footer is always dark — define local semantic overrides
     --footer-bg: var(--tanne-800);
@@ -11,7 +11,7 @@
     --footer-bg-deepest: var(--tanne-950, #001a0e);
     --footer-text: var(--sand-300);
     --footer-text-dim: var(--sand-400);
-    --footer-text-bright: var(--color-text-inverse);
+    --footer-text-bright: #fff;
     --footer-border: var(--tanne-700);
 }
 
@@ -180,7 +180,7 @@
 .neurg-theme-credit {
     font-size: 0.75rem;
     color: var(--footer-text-dim);
-    opacity: 0.6;
+    opacity: 0.85;
     margin: 0;
 
     a {
@@ -213,5 +213,18 @@
 
     .footer-nav .nav-footer {
         justify-content: center;
+    }
+}
+
+// Comfortable touch targets for the small footer links.
+.footer-verbaende-list a,
+.footer-nav .nav-footer a,
+.footer-legal a {
+    display: inline-block;
+    padding-block: var(--space-2);
+
+    &:focus-visible {
+        outline: 2px solid var(--color-cta);
+        outline-offset: 2px;
     }
 }

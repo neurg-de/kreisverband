@@ -12,39 +12,83 @@
     var $mobileNav = $( '#nav-mobile' );
     var $body      = $( 'body' );
     var $hamburger = $( '.switch-menu' );
+    var $opener    = $( '.header-mobile .switch-menu' );
+
+    function setMobileNav(open) {
+        $mobileNav.toggleClass( 'is-open', open );
+        $body.toggleClass( 'nav-open', open );
+        $opener.attr( 'aria-expanded', open ? 'true' : 'false' );
+        if (open) {
+            var $first = $mobileNav.find( '.nav-mobile-view' ).find( 'a, button, input' ).filter( ':visible' ).first();
+            if ($first.length) {
+                $first.focus();
+            }
+        } else {
+            $opener.focus();
+        }
+    }
 
     $hamburger.on(
         'click',
         function (e) {
 			e.preventDefault();
-			var isOpen = $mobileNav.hasClass( 'is-open' );
-			$mobileNav.toggleClass( 'is-open' );
-			$body.toggleClass( 'nav-open' );
-
-			if ( ! isOpen) {
-				// Opening: set aria-expanded and move focus to first link.
-				$hamburger.attr( 'aria-expanded', 'true' );
-				var $firstLink = $mobileNav.find( 'a' ).first();
-				if ($firstLink.length) {
-					$firstLink.focus();
-				}
-			} else {
-				// Closing: set aria-expanded and return focus to hamburger.
-				$hamburger.attr( 'aria-expanded', 'false' );
-				$hamburger.focus();
-			}
+			setMobileNav( ! $mobileNav.hasClass( 'is-open' ) );
 		}
     );
 
     $( '.mobile-overlay' ).on(
         'click',
         function () {
-			$mobileNav.removeClass( 'is-open' );
-			$body.removeClass( 'nav-open' );
-			$hamburger.attr( 'aria-expanded', 'false' );
-			$hamburger.focus();
+			setMobileNav( false );
 		}
     );
+
+    // Escape closes the drawer; Tab cycles inside it while it is open.
+    $( document ).on(
+        'keydown.gkMobileNav',
+        function (e) {
+			if ( ! $mobileNav.hasClass( 'is-open' )) {
+				return;
+			}
+			if (e.key === 'Escape') {
+				setMobileNav( false );
+				return;
+			}
+			if (e.key !== 'Tab') {
+				return;
+			}
+			var $focusable = $mobileNav.find( '.nav-mobile-view' ).find( 'a[href], button, input, select, textarea' ).filter( ':visible' );
+			if ( ! $focusable.length) {
+				return;
+			}
+			var first = $focusable[0];
+			var last  = $focusable[$focusable.length - 1];
+			if (e.shiftKey && document.activeElement === first) {
+				e.preventDefault();
+				last.focus();
+			} else if ( ! e.shiftKey && document.activeElement === last) {
+				e.preventDefault();
+				first.focus();
+			}
+		}
+    );
+
+    // Leaving the mobile layout closes the drawer so no stale scroll lock remains.
+    if (window.matchMedia) {
+        var desktopMq      = window.matchMedia( '(min-width: 768px)' );
+        var onDesktopMatch = function (mq) {
+            if (mq.matches && $mobileNav.hasClass( 'is-open' )) {
+                $mobileNav.removeClass( 'is-open' );
+                $body.removeClass( 'nav-open' );
+                $opener.attr( 'aria-expanded', 'false' );
+            }
+        };
+        if (desktopMq.addEventListener) {
+            desktopMq.addEventListener( 'change', onDesktopMatch );
+        } else if (desktopMq.addListener) {
+            desktopMq.addListener( onDesktopMatch );
+        }
+    }
 
     // ── Priority+ Navigation (overflow → "Mehr" dropdown) ────────────────────
 
@@ -64,7 +108,7 @@
 				// Create "Mehr" list item with dropdown.
 				var moreLi       = document.createElement( 'li' );
 				moreLi.className = 'gk-nav-more';
-				moreLi.innerHTML = '<button aria-expanded="false" aria-haspopup="true">Mehr</button><ul></ul>';
+				moreLi.innerHTML = '<button type="button" aria-expanded="false">Mehr</button><ul></ul>';
 				var moreBtn      = moreLi.querySelector( 'button' );
 				var moreUl       = moreLi.querySelector( 'ul' );
 
@@ -86,6 +130,17 @@
                     function () {
                         moreUl.classList.remove( 'is-open' );
                         moreBtn.setAttribute( 'aria-expanded', 'false' );
+                    }
+				);
+
+				// Close when keyboard focus leaves the dropdown.
+				moreLi.addEventListener(
+                    'focusout',
+                    function (e) {
+                        if ( ! moreLi.contains( e.relatedTarget )) {
+                            moreUl.classList.remove( 'is-open' );
+                            moreBtn.setAttribute( 'aria-expanded', 'false' );
+                        }
                     }
 				);
 
@@ -177,6 +232,7 @@
 						items[i].classList.add( 'gk-nav-hidden' );
 						var clone = items[i].cloneNode( true );
 						clone.classList.remove( 'gk-nav-hidden' );
+						clone.removeAttribute( 'id' );
 						// Flatten: only keep the top-level link, drop submenus.
 						var submenus      = clone.querySelectorAll( 'ul' );
 						var submenusCount = submenus.length;
@@ -238,54 +294,109 @@
 		}
     );
 
+    // ── Context social bar: hide while the footer (same links) is visible ──
+
+    (function () {
+        var bar    = document.querySelector( '.gk-social-bar' );
+        var footer = document.getElementById( 'footer' );
+        if ( ! bar || ! footer || ! ('IntersectionObserver' in window)) {
+            return;
+        }
+        new IntersectionObserver(
+            function (entries) {
+				bar.classList.toggle( 'is-hidden', entries[0].isIntersecting );
+			}
+        ).observe( footer );
+    })();
+
     // ── Back to Top ─────────────────────────────────────────────────────────
 
     $( '.back-to-top' ).on(
         'click',
         function (e) {
 			e.preventDefault();
-			$( 'html, body' ).animate( { scrollTop: 0 }, 400 );
+			$( 'html, body' ).animate( { scrollTop: 0 }, reduceMotion ? 0 : 400 );
 		}
     );
 
     // ── Smooth scroll for anchor links ──────────────────────────────────────
 
-    $( 'a[href^="#"]' ).not( '.gk-lightbox-close, .suche a' ).on(
+    var reduceMotion = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+
+    $( 'a[href^="#"]' ).not( '.gk-lightbox-close, .suche a, .switch-menu, .back-to-top, .search-desktop a' ).on(
         'click',
         function (e) {
-			var target = $( this.getAttribute( 'href' ) );
-			if (target.length) {
-				e.preventDefault();
-				$( 'html, body' ).animate(
-                    {
-						scrollTop: target.offset().top - 60
-                    },
-                    400
-                );
+			var href = this.getAttribute( 'href' );
+			if ( ! href || href === '#' || ! /^#[A-Za-z][\w:.-]*$/.test( href )) {
+				return;
 			}
+			var target = document.getElementById( href.slice( 1 ) );
+			if ( ! target) {
+				return;
+			}
+			e.preventDefault();
+			var focusTarget = function () {
+				if ( ! target.hasAttribute( 'tabindex' ) && ! /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test( target.tagName )) {
+					target.setAttribute( 'tabindex', '-1' );
+				}
+				target.focus( { preventScroll: true } );
+			};
+			if (reduceMotion) {
+				window.scrollTo( 0, $( target ).offset().top - 60 );
+				focusTarget();
+				return;
+			}
+			$( 'html, body' ).stop().animate(
+				{
+					scrollTop: $( target ).offset().top - 60
+				},
+				400,
+				focusTarget
+			);
 		}
     );
 
     // ── Desktop Search Toggle ──────────────────────────────────────────────
 
-    var $searchPanel = $( '.search-desktop' );
-    $( 'li.suche > a, #nav-flyin li.suche > a' ).on(
+    var $searchPanel   = $( '.search-desktop' );
+    var $searchToggles = $( 'li.suche > a' ).attr( { 'aria-expanded': 'false', 'aria-controls': 'suche' } );
+    var $searchTrigger = null;
+    $searchToggles.on(
         'click',
         function (e) {
 			e.preventDefault();
 			$searchPanel.toggleClass( 'is-open' );
-			if ($searchPanel.hasClass( 'is-open' )) {
+			var open = $searchPanel.hasClass( 'is-open' );
+			$searchToggles.attr( 'aria-expanded', open ? 'true' : 'false' );
+			if (open) {
+				$searchTrigger = $( this );
 				$searchPanel.find( '.seachphrase' ).focus();
 			}
 		}
     );
 
-    // Close search when the X link inside is clicked.
+    function closeSearchPanel() {
+        $searchPanel.removeClass( 'is-open' );
+        $searchToggles.attr( 'aria-expanded', 'false' );
+        if ($searchTrigger) {
+            $searchTrigger.focus();
+        }
+    }
+
+    // Close search when the X link inside is clicked, or on Escape.
     $searchPanel.find( 'a[href="#header"]' ).on(
         'click',
         function (e) {
 			e.preventDefault();
-			$searchPanel.removeClass( 'is-open' );
+			closeSearchPanel();
+		}
+    );
+    $searchPanel.on(
+        'keydown',
+        function (e) {
+			if (e.key === 'Escape') {
+				closeSearchPanel();
+			}
 		}
     );
 
@@ -317,7 +428,7 @@
         // Create lightbox overlay.
         var $overlay = $(
             '<div class="gk-lightbox-overlay" style="display:none">' +
-            '<button class="gk-lightbox-close" aria-label="Schliessen">&times;</button>' +
+            '<button class="gk-lightbox-close" aria-label="Schließen">&times;</button>' +
             '<img class="gk-lightbox-img" src="" alt="" />' +
             '<p class="gk-lightbox-caption"></p>' +
             '</div>'
